@@ -103,6 +103,7 @@ Policies require RLS to be enabled on every table, so double-check that `auth.ui
 4. Allow magic-link redirects to `${APP_BASE_URL}/admin/callback` in Supabase Auth settings
 5. Verify your Resend sending domain/domain warmup
 6. Run `npm run build` and deploy the generated adapter output
+7. After adjusting environment variables, trigger a fresh Vercel deploy so the new secrets and code paths are picked up by the serverless runtime.
 
 ## Assumptions
 - Rescue owners are onboarded through the `/onboarding` flow after logging in
