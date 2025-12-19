@@ -8,9 +8,7 @@ const loginSchema = z.object({
 });
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	const {
-		data: { user }
-	} = await locals.supabase.auth.getUser();
+	const user = await locals.getUser();
 
 	if (user) {
 		throw redirect(303, '/admin');

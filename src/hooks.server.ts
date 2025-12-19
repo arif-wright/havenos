@@ -22,6 +22,20 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	event.locals.getUser = async () => {
 		const {
+			data: { session },
+			error: sessionError
+		} = await event.locals.supabase.auth.getSession();
+
+		if (sessionError) {
+			console.error('Failed to retrieve auth session', sessionError);
+			return null;
+		}
+
+		if (!session) {
+			return null;
+		}
+
+		const {
 			data: { user },
 			error
 		} = await event.locals.supabase.auth.getUser();

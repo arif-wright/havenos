@@ -11,12 +11,9 @@ const onboardingSchema = z.object({
 });
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	const {
-		data: { user },
-		error: userError
-	} = await locals.supabase.auth.getUser();
+	const user = await locals.getUser();
 
-	if (userError || !user) {
+	if (!user) {
 		const redirectTo = encodeURIComponent(url.pathname + url.search);
 		throw redirect(303, `/admin/login?redirectTo=${redirectTo}`);
 	}
@@ -35,12 +32,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 export const actions: Actions = {
 	default: async ({ request, locals, url }) => {
-		const {
-			data: { user },
-			error: userError
-		} = await locals.supabase.auth.getUser();
+		const user = await locals.getUser();
 
-		if (userError || !user) {
+		if (!user) {
 			const redirectTo = encodeURIComponent(url.pathname + url.search);
 			throw redirect(303, `/admin/login?redirectTo=${redirectTo}`);
 		}
