@@ -32,7 +32,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		.select('role, rescues(*)')
 		.eq('user_id', user.id)
 		.order('created_at', { ascending: false })
-		.limit(1);
+		.limit(1)
+		.maybeSingle();
 
 	if (error) {
 		console.error('Failed to load current rescue', error);
@@ -41,9 +42,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		return { session, currentRescue: null, currentMemberRole: null };
 	}
 
-	const membership = data?.[0] ?? null;
-	const rescue = membership?.rescues ?? null;
-	const role = membership?.role ?? null;
+	const rescue = data?.rescues ?? null;
+	const role = data?.role ?? null;
 
 	locals.currentRescue = rescue;
 	locals.currentMemberRole = role;
