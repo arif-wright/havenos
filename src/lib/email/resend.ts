@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { APP_BASE_URL, RESEND_API_KEY, RESEND_FROM_EMAIL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { buildAdopterInquiryTemplate, buildRescueNotificationTemplate } from './templates';
 
 type InquiryEmailPayload = {
@@ -20,20 +20,22 @@ type DispatchResult = {
 	skipped: boolean;
 };
 
-const resendClient = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+const resendApiKey = env.RESEND_API_KEY;
+const resendFromEmail = env.RESEND_FROM_EMAIL;
+const appBaseUrl = (env.APP_BASE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+const resendClient = resendApiKey ? new Resend(resendApiKey) : null;
 
 const buildUrls = (animalId: string, inquiryId: string) => {
-	const base = APP_BASE_URL?.replace(/\/$/, '') || '';
 	return {
-		animalUrl: `${base}/animal/${animalId}`,
-		dashboardUrl: `${base}/admin/inquiries/${inquiryId}`
+		animalUrl: `${appBaseUrl}/animal/${animalId}`,
+		dashboardUrl: `${appBaseUrl}/admin/inquiries/${inquiryId}`
 	};
 };
 
 export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promise<DispatchResult> => {
 	const errors: string[] = [];
 
-	if (!resendClient || !RESEND_FROM_EMAIL) {
+	if (!resendClient || !resendFromEmail) {
 		console.warn('Resend credentials missing, skipping transactional emails');
 		return { errors: ['Resend is not configured'], skipped: true };
 	}
@@ -64,7 +66,7 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 
 	try {
 		const result = await resendClient.emails.send({
-			from: RESEND_FROM_EMAIL,
+			from: resendFromEmail,
 			to: payload.adopterEmail,
 			subject: adopterTemplate.subject,
 			html: adopterTemplate.html,
@@ -85,7 +87,7 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 	} else {
 		try {
 			const result = await resendClient.emails.send({
-				from: RESEND_FROM_EMAIL,
+				from: resendFromEmail,
 				to: payload.rescueEmail,
 				subject: rescueTemplate.subject,
 				html: rescueTemplate.html,

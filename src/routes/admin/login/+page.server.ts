@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
-import { APP_BASE_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 const loginSchema = z.object({
 	email: z.string().email('Valid email required')
@@ -18,6 +18,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 export const actions: Actions = {
 	default: async ({ request, locals }) => {
+		const appBaseUrl = (env.APP_BASE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
 		const form = await request.formData();
 		const payload = {
 			email: String(form.get('email') ?? '').trim(),
@@ -33,7 +34,7 @@ export const actions: Actions = {
 			email: parsed.data.email,
 			options: {
 				shouldCreateUser: false,
-				emailRedirectTo: `${APP_BASE_URL.replace(/\/$/, '')}/admin/callback?next=${encodeURIComponent(payload.redirectTo)}`
+				emailRedirectTo: `${appBaseUrl}/admin/callback?next=${encodeURIComponent(payload.redirectTo)}`
 			}
 		});
 
