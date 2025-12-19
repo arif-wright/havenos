@@ -1,6 +1,14 @@
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
+	const session = await locals.getSession();
+
+	if (!session) {
+		locals.currentRescue = null;
+		locals.currentMemberRole = null;
+		return { session: null, currentRescue: null, currentMemberRole: null };
+	}
+
 	const {
 		data: { user },
 		error: userError
@@ -58,10 +66,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	locals.currentRescue = rescue;
 	locals.currentMemberRole = role;
 
-	const session = await locals.getSession();
-
 	return {
-		session: session ?? null,
+		session,
 		currentRescue: rescue,
 		currentMemberRole: role
 	};
