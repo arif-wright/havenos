@@ -1,20 +1,32 @@
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
+	const {
+		data: { user },
+		error: userError
+	} = await locals.supabase.auth.getUser();
+
 	const session = await locals.getSession();
 
-	if (!session) {
+	if (userError) {
+		console.error('Failed to resolve user session', userError);
 		locals.currentRescue = null;
-		return { session: null, currentRescue: null };
+		locals.currentMemberRole = null;
+		return { session: null, currentRescue: null, currentMemberRole: null };
+	}
+
+	if (!user || !session) {
+		locals.currentRescue = null;
+		locals.currentMemberRole = null;
+		return { session: null, currentRescue: null, currentMemberRole: null };
 	}
 
 	const { data, error } = await locals.supabase
 		.from('rescue_members')
 		.select('role, rescues(*)')
-		.eq('user_id', session.user.id)
+		.eq('user_id', user.id)
 		.order('created_at', { ascending: false })
-		.limit(1)
-		.maybeSingle();
+		.limit(1);
 
 	if (error) {
 		console.error('Failed to load current rescue', error);
@@ -23,8 +35,10 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		return { session, currentRescue: null, currentMemberRole: null };
 	}
 
-	const rescue = data?.rescues ?? null;
-	const role = data?.role ?? null;
+	const membership = data?.[0] ?? null;
+	const rescue = membership?.rescues ?? null;
+	const role = membership?.role ?? null;
+
 	locals.currentRescue = rescue;
 	locals.currentMemberRole = role;
 
