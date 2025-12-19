@@ -1,28 +1,27 @@
 import { createServerClient } from '@supabase/auth-helpers-sveltekit';
 import type { Handle } from '@sveltejs/kit';
-import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { env } from '$env/dynamic/private';
 import type { Database } from '$lib/supabase/types';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) {
+	const supabaseUrl = env.PUBLIC_SUPABASE_URL;
+	const supabaseAnonKey = env.PUBLIC_SUPABASE_ANON_KEY;
+
+	if (!supabaseUrl || !supabaseAnonKey) {
 		throw new Error('Supabase environment variables are not configured');
 	}
 
-	event.locals.supabase = createServerClient<Database>(
-		PUBLIC_SUPABASE_URL,
-		PUBLIC_SUPABASE_ANON_KEY,
-		{
-			cookies: {
-				get: (key) => event.cookies.get(key),
-				set: (key, value, options) => {
-					event.cookies.set(key, value, { ...options, path: '/' });
-				},
-				remove: (key, options) => {
-					event.cookies.delete(key, { ...options, path: '/' });
-				}
+	event.locals.supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+		cookies: {
+			get: (key) => event.cookies.get(key),
+			set: (key, value, options) => {
+				event.cookies.set(key, value, { ...options, path: '/' });
+			},
+			remove: (key, options) => {
+				event.cookies.delete(key, { ...options, path: '/' });
 			}
 		}
-	);
+	});
 
 	event.locals.getSession = async () => {
 		const {

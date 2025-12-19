@@ -1,17 +1,19 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
-import { PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { env } from '$env/dynamic/private';
 import type { Database } from '$lib/supabase/types';
 
 let serviceClient: SupabaseClient<Database> | null = null;
 
 export const getServiceSupabase = (): SupabaseClient<Database> => {
-	if (!PUBLIC_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+	const supabaseUrl = env.PUBLIC_SUPABASE_URL;
+	const serviceRole = env.SUPABASE_SERVICE_ROLE_KEY;
+
+	if (!supabaseUrl || !serviceRole) {
 		throw new Error('Missing Supabase service role configuration');
 	}
 
 	if (!serviceClient) {
-		serviceClient = createClient<Database>(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+		serviceClient = createClient<Database>(supabaseUrl, serviceRole, {
 			auth: {
 				autoRefreshToken: false,
 				persistSession: false
