@@ -12,6 +12,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		.from('rescue_members')
 		.select('role, rescues(*)')
 		.eq('user_id', session.user.id)
+		.order('created_at', { ascending: false })
+		.limit(1)
 		.maybeSingle();
 
 	if (error) {
