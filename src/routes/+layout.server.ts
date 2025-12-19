@@ -1,12 +1,18 @@
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
+	const session = await locals.getSession();
+
+	if (!session) {
+		locals.currentRescue = null;
+		locals.currentMemberRole = null;
+		return { session: null, currentRescue: null, currentMemberRole: null };
+	}
+
 	const {
 		data: { user },
 		error: userError
 	} = await locals.supabase.auth.getUser();
-
-	const session = await locals.getSession();
 
 	if (userError) {
 		console.error('Failed to resolve user session', userError);
@@ -15,7 +21,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		return { session: null, currentRescue: null, currentMemberRole: null };
 	}
 
-	if (!user || !session) {
+	if (!user) {
 		locals.currentRescue = null;
 		locals.currentMemberRole = null;
 		return { session: null, currentRescue: null, currentMemberRole: null };
