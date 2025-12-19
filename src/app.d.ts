@@ -8,10 +8,12 @@ declare global {
 			getSession: () => Promise<Session | null>;
 			session: Session | null;
 			currentRescue?: Tables['rescues']['Row'] | null;
+			currentMemberRole?: 'owner' | 'admin' | 'staff' | null;
 		}
 		interface PageData {
 			session: Session | null;
 			currentRescue?: Tables['rescues']['Row'] | null;
+			currentMemberRole?: 'owner' | 'admin' | 'staff' | null;
 			flash?: {
 				type: 'success' | 'error';
 				message: string;

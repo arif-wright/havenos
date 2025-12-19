@@ -9,22 +9,26 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	}
 
 	const { data, error } = await locals.supabase
-		.from('rescue_admins')
-		.select('rescue_id, rescues(*)')
+		.from('rescue_members')
+		.select('role, rescues(*)')
 		.eq('user_id', session.user.id)
 		.maybeSingle();
 
 	if (error) {
 		console.error('Failed to load current rescue', error);
 		locals.currentRescue = null;
-		return { session, currentRescue: null };
+		locals.currentMemberRole = null;
+		return { session, currentRescue: null, currentMemberRole: null };
 	}
 
 	const rescue = data?.rescues ?? null;
+	const role = data?.role ?? null;
 	locals.currentRescue = rescue;
+	locals.currentMemberRole = role;
 
 	return {
 		session,
-		currentRescue: rescue
+		currentRescue: rescue,
+		currentMemberRole: role
 	};
 };

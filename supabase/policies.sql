@@ -8,32 +8,73 @@ alter table inquiries enable row level security;
 -- rescues
 drop policy if exists "Public rescue read" on rescues;
 create policy "Public rescue read" on rescues
-    for select using (true);
+    for select using (auth.role() = 'anon');
 
-drop policy if exists "Admins manage their rescue rows" on rescues;
-create policy "Admins manage their rescue rows" on rescues
+drop policy if exists "Members read their rescue" on rescues;
+create policy "Members read their rescue" on rescues
+    for select using (
+        exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = rescues.id
+              and rm.user_id = auth.uid()
+        )
+    );
+
+drop policy if exists "Members manage their rescue rows" on rescues;
+create policy "Members manage their rescue rows" on rescues
     for update using (
         exists (
-            select 1 from rescue_admins ra
-            where ra.rescue_id = rescues.id
-              and ra.user_id = auth.uid()
+            select 1 from rescue_members rm
+            where rm.rescue_id = rescues.id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
         )
     )
     with check (
         exists (
-            select 1 from rescue_admins ra
-            where ra.rescue_id = rescues.id
-              and ra.user_id = auth.uid()
+            select 1 from rescue_members rm
+            where rm.rescue_id = rescues.id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
         )
     );
 
--- rescue_admins
-drop policy if exists "Admins read own membership" on rescue_admins;
-create policy "Admins read own membership" on rescue_admins
+drop policy if exists "Authenticated users can create rescues" on rescues;
+create policy "Authenticated users can create rescues" on rescues
+    for insert with check (auth.uid() is not null);
+
+-- rescue_members
+alter table rescue_members enable row level security;
+
+drop policy if exists "Members read rescue_members" on rescue_members;
+create policy "Members read rescue_members" on rescue_members
     for select using (user_id = auth.uid());
 
-drop policy if exists "Service role manages rescue_admins" on rescue_admins;
-create policy "Service role manages rescue_admins" on rescue_admins
+drop policy if exists "Members insert themselves" on rescue_members;
+create policy "Members insert themselves" on rescue_members
+    for insert with check (user_id = auth.uid());
+
+drop policy if exists "Owners manage memberships" on rescue_members;
+create policy "Owners manage memberships" on rescue_members
+    for update using (
+        exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = rescue_members.rescue_id
+              and rm.user_id = auth.uid()
+              and rm.role = 'owner'
+        )
+    )
+    with check (
+        exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = rescue_members.rescue_id
+              and rm.user_id = auth.uid()
+              and rm.role = 'owner'
+        )
+    );
+
+drop policy if exists "Service role manages rescue_members" on rescue_members;
+create policy "Service role manages rescue_members" on rescue_members
     for all using (auth.role() = 'service_role')
     with check (auth.role() = 'service_role');
 
@@ -46,16 +87,18 @@ drop policy if exists "Admins manage their animals" on animals;
 create policy "Admins manage their animals" on animals
     for all using (
         exists (
-            select 1 from rescue_admins ra
-            where ra.rescue_id = animals.rescue_id
-              and ra.user_id = auth.uid()
+            select 1 from rescue_members rm
+            where rm.rescue_id = animals.rescue_id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
         )
     )
     with check (
         exists (
-            select 1 from rescue_admins ra
-            where ra.rescue_id = animals.rescue_id
-              and ra.user_id = auth.uid()
+            select 1 from rescue_members rm
+            where rm.rescue_id = animals.rescue_id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
         )
     );
 
@@ -76,17 +119,19 @@ create policy "Admins manage their photos" on animal_photos
     for all using (
         exists (
             select 1 from animals
-            join rescue_admins ra on ra.rescue_id = animals.rescue_id
+            join rescue_members rm on rm.rescue_id = animals.rescue_id
             where animals.id = animal_photos.animal_id
-              and ra.user_id = auth.uid()
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
         )
     )
     with check (
         exists (
             select 1 from animals
-            join rescue_admins ra on ra.rescue_id = animals.rescue_id
+            join rescue_members rm on rm.rescue_id = animals.rescue_id
             where animals.id = animal_photos.animal_id
-              and ra.user_id = auth.uid()
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
         )
     );
 
@@ -105,9 +150,9 @@ drop policy if exists "Admins read their inquiries" on inquiries;
 create policy "Admins read their inquiries" on inquiries
     for select using (
         exists (
-            select 1 from rescue_admins ra
-            where ra.rescue_id = inquiries.rescue_id
-              and ra.user_id = auth.uid()
+            select 1 from rescue_members rm
+            where rm.rescue_id = inquiries.rescue_id
+              and rm.user_id = auth.uid()
         )
     );
 
@@ -115,15 +160,17 @@ drop policy if exists "Admins update their inquiries" on inquiries;
 create policy "Admins update their inquiries" on inquiries
     for update using (
         exists (
-            select 1 from rescue_admins ra
-            where ra.rescue_id = inquiries.rescue_id
-              and ra.user_id = auth.uid()
+            select 1 from rescue_members rm
+            where rm.rescue_id = inquiries.rescue_id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
         )
     )
     with check (
         exists (
-            select 1 from rescue_admins ra
-            where ra.rescue_id = inquiries.rescue_id
-              and ra.user_id = auth.uid()
+            select 1 from rescue_members rm
+            where rm.rescue_id = inquiries.rescue_id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
         )
     );

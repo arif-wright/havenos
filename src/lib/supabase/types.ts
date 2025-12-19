@@ -64,6 +64,37 @@ export type Database = {
 					}
 				];
 			};
+			rescue_members: {
+				Row: {
+					id: string;
+					rescue_id: string;
+					user_id: string;
+					role: 'owner' | 'admin' | 'staff';
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					rescue_id: string;
+					user_id: string;
+					role?: 'owner' | 'admin' | 'staff';
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					rescue_id?: string;
+					user_id?: string;
+					role?: 'owner' | 'admin' | 'staff';
+					created_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'rescue_members_rescue_id_fkey';
+						columns: ['rescue_id'];
+						referencedRelation: 'rescues';
+						referencedColumns: ['id'];
+					}
+				];
+			};
 			animals: {
 				Row: {
 					id: string;

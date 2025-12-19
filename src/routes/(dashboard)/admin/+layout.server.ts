@@ -1,4 +1,4 @@
-import { error, redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
@@ -9,11 +9,12 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	}
 
 	if (!locals.currentRescue) {
-		throw error(403, 'User is not assigned to any rescue.');
+		throw redirect(303, '/onboarding');
 	}
 
 	return {
 		session,
-		currentRescue: locals.currentRescue
+		currentRescue: locals.currentRescue,
+		currentMemberRole: locals.currentMemberRole ?? 'staff'
 	};
 };

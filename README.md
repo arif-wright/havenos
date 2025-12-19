@@ -27,15 +27,11 @@ HavenOS is a rescue-first adoption CRM that focuses on the three weakest parts o
 4. **Storage bucket**
    - Create a bucket called `animal-photos`
    - Make it public (read-only) and enable file uploads
-5. **Create rescues and admins**
-   - Insert rows into `rescues`
-   - Insert `rescue_admins` rows that map Supabase Auth user IDs to a rescue
-   - Admins authenticate via magic links from the `/admin/login` page
-6. **Run the dev server**
+5. **Run the dev server**
    ```bash
    npm run dev -- --open
    ```
-7. **Lint/check**
+6. **Lint/check**
    ```bash
    npm run check
    ```
@@ -52,7 +48,7 @@ File: `supabase/schema.sql`
 | Table | Purpose |
 | --- | --- |
 | `rescues` | Core rescue profile information exposed publicly |
-| `rescue_admins` | Maps Supabase users to a rescue (supports multi-admin) |
+| `rescue_members` | Links Supabase users to a rescue with `owner` / `admin` / `staff` roles |
 | `animals` | Main animal record with status, metadata, soft delete, tags |
 | `animal_photos` | Ordered photo URLs for each animal |
 | `inquiries` | Incoming public inquiries tied to animals and rescues |
@@ -61,14 +57,21 @@ Utilities:
 - `handle_updated_at()` trigger ensures `animals.updated_at` stays fresh
 - `set_inquiry_rescue_id()` trigger copies the associated rescue automatically so the client never needs to trust the submitted `rescue_id`
 
+## Onboarding & Auth Flow
+- Admins log in via `/admin/login`
+- Supabase emails a magic link that lands on `${APP_BASE_URL}/admin/callback`
+- If the account is not yet tied to a rescue, the user is redirected to `/onboarding`
+- `/onboarding` collects rescue name, slug, and contact email, creates the rescue, and inserts a `rescue_members` row with role `owner`
+- After onboarding the user is redirected to the dashboard at `/admin`
+
 ## Row Level Security
 File: `supabase/policies.sql`
 
-- **rescues**: public read access; updates limited to admins assigned to the rescue
-- **rescue_admins**: admins read their own memberships; service role manages assignments
-- **animals**: public select limited to active animals in `available` or `hold` statuses; authenticated admins can fully manage their own records
-- **animal_photos**: mirrors animal access (public can only view media for active animals)
-- **inquiries**: anyone can insert (limited to active animals); admins see and update inquiries for their rescue only
+- **rescues**: anon clients can read (for public pages); authenticated users only see rescues they belong to; owners/admins can update
+- **rescue_members**: users can read their memberships and insert themselves; the service key can manage everything
+- **animals**: public select limited to active animals in `available` or `hold` statuses; owners/admins can create/update their rescue’s animals
+- **animal_photos**: mirrors animal access (owners/admins can mutate, public can view active listings)
+- **inquiries**: anyone can insert (limited to active animals); members see their rescue’s inquiries, owners/admins can update status
 
 Policies require RLS to be enabled on every table, so double-check that `auth.uid()` is set for authenticated requests. Public pages are rendered server-side and only expose sanitized data.
 
@@ -102,7 +105,8 @@ Policies require RLS to be enabled on every table, so double-check that `auth.ui
 6. Run `npm run build` and deploy the generated adapter output
 
 ## Assumptions
-- Rescue admins are created manually in Supabase during Phase 1
+- Rescue owners are onboarded through the `/onboarding` flow after logging in
+- Additional team members can be added directly via the `rescue_members` table (UI planned for a later phase)
 - Animal photo uploads go into a single `animal-photos` bucket; deleting photos deletes objects
 - Magic-link login is sufficient; there is no password option
 - Inquiry confirmation emails originate from a single `RESEND_FROM_EMAIL` address

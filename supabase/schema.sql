@@ -18,6 +18,15 @@ create table if not exists rescue_admins (
     unique (rescue_id, user_id)
 );
 
+create table if not exists rescue_members (
+    id uuid primary key default gen_random_uuid(),
+    rescue_id uuid not null references rescues(id) on delete cascade,
+    user_id uuid not null references auth.users(id) on delete cascade,
+    role text not null default 'owner' check (role in ('owner','admin','staff')),
+    created_at timestamptz not null default timezone('utc', now()),
+    unique (rescue_id, user_id)
+);
+
 create table if not exists animals (
     id uuid primary key default gen_random_uuid(),
     rescue_id uuid not null references rescues(id) on delete cascade,
@@ -90,3 +99,5 @@ create index if not exists idx_animals_status_active on animals(status, is_activ
 create index if not exists idx_photos_animal on animal_photos(animal_id, sort_order);
 create index if not exists idx_inquiries_rescue on inquiries(rescue_id, created_at desc);
 create index if not exists idx_inquiries_animal on inquiries(animal_id, created_at desc);
+create index if not exists idx_rescue_members_user on rescue_members(user_id);
+create index if not exists idx_rescue_members_rescue on rescue_members(rescue_id);
