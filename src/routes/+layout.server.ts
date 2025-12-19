@@ -51,7 +51,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		return { user, currentRescue: null, currentMemberRole: null };
 	}
 
-	const { data: rescue, error: rescueError } = await locals.supabase
+	let rescue = null;
+	const { data: rescueData, error: rescueError } = await locals.supabase
 		.from('rescues')
 		.select('*')
 		.eq('id', resolvedMembership.rescue_id)
@@ -59,6 +60,27 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 
 	if (rescueError) {
 		console.error('Failed to fetch rescue record', rescueError);
+	} else {
+		rescue = rescueData;
+	}
+
+	if (!rescue) {
+		// Fallback with service role in case RLS blocked the client fetch
+		const service = getServiceSupabase();
+		const { data: serviceRescue, error: serviceRescueError } = await service
+			.from('rescues')
+			.select('*')
+			.eq('id', resolvedMembership.rescue_id)
+			.maybeSingle();
+
+		if (serviceRescueError) {
+			console.error('Service fetch rescue record failed', serviceRescueError);
+		} else {
+			rescue = serviceRescue;
+		}
+	}
+
+	if (!rescue) {
 		locals.currentRescue = null;
 		locals.currentMemberRole = null;
 		return { user, currentRescue: null, currentMemberRole: null };
