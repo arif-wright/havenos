@@ -1,14 +1,6 @@
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
-	const session = await locals.getSession();
-
-	if (!session) {
-		locals.currentRescue = null;
-		locals.currentMemberRole = null;
-		return { session: null, currentRescue: null, currentMemberRole: null };
-	}
-
 	const {
 		data: { user },
 		error: userError
@@ -39,13 +31,13 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		console.error('Failed to load current rescue membership', membershipError);
 		locals.currentRescue = null;
 		locals.currentMemberRole = null;
-		return { session, currentRescue: null, currentMemberRole: null };
+		return { session: null, currentRescue: null, currentMemberRole: null };
 	}
 
 	if (!membership) {
 		locals.currentRescue = null;
 		locals.currentMemberRole = null;
-		return { session, currentRescue: null, currentMemberRole: null };
+		return { session: null, currentRescue: null, currentMemberRole: null };
 	}
 
 	const { data: rescue, error: rescueError } = await locals.supabase
@@ -58,7 +50,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		console.error('Failed to fetch rescue record', rescueError);
 		locals.currentRescue = null;
 		locals.currentMemberRole = null;
-		return { session, currentRescue: null, currentMemberRole: null };
+		return { session: null, currentRescue: null, currentMemberRole: null };
 	}
 
 	const role = membership.role ?? null;
@@ -66,8 +58,10 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	locals.currentRescue = rescue;
 	locals.currentMemberRole = role;
 
+	const session = await locals.getSession();
+
 	return {
-		session,
+		session: session ?? null,
 		currentRescue: rescue,
 		currentMemberRole: role
 	};
