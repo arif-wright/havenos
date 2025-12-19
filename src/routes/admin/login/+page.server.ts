@@ -8,7 +8,11 @@ const loginSchema = z.object({
 });
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	if (locals.session) {
+	const {
+		data: { user }
+	} = await locals.supabase.auth.getUser();
+
+	if (user) {
 		throw redirect(303, '/admin');
 	}
 	return {

@@ -27,8 +27,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 		return session;
 	};
 
-	event.locals.session = await event.locals.getSession();
-
 	return resolve(event, {
 		filterSerializedResponseHeaders: (name) => name === 'content-range'
 	});
