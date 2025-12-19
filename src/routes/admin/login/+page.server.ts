@@ -1,0 +1,47 @@
+import { fail, redirect } from '@sveltejs/kit';
+import { z } from 'zod';
+import type { Actions, PageServerLoad } from './$types';
+import { APP_BASE_URL } from '$env/static/private';
+
+const loginSchema = z.object({
+	email: z.string().email('Valid email required')
+});
+
+export const load: PageServerLoad = async ({ locals, url }) => {
+	if (locals.session) {
+		throw redirect(303, '/admin');
+	}
+	return {
+		redirectTo: url.searchParams.get('redirectTo') ?? '/admin'
+	};
+};
+
+export const actions: Actions = {
+	default: async ({ request, locals }) => {
+		const form = await request.formData();
+		const payload = {
+			email: String(form.get('email') ?? '').trim(),
+			redirectTo: String(form.get('redirectTo') ?? '/admin')
+		};
+
+		const parsed = loginSchema.safeParse({ email: payload.email });
+		if (!parsed.success) {
+			return fail(400, { errors: parsed.error.flatten().fieldErrors });
+		}
+
+		const { error } = await locals.supabase.auth.signInWithOtp({
+			email: parsed.data.email,
+			options: {
+				shouldCreateUser: false,
+				emailRedirectTo: `${APP_BASE_URL.replace(/\/$/, '')}/admin/callback?next=${encodeURIComponent(payload.redirectTo)}`
+			}
+		});
+
+		if (error) {
+			console.error('Magic link request failed', error);
+			return fail(500, { serverError: 'Unable to send login link right now.' });
+		}
+
+		return { success: true };
+	}
+};
