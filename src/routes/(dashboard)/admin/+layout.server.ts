@@ -2,12 +2,9 @@ import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
-	const {
-		data: { user },
-		error: userError
-	} = await locals.supabase.auth.getUser();
+	const user = await locals.getUser();
 
-	if (userError || !user) {
+	if (!user) {
 		const redirectTo = encodeURIComponent(url.pathname + url.search);
 		throw redirect(303, `/admin/login?redirectTo=${redirectTo}`);
 	}
@@ -16,10 +13,8 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		throw redirect(303, '/onboarding');
 	}
 
-	const session = await locals.getSession();
-
 	return {
-		session,
+		user,
 		currentRescue: locals.currentRescue,
 		currentMemberRole: locals.currentMemberRole ?? 'staff'
 	};

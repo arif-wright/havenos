@@ -1,16 +1,16 @@
-import type { SupabaseClient, Session } from '@supabase/supabase-js';
+import type { SupabaseClient, User } from '@supabase/supabase-js';
 import type { Database, Tables } from '$lib/supabase/types';
 
 declare global {
 	namespace App {
 		interface Locals {
 			supabase: SupabaseClient<Database>;
-			getSession: () => Promise<Session | null>;
+			getUser: () => Promise<User | null>;
 			currentRescue?: Tables['rescues']['Row'] | null;
 			currentMemberRole?: 'owner' | 'admin' | 'staff' | null;
 		}
 		interface PageData {
-			session: Session | null;
+			user: User | null;
 			currentRescue?: Tables['rescues']['Row'] | null;
 			currentMemberRole?: 'owner' | 'admin' | 'staff' | null;
 			flash?: {
