@@ -11,8 +11,12 @@ const onboardingSchema = z.object({
 });
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	const session = locals.session;
-	if (!session) {
+	const {
+		data: { user },
+		error: userError
+	} = await locals.supabase.auth.getUser();
+
+	if (userError || !user) {
 		const redirectTo = encodeURIComponent(url.pathname + url.search);
 		throw redirect(303, `/admin/login?redirectTo=${redirectTo}`);
 	}
@@ -23,7 +27,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 	return {
 		defaults: {
-			contact_email: session.user.email ?? '',
+			contact_email: user.email ?? '',
 			slug: buildSlug('rescue')
 		}
 	};
@@ -31,8 +35,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 export const actions: Actions = {
 	default: async ({ request, locals, url }) => {
-		const session = locals.session;
-		if (!session) {
+		const {
+			data: { user },
+			error: userError
+		} = await locals.supabase.auth.getUser();
+
+		if (userError || !user) {
 			const redirectTo = encodeURIComponent(url.pathname + url.search);
 			throw redirect(303, `/admin/login?redirectTo=${redirectTo}`);
 		}
@@ -94,7 +102,7 @@ export const actions: Actions = {
 			.from('rescue_members')
 			.insert({
 				rescue_id: rescueRecord.id,
-				user_id: session.user.id,
+				user_id: user.id,
 				role: 'owner'
 			});
 
