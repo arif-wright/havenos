@@ -1,4 +1,5 @@
 import type { LayoutServerLoad } from './$types';
+import { getServiceSupabase } from '$lib/server/supabaseService';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
 	const user = await locals.getUser();
@@ -24,7 +25,27 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		return { user: null, currentRescue: null, currentMemberRole: null };
 	}
 
-	if (!membership) {
+	let resolvedMembership = membership;
+
+	if (!resolvedMembership) {
+		// Fallback to service role in case RLS prevented the client query (should not happen, but helps avoid onboarding loop)
+		const service = getServiceSupabase();
+		const { data: serviceMembership, error: serviceMembershipError } = await service
+			.from('rescue_members')
+			.select('role, rescue_id')
+			.eq('user_id', user.id)
+			.order('created_at', { ascending: false })
+			.limit(1)
+			.maybeSingle();
+
+		if (serviceMembershipError) {
+			console.error('Service fetch rescue membership failed', serviceMembershipError);
+		} else {
+			resolvedMembership = serviceMembership;
+		}
+	}
+
+	if (!resolvedMembership) {
 		locals.currentRescue = null;
 		locals.currentMemberRole = null;
 		return { user, currentRescue: null, currentMemberRole: null };
@@ -33,7 +54,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	const { data: rescue, error: rescueError } = await locals.supabase
 		.from('rescues')
 		.select('*')
-		.eq('id', membership.rescue_id)
+		.eq('id', resolvedMembership.rescue_id)
 		.maybeSingle();
 
 	if (rescueError) {
@@ -43,7 +64,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		return { user, currentRescue: null, currentMemberRole: null };
 	}
 
-	const role = membership.role ?? null;
+	const role = resolvedMembership.role ?? null;
 
 	locals.currentRescue = rescue;
 	locals.currentMemberRole = role;
