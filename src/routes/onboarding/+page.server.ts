@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { buildSlug } from '$lib/utils/slug';
+import { getServiceSupabase } from '$lib/server/supabaseService';
 
 const onboardingSchema = z.object({
 	name: z.string().min(3, 'Rescue name is required'),
@@ -58,10 +59,11 @@ export const actions: Actions = {
 
 		const payload = parsed.data;
 
+		const serviceClient = getServiceSupabase();
 		let slugToUse = payload.slug;
 		let rescueRecord = null;
 		for (let attempt = 0; attempt < 5; attempt++) {
-			const { data, error } = await locals.supabase
+			const { data, error } = await serviceClient
 				.from('rescues')
 				.insert({
 					name: payload.name,
@@ -88,7 +90,7 @@ export const actions: Actions = {
 			return fail(500, { serverError: 'Unable to create rescue due to slug conflicts.' });
 		}
 
-		const { error: memberError } = await locals.supabase
+		const { error: memberError } = await serviceClient
 			.from('rescue_members')
 			.insert({
 				rescue_id: rescueRecord.id,
