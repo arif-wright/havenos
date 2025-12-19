@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { env } from '$env/dynamic/private';
+import { APP_BASE_URL, RESEND_API_KEY, RESEND_FROM_EMAIL } from '$env/static/private';
 import { buildAdopterInquiryTemplate, buildRescueNotificationTemplate } from './templates';
 
 type InquiryEmailPayload = {
@@ -20,10 +20,8 @@ type DispatchResult = {
 	skipped: boolean;
 };
 
-const resendApiKey = env.RESEND_API_KEY;
-const resendFromEmail = env.RESEND_FROM_EMAIL;
-const appBaseUrl = (env.APP_BASE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
-const resendClient = resendApiKey ? new Resend(resendApiKey) : null;
+const appBaseUrl = (APP_BASE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+const resendClient = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 const buildUrls = (animalId: string, inquiryId: string) => {
 	return {
@@ -35,7 +33,7 @@ const buildUrls = (animalId: string, inquiryId: string) => {
 export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promise<DispatchResult> => {
 	const errors: string[] = [];
 
-	if (!resendClient || !resendFromEmail) {
+	if (!resendClient || !RESEND_FROM_EMAIL) {
 		console.warn('Resend credentials missing, skipping transactional emails');
 		return { errors: ['Resend is not configured'], skipped: true };
 	}
@@ -66,7 +64,7 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 
 	try {
 		const result = await resendClient.emails.send({
-			from: resendFromEmail,
+			from: RESEND_FROM_EMAIL,
 			to: payload.adopterEmail,
 			subject: adopterTemplate.subject,
 			html: adopterTemplate.html,
@@ -87,7 +85,7 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 	} else {
 		try {
 			const result = await resendClient.emails.send({
-				from: resendFromEmail,
+				from: RESEND_FROM_EMAIL,
 				to: payload.rescueEmail,
 				subject: rescueTemplate.subject,
 				html: rescueTemplate.html,
