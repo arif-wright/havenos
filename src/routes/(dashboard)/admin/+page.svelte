@@ -20,6 +20,21 @@
 	</div>
 </div>
 
+<div class="mt-6 grid gap-6 md:grid-cols-3">
+	<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+		<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">New (7d)</p>
+		<p class="mt-2 text-2xl font-semibold text-slate-900">{data.crmSlices.recentNew.length}</p>
+	</div>
+	<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+		<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">No response 48h+</p>
+		<p class="mt-2 text-2xl font-semibold text-slate-900">{data.crmSlices.noResponse.length}</p>
+	</div>
+	<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+		<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Animals with zero inquiries</p>
+		<p class="mt-2 text-2xl font-semibold text-slate-900">{data.crmSlices.animalsNoInquiries.length}</p>
+	</div>
+</div>
+
 <section class="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 	<div class="flex items-center justify-between">
 		<h2 class="text-xl font-semibold text-slate-900">Recent inquiries</h2>
@@ -46,4 +61,40 @@
 			{/each}
 		</div>
 	{/if}
+</section>
+
+<section class="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+	<h2 class="text-xl font-semibold text-slate-900">Analytics</h2>
+	<div class="mt-4 grid gap-4 md:grid-cols-3 text-sm text-slate-700">
+		<div class="rounded-lg border border-slate-200 p-4">
+			<p class="text-xs uppercase tracking-wide text-slate-500">Avg time to first response</p>
+			<p class="mt-1 text-lg font-semibold text-slate-900">
+				{#if data.analytics.timeToFirstResponseHours === null}
+					–
+				{:else}
+					{data.analytics.timeToFirstResponseHours}h
+				{/if}
+			</p>
+		</div>
+		<div class="rounded-lg border border-slate-200 p-4">
+			<p class="text-xs uppercase tracking-wide text-slate-500">Avg time to adoption</p>
+			<p class="mt-1 text-lg font-semibold text-slate-900">
+				{#if data.analytics.timeToAdoptionDays === null}
+					–
+				{:else}
+					{data.analytics.timeToAdoptionDays}d
+				{/if}
+			</p>
+		</div>
+		<div class="rounded-lg border border-slate-200 p-4">
+			<p class="text-xs uppercase tracking-wide text-slate-500">Inquiries per animal</p>
+			<p class="mt-1 text-lg font-semibold text-slate-900">
+				{#if Number.isNaN(data.analytics.inquiriesPerAnimal)}
+					–
+				{:else}
+					{data.analytics.inquiriesPerAnimal.toFixed(1)}
+				{/if}
+			</p>
+		</div>
+	</div>
 </section>

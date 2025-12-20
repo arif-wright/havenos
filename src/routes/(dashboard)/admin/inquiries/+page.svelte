@@ -4,9 +4,13 @@
 	export let data: PageData;
 	export let form: ActionData;
 
-	const statusOptions: { value: 'new' | 'responded' | 'closed'; label: string }[] = [
+	const statusOptions: { value: PageData['inquiries'][number]['status']; label: string }[] = [
 		{ value: 'new', label: 'New' },
-		{ value: 'responded', label: 'Responded' },
+		{ value: 'contacted', label: 'Contacted' },
+		{ value: 'meet_greet', label: 'Meet & Greet' },
+		{ value: 'application', label: 'Application' },
+		{ value: 'approved', label: 'Approved' },
+		{ value: 'adopted', label: 'Adopted' },
 		{ value: 'closed', label: 'Closed' }
 	];
 </script>
@@ -24,6 +28,21 @@
 			{form.serverError}
 		</p>
 	{/if}
+
+	<div class="mt-6 grid gap-4 md:grid-cols-3">
+		<div class="rounded-xl border border-slate-200 p-4">
+			<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">New (7d)</p>
+			<p class="text-2xl font-semibold text-slate-900">{data.slices.newInquiries.length}</p>
+		</div>
+		<div class="rounded-xl border border-slate-200 p-4">
+			<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">No response 48h+</p>
+			<p class="text-2xl font-semibold text-slate-900">{data.slices.noResponse.length}</p>
+		</div>
+		<div class="rounded-xl border border-slate-200 p-4">
+			<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Animals w/ zero inquiries</p>
+			<p class="text-2xl font-semibold text-slate-900">{data.slices.animalsNoInquiries.length}</p>
+		</div>
+	</div>
 
 	{#if data.inquiries.length === 0}
 		<p class="mt-6 text-sm text-slate-500">No inquiries yet.</p>
@@ -47,6 +66,9 @@
 						<p class="mt-3 rounded-md bg-slate-50 p-3 text-sm text-slate-700 whitespace-pre-line">
 							{inquiry.message || 'No message provided.'}
 						</p>
+						<a class="text-xs font-semibold text-emerald-700" href={`/admin/inquiries/${inquiry.id}`}>
+							Open detail →
+						</a>
 					</div>
 					<form method="POST" action="?/updateStatus" class="w-full max-w-xs space-y-2">
 						<input type="hidden" name="inquiryId" value={inquiry.id} />

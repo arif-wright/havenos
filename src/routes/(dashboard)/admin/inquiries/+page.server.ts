@@ -1,6 +1,7 @@
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { inquiryStatusSchema } from '$lib/validation';
+import { inquiryStatusSchema, inquiryNoteSchema } from '$lib/validation';
+import { logInquiryStatusChange, addInquiryNote } from '$lib/server/inquiries';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const rescue = locals.currentRescue;
@@ -19,9 +20,32 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		throw error(500, 'Unable to load inquiries');
 	}
 
+	const now = Date.now();
+	const recentCutoff = now - 7 * 24 * 60 * 60 * 1000;
+	const staleCutoff = now - 48 * 60 * 60 * 1000;
+
+	const newInquiries = data?.filter((inq) => new Date(inq.created_at).getTime() >= recentCutoff) ?? [];
+	const noResponse = data?.filter(
+		(inq) => inq.status === 'new' && new Date(inq.created_at).getTime() <= staleCutoff
+	) ?? [];
+
+	const { data: animals } = await locals.supabase
+		.from('animals')
+		.select('id, name, status, inquiries(count)')
+		.eq('rescue_id', rescue.id)
+		.eq('is_active', true);
+
+	const animalsNoInquiries =
+		animals?.filter((animal) => Array.isArray(animal.inquiries) && animal.inquiries[0]?.count === 0) ?? [];
+
 	return {
 		inquiries: data ?? [],
-		focus: url.searchParams.get('focus')
+		focus: url.searchParams.get('focus'),
+		slices: {
+			newInquiries,
+			noResponse,
+			animalsNoInquiries
+		}
 	};
 };
 
@@ -38,6 +62,22 @@ export const actions: Actions = {
 			return fail(400, { errors: parsed.error.flatten().fieldErrors });
 		}
 
+		const user = await locals.getUser();
+		if (!user) {
+			return fail(403, { serverError: 'Not authenticated' });
+		}
+
+		const { data: existing, error: fetchError } = await locals.supabase
+			.from('inquiries')
+			.select('status')
+			.eq('id', parsed.data.inquiryId)
+			.maybeSingle();
+
+		if (fetchError || !existing) {
+			console.error(fetchError);
+			return fail(404, { serverError: 'Inquiry not found.' });
+		}
+
 		const { error: updateError } = await locals.supabase
 			.from('inquiries')
 			.update({ status: parsed.data.status })
@@ -46,6 +86,46 @@ export const actions: Actions = {
 		if (updateError) {
 			console.error(updateError);
 			return fail(500, { serverError: 'Unable to update inquiry.' });
+		}
+
+		await logInquiryStatusChange(
+			locals.supabase,
+			parsed.data.inquiryId,
+			(existing.status as any) ?? null,
+			parsed.data.status,
+			user.id
+		);
+
+		return { success: true };
+	},
+
+	addNote: async ({ request, locals }) => {
+		const form = await request.formData();
+		const payload = {
+			inquiryId: String(form.get('inquiryId') ?? ''),
+			body: String(form.get('body') ?? '')
+		};
+
+		const parsed = inquiryNoteSchema.safeParse(payload);
+		if (!parsed.success) {
+			return fail(400, { errors: parsed.error.flatten().fieldErrors });
+		}
+
+		const user = await locals.getUser();
+		if (!user) {
+			return fail(403, { serverError: 'Not authenticated' });
+		}
+
+		const { error: insertError } = await addInquiryNote(
+			locals.supabase,
+			parsed.data.inquiryId,
+			user.id,
+			parsed.data.body
+		);
+
+		if (insertError) {
+			console.error(insertError);
+			return fail(500, { serverError: 'Unable to add note.' });
 		}
 
 		return { success: true };

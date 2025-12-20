@@ -174,3 +174,74 @@ create policy "Admins update their inquiries" on inquiries
               and rm.role in ('owner','admin')
         )
     );
+
+-- inquiry_status_history
+alter table inquiry_status_history enable row level security;
+
+drop policy if exists "Members read inquiry_status_history" on inquiry_status_history;
+create policy "Members read inquiry_status_history" on inquiry_status_history
+    for select using (
+        exists (
+            select 1 from inquiries i
+            where i.id = inquiry_status_history.inquiry_id
+              and i.rescue_id in (
+                  select rescue_id from rescue_members rm where rm.user_id = auth.uid()
+              )
+        )
+    );
+
+drop policy if exists "Members insert inquiry_status_history" on inquiry_status_history;
+create policy "Members insert inquiry_status_history" on inquiry_status_history
+    for insert with check (
+        exists (
+            select 1 from inquiries i
+            where i.id = inquiry_status_history.inquiry_id
+              and i.rescue_id in (
+                  select rescue_id from rescue_members rm where rm.user_id = auth.uid()
+              )
+        )
+    );
+
+-- inquiry_notes
+alter table inquiry_notes enable row level security;
+
+drop policy if exists "Members read inquiry_notes" on inquiry_notes;
+create policy "Members read inquiry_notes" on inquiry_notes
+    for select using (
+        exists (
+            select 1 from inquiries i
+            where i.id = inquiry_notes.inquiry_id
+              and i.rescue_id in (
+                  select rescue_id from rescue_members rm where rm.user_id = auth.uid()
+              )
+        )
+    );
+
+drop policy if exists "Members insert inquiry_notes" on inquiry_notes;
+create policy "Members insert inquiry_notes" on inquiry_notes
+    for insert with check (
+        exists (
+            select 1 from inquiries i
+            where i.id = inquiry_notes.inquiry_id
+              and i.rescue_id in (
+                  select rescue_id from rescue_members rm where rm.user_id = auth.uid()
+              )
+        )
+    );
+
+-- email_logs
+alter table email_logs enable row level security;
+
+drop policy if exists "Members read email_logs" on email_logs;
+create policy "Members read email_logs" on email_logs
+    for select using (
+        exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = email_logs.rescue_id
+              and rm.user_id = auth.uid()
+        )
+    );
+
+drop policy if exists "Service inserts email_logs" on email_logs;
+create policy "Service inserts email_logs" on email_logs
+    for insert with check (auth.role() = 'service_role');

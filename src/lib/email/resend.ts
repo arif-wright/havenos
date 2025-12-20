@@ -4,6 +4,7 @@ import { buildAdopterInquiryTemplate, buildRescueNotificationTemplate } from './
 
 type InquiryEmailPayload = {
 	inquiryId: string;
+	rescueId: string;
 	animalId: string;
 	animalName: string;
 	rescueName: string;
@@ -22,6 +23,32 @@ type DispatchResult = {
 
 const appBaseUrl = (APP_BASE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
 const resendClient = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+
+type EmailLogInput = {
+	to: string;
+	subject: string;
+	status: 'sent' | 'failed';
+	error?: string | null;
+	inquiryId: string;
+	rescueId: string;
+};
+
+const logEmail = async ({ to, subject, status, error, inquiryId, rescueId }: EmailLogInput) => {
+	// Lazy import to avoid circular deps
+	const { getServiceSupabase } = await import('$lib/server/supabaseService');
+	const service = getServiceSupabase();
+	const { error: insertError } = await service.from('email_logs').insert({
+		to_email: to,
+		subject,
+		status,
+		error_message: error ?? null,
+		inquiry_id: inquiryId,
+		rescue_id: rescueId
+	});
+	if (insertError) {
+		console.error('Failed to log email', insertError);
+	}
+};
 
 const buildUrls = (animalId: string, inquiryId: string) => {
 	return {
@@ -74,10 +101,34 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 		if (result.error) {
 			errors.push(result.error.message);
 			console.error('Resend adopter email error', result.error);
+			await logEmail({
+				to: payload.adopterEmail,
+				subject: adopterTemplate.subject,
+				status: 'failed',
+				error: result.error.message,
+				inquiryId: payload.inquiryId,
+				rescueId: payload.rescueId
+			});
+		} else {
+			await logEmail({
+				to: payload.adopterEmail,
+				subject: adopterTemplate.subject,
+				status: 'sent',
+				inquiryId: payload.inquiryId,
+				rescueId: payload.rescueId
+			});
 		}
 	} catch (error) {
 		console.error('Resend adopter email exception', error);
 		errors.push('Failed to send adopter confirmation');
+		await logEmail({
+			to: payload.adopterEmail,
+			subject: adopterTemplate.subject,
+			status: 'failed',
+			error: error instanceof Error ? error.message : 'Unknown adopter send error',
+			inquiryId: payload.inquiryId,
+			rescueId: payload.rescueId
+		});
 	}
 
 	if (!payload.rescueEmail) {
@@ -95,10 +146,34 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 			if (result.error) {
 				errors.push(result.error.message);
 				console.error('Resend rescue email error', result.error);
+				await logEmail({
+					to: payload.rescueEmail,
+					subject: rescueTemplate.subject,
+					status: 'failed',
+					error: result.error.message,
+					inquiryId: payload.inquiryId,
+					rescueId: payload.rescueId
+				});
 			}
+			await logEmail({
+				to: payload.rescueEmail,
+				subject: rescueTemplate.subject,
+				status: result.error ? 'failed' : 'sent',
+				error: result.error?.message,
+				inquiryId: payload.inquiryId,
+				rescueId: payload.rescueId
+			});
 		} catch (error) {
 			console.error('Resend rescue email exception', error);
 			errors.push('Failed to notify rescue');
+			await logEmail({
+				to: payload.rescueEmail,
+				subject: rescueTemplate.subject,
+				status: 'failed',
+				error: error instanceof Error ? error.message : 'Unknown rescue send error',
+				inquiryId: payload.inquiryId,
+				rescueId: payload.rescueId
+			});
 		}
 	}
 

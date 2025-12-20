@@ -22,6 +22,7 @@ HavenOS is a rescue-first adoption CRM that focuses on the three weakest parts o
    ```bash
    supabase db push --file supabase/schema.sql
    supabase db push --file supabase/policies.sql
+   supabase db push --file supabase/migrations/20251220_phase3.sql
    ```
    The SQL files include all tables, indexes, triggers, and Row Level Security policies described below.
 4. **Storage bucket**
@@ -88,6 +89,14 @@ Policies require RLS to be enabled on every table, so double-check that `auth.ui
    - Sends confirmation email to the adopter via Resend
    - Sends notification email to the rescue contact email
 3. Admin dashboard reflects the new inquiry immediately
+
+## Phase 3 CRM additions
+- Expanded inquiry statuses: `new`, `contacted`, `meet_greet`, `application`, `approved`, `adopted`, `closed`
+- `inquiry_status_history` tracks every status change with who changed it
+- `inquiry_notes` stores immutable team notes per inquiry
+- `email_logs` records all Resend sends/failures for visibility
+- Dashboard slices: new in last 7 days, no response in 48h, animals with zero inquiries
+- Inquiry detail page shows pipeline controls, history timeline, notes, and email activity
 
 ## Development Conventions
 - Mutations use SvelteKit server actions for explicit error handling

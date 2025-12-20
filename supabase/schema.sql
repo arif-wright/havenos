@@ -58,7 +58,7 @@ create table if not exists inquiries (
     adopter_name text not null,
     adopter_email text not null,
     message text,
-    status text not null default 'new' check (status in ('new', 'responded', 'closed')),
+    status text not null default 'new' check (status in ('new', 'contacted', 'meet_greet', 'application', 'approved', 'adopted', 'closed')),
     created_at timestamptz not null default timezone('utc', now())
 );
 
@@ -101,3 +101,39 @@ create index if not exists idx_inquiries_rescue on inquiries(rescue_id, created_
 create index if not exists idx_inquiries_animal on inquiries(animal_id, created_at desc);
 create index if not exists idx_rescue_members_user on rescue_members(user_id);
 create index if not exists idx_rescue_members_rescue on rescue_members(rescue_id);
+
+-- Phase 3 CRM tables
+create table if not exists inquiry_status_history (
+    id uuid primary key default gen_random_uuid(),
+    inquiry_id uuid not null references inquiries(id) on delete cascade,
+    from_status text,
+    to_status text not null,
+    changed_by uuid not null references auth.users(id) on delete cascade,
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_inquiry_status_history_inquiry on inquiry_status_history(inquiry_id, created_at desc);
+
+create table if not exists inquiry_notes (
+    id uuid primary key default gen_random_uuid(),
+    inquiry_id uuid not null references inquiries(id) on delete cascade,
+    user_id uuid not null references auth.users(id) on delete cascade,
+    body text not null,
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_inquiry_notes_inquiry on inquiry_notes(inquiry_id, created_at desc);
+
+create table if not exists email_logs (
+    id uuid primary key default gen_random_uuid(),
+    rescue_id uuid not null references rescues(id) on delete cascade,
+    inquiry_id uuid references inquiries(id) on delete set null,
+    to_email text not null,
+    subject text not null,
+    status text not null check (status in ('sent', 'failed')),
+    error_message text,
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_email_logs_rescue on email_logs(rescue_id, created_at desc);
+create index if not exists idx_email_logs_inquiry on email_logs(inquiry_id, created_at desc);

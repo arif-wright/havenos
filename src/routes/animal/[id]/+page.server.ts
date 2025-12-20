@@ -39,10 +39,10 @@ export const actions: Actions = {
 
 		const { data: animal, error: animalError } = await locals.supabase
 			.from('animals')
-			.select('id, name, rescues(name, contact_email)')
-			.eq('id', params.id)
-			.eq('is_active', true)
-			.maybeSingle();
+		.select('id, name, rescue_id, rescues(name, contact_email)')
+		.eq('id', params.id)
+		.eq('is_active', true)
+		.maybeSingle();
 
 		if (animalError) {
 			console.error(animalError);
@@ -71,6 +71,7 @@ export const actions: Actions = {
 
 		const emailResult = await dispatchInquiryEmails({
 			inquiryId: inserted.id,
+			rescueId: animal.rescue_id,
 			animalId: animal.id,
 			animalName: animal.name,
 			rescueName: animal.rescues?.name ?? 'Your rescue',

@@ -36,12 +36,72 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	const newInquiries = inquiries?.filter((inq) => inq.status === 'new').length ?? 0;
+	const recentCutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+	const staleCutoff = Date.now() - 48 * 60 * 60 * 1000;
+
+	const { data: allInquiries } = await locals.supabase
+		.from('inquiries')
+		.select('id, status, created_at, animals(name), inquiry_status_history(to_status, created_at)')
+		.eq('rescue_id', rescue.id);
+
+	const recentNew = allInquiries?.filter((inq) => new Date(inq.created_at).getTime() >= recentCutoff) ?? [];
+	const noResponse =
+		allInquiries?.filter(
+			(inq) => inq.status === 'new' && new Date(inq.created_at).getTime() <= staleCutoff
+		) ?? [];
+
+	const { data: animals } = await locals.supabase
+		.from('animals')
+		.select('id, name, status, inquiries(count)')
+		.eq('rescue_id', rescue.id)
+		.eq('is_active', true);
+
+	const animalsNoInquiries =
+		animals?.filter((animal) => Array.isArray(animal.inquiries) && animal.inquiries[0]?.count === 0) ?? [];
+
+	const timeToFirstResponse = (() => {
+		if (!allInquiries) return null;
+		const deltas: number[] = [];
+		for (const inq of allInquiries) {
+			const firstContact = inq.inquiry_status_history?.find((h) => h.to_status === 'contacted');
+			if (firstContact) {
+				deltas.push(new Date(firstContact.created_at).getTime() - new Date(inq.created_at).getTime());
+			}
+		}
+		if (!deltas.length) return null;
+		const avgMs = deltas.reduce((a, b) => a + b, 0) / deltas.length;
+		return Math.round(avgMs / (1000 * 60 * 60)); // hours
+	})();
+
+	const timeToAdoption = (() => {
+		if (!allInquiries) return null;
+		const deltas: number[] = [];
+		for (const inq of allInquiries) {
+			const adopted = inq.inquiry_status_history?.find((h) => h.to_status === 'adopted');
+			if (adopted) {
+				deltas.push(new Date(adopted.created_at).getTime() - new Date(inq.created_at).getTime());
+			}
+		}
+		if (!deltas.length) return null;
+		const avgMs = deltas.reduce((a, b) => a + b, 0) / deltas.length;
+		return Math.round(avgMs / (1000 * 60 * 60 * 24)); // days
+	})();
 
 	return {
 		stats: {
 			...stats,
 			newInquiries
 		},
-		recentInquiries: inquiries ?? []
+		recentInquiries: inquiries ?? [],
+		crmSlices: {
+			recentNew,
+			noResponse,
+			animalsNoInquiries
+		},
+		analytics: {
+			timeToFirstResponseHours: timeToFirstResponse,
+			timeToAdoptionDays: timeToAdoption,
+			inquiriesPerAnimal: animals && animals.length ? (allInquiries?.length ?? 0) / animals.length : 0
+		}
 	};
 };

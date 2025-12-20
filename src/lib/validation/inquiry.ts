@@ -13,5 +13,10 @@ export const publicInquirySchema = z.object({
 
 export const inquiryStatusSchema = z.object({
 	inquiryId: z.string().uuid(),
-	status: z.enum(['new', 'responded', 'closed'])
+	status: z.enum(['new', 'contacted', 'meet_greet', 'application', 'approved', 'adopted', 'closed'])
+});
+
+export const inquiryNoteSchema = z.object({
+	inquiryId: z.string().uuid(),
+	body: z.string().min(1, 'Note cannot be empty').max(4000, 'Note too long')
 });

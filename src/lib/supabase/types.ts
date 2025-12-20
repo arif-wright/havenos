@@ -186,7 +186,7 @@ export type Database = {
 					adopter_name: string;
 					adopter_email: string;
 					message: string | null;
-					status: 'new' | 'responded' | 'closed';
+					status: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
 					created_at: string;
 				};
 				Insert: {
@@ -196,7 +196,7 @@ export type Database = {
 					adopter_name: string;
 					adopter_email: string;
 					message?: string | null;
-					status?: 'new' | 'responded' | 'closed';
+					status?: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
 					created_at?: string;
 				};
 				Update: {
@@ -206,7 +206,7 @@ export type Database = {
 					adopter_name?: string;
 					adopter_email?: string;
 					message?: string | null;
-					status?: 'new' | 'responded' | 'closed';
+					status?: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
 					created_at?: string;
 				};
 				Relationships: [
@@ -218,6 +218,117 @@ export type Database = {
 					},
 					{
 						foreignKeyName: 'inquiries_rescue_id_fkey';
+						columns: ['rescue_id'];
+						referencedRelation: 'rescues';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			inquiry_status_history: {
+				Row: {
+					id: string;
+					inquiry_id: string;
+					from_status: string | null;
+					to_status: string;
+					changed_by: string;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					inquiry_id: string;
+					from_status?: string | null;
+					to_status: string;
+					changed_by: string;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					inquiry_id?: string;
+					from_status?: string | null;
+					to_status?: string;
+					changed_by?: string;
+					created_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'inquiry_status_history_inquiry_id_fkey';
+						columns: ['inquiry_id'];
+						referencedRelation: 'inquiries';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			inquiry_notes: {
+				Row: {
+					id: string;
+					inquiry_id: string;
+					user_id: string;
+					body: string;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					inquiry_id: string;
+					user_id: string;
+					body: string;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					inquiry_id?: string;
+					user_id?: string;
+					body?: string;
+					created_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'inquiry_notes_inquiry_id_fkey';
+						columns: ['inquiry_id'];
+						referencedRelation: 'inquiries';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			email_logs: {
+				Row: {
+					id: string;
+					rescue_id: string;
+					inquiry_id: string | null;
+					to_email: string;
+					subject: string;
+					status: 'sent' | 'failed';
+					error_message: string | null;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					rescue_id: string;
+					inquiry_id?: string | null;
+					to_email: string;
+					subject: string;
+					status: 'sent' | 'failed';
+					error_message?: string | null;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					rescue_id?: string;
+					inquiry_id?: string | null;
+					to_email?: string;
+					subject?: string;
+					status?: 'sent' | 'failed';
+					error_message?: string | null;
+					created_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'email_logs_inquiry_id_fkey';
+						columns: ['inquiry_id'];
+						referencedRelation: 'inquiries';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'email_logs_rescue_id_fkey';
 						columns: ['rescue_id'];
 						referencedRelation: 'rescues';
 						referencedColumns: ['id'];
