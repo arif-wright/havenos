@@ -19,7 +19,10 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		.maybeSingle();
 
 	if (membershipError) {
-		console.error('Failed to load current rescue membership', membershipError);
+		console.error('Failed to load current rescue membership (user client)', {
+			userId: user.id,
+			error: membershipError
+		});
 		locals.currentRescue = null;
 		locals.currentMemberRole = null;
 		return { user: null, currentRescue: null, currentMemberRole: null };
@@ -39,8 +42,15 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 			.maybeSingle();
 
 		if (serviceMembershipError) {
-			console.error('Service fetch rescue membership failed', serviceMembershipError);
+			console.error('Service fetch rescue membership failed', {
+				userId: user.id,
+				error: serviceMembershipError
+			});
 		} else {
+			console.info('Service fetch resolved membership', {
+				userId: user.id,
+				membership: serviceMembership
+			});
 			resolvedMembership = serviceMembership;
 		}
 	}
@@ -59,7 +69,11 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		.maybeSingle();
 
 	if (rescueError) {
-		console.error('Failed to fetch rescue record', rescueError);
+		console.error('Failed to fetch rescue record (user client)', {
+			userId: user.id,
+			rescueId: resolvedMembership.rescue_id,
+			error: rescueError
+		});
 	} else {
 		rescue = rescueData;
 	}
@@ -74,8 +88,16 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 			.maybeSingle();
 
 		if (serviceRescueError) {
-			console.error('Service fetch rescue record failed', serviceRescueError);
+			console.error('Service fetch rescue record failed', {
+				userId: user.id,
+				rescueId: resolvedMembership.rescue_id,
+				error: serviceRescueError
+			});
 		} else {
+			console.info('Service fetch resolved rescue', {
+				userId: user.id,
+				rescueId: resolvedMembership.rescue_id
+			});
 			rescue = serviceRescue;
 		}
 	}
