@@ -1,5 +1,4 @@
 import type { LayoutServerLoad } from './$types';
-import { getServiceSupabase } from '$lib/server/supabaseService';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
 	const user = await locals.getUser();
@@ -10,123 +9,9 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		return { user: null, currentRescue: null, currentMemberRole: null };
 	}
 
-	const { data: membership, error: membershipError } = await locals.supabase
-		.from('rescue_members')
-		.select('role, rescue_id')
-		.eq('user_id', user.id)
-		.order('created_at', { ascending: false })
-		.limit(1)
-		.maybeSingle();
-
-	if (membershipError) {
-		console.error('Failed to load current rescue membership (user client)', {
-			userId: user.id,
-			error: membershipError
-		});
-		locals.currentRescue = null;
-		locals.currentMemberRole = null;
-		return { user: null, currentRescue: null, currentMemberRole: null };
-	}
-
-	console.info('User client membership fetch', {
-		userId: user.id,
-		membership: membership ?? null
-	});
-
-	let resolvedMembership = membership;
-
-	if (!resolvedMembership) {
-		// Fallback to service role in case RLS prevented the client query (should not happen, but helps avoid onboarding loop)
-		const service = getServiceSupabase();
-		const { data: serviceMembership, error: serviceMembershipError } = await service
-			.from('rescue_members')
-			.select('role, rescue_id')
-			.eq('user_id', user.id)
-			.order('created_at', { ascending: false })
-			.limit(1)
-			.maybeSingle();
-
-		if (serviceMembershipError) {
-			console.error('Service fetch rescue membership failed', {
-				userId: user.id,
-				error: serviceMembershipError
-			});
-		} else {
-			console.info('Service fetch membership result', {
-				userId: user.id,
-				membership: serviceMembership ?? null
-			});
-			resolvedMembership = serviceMembership;
-		}
-	}
-
-	if (!resolvedMembership) {
-		locals.currentRescue = null;
-		locals.currentMemberRole = null;
-		return { user, currentRescue: null, currentMemberRole: null };
-	}
-
-	let rescue = null;
-	const { data: rescueData, error: rescueError } = await locals.supabase
-		.from('rescues')
-		.select('*')
-		.eq('id', resolvedMembership.rescue_id)
-		.maybeSingle();
-
-	if (rescueError) {
-		console.error('Failed to fetch rescue record (user client)', {
-			userId: user.id,
-			rescueId: resolvedMembership.rescue_id,
-			error: rescueError
-		});
-	} else {
-		console.info('User client rescue fetch', {
-			userId: user.id,
-			rescueId: resolvedMembership.rescue_id,
-			rescue: rescueData ?? null
-		});
-		rescue = rescueData;
-	}
-
-	if (!rescue) {
-		// Fallback with service role in case RLS blocked the client fetch
-		const service = getServiceSupabase();
-		const { data: serviceRescue, error: serviceRescueError } = await service
-			.from('rescues')
-			.select('*')
-			.eq('id', resolvedMembership.rescue_id)
-			.maybeSingle();
-
-		if (serviceRescueError) {
-			console.error('Service fetch rescue record failed', {
-				userId: user.id,
-				rescueId: resolvedMembership.rescue_id,
-				error: serviceRescueError
-			});
-		} else {
-			console.info('Service fetch rescue result', {
-				userId: user.id,
-				rescueId: resolvedMembership.rescue_id,
-				rescue: serviceRescue ?? null
-			});
-			rescue = serviceRescue;
-		}
-	}
-
-	if (!rescue) {
-		locals.currentRescue = null;
-		locals.currentMemberRole = null;
-		return { user, currentRescue: null, currentMemberRole: null };
-	}
-
-	const role = resolvedMembership.role ?? null;
-
-	locals.currentRescue = rescue;
-	locals.currentMemberRole = role;
-
 	return {
 		user,
-		currentRescue: rescue,
-		currentMemberRole: role
+		currentRescue: locals.currentRescue ?? null,
+		currentMemberRole: locals.currentMemberRole ?? null
 	};
 };
