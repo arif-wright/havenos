@@ -28,6 +28,11 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		return { user: null, currentRescue: null, currentMemberRole: null };
 	}
 
+	console.info('User client membership fetch', {
+		userId: user.id,
+		membership: membership ?? null
+	});
+
 	let resolvedMembership = membership;
 
 	if (!resolvedMembership) {
@@ -47,9 +52,9 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 				error: serviceMembershipError
 			});
 		} else {
-			console.info('Service fetch resolved membership', {
+			console.info('Service fetch membership result', {
 				userId: user.id,
-				membership: serviceMembership
+				membership: serviceMembership ?? null
 			});
 			resolvedMembership = serviceMembership;
 		}
@@ -75,6 +80,11 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 			error: rescueError
 		});
 	} else {
+		console.info('User client rescue fetch', {
+			userId: user.id,
+			rescueId: resolvedMembership.rescue_id,
+			rescue: rescueData ?? null
+		});
 		rescue = rescueData;
 	}
 
@@ -94,9 +104,10 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 				error: serviceRescueError
 			});
 		} else {
-			console.info('Service fetch resolved rescue', {
+			console.info('Service fetch rescue result', {
 				userId: user.id,
-				rescueId: resolvedMembership.rescue_id
+				rescueId: resolvedMembership.rescue_id,
+				rescue: serviceRescue ?? null
 			});
 			rescue = serviceRescue;
 		}
