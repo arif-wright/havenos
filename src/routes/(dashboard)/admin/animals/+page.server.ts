@@ -20,6 +20,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const inquiriesFilter = url.searchParams.get('inquiries') || '';
 	const sort = (url.searchParams.get('sort') as SortOption) || 'newest';
 	const page = Math.max(1, Number(url.searchParams.get('page') || '1'));
+	const usePagination = inquiriesFilter ? false : true;
 
 	let query = locals.supabase
 		.from('animals')
@@ -42,12 +43,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		query = query.ilike('species', `%${speciesFilter}%`);
 	}
 
-	if (inquiriesFilter === 'has') {
-		query = query.gte('inquiries.count', 1);
-	} else if (inquiriesFilter === 'none') {
-		query = query.eq('inquiries.count', 0);
-	}
-
 	if (sort === 'newest') {
 		query = query.order('created_at', { ascending: false });
 	} else if (sort === 'oldest') {
@@ -60,9 +55,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		query = query.order('created_at', { ascending: true });
 	}
 
-	const from = (page - 1) * PAGE_SIZE;
-	const to = from + PAGE_SIZE - 1;
-	query = query.range(from, to);
+	if (usePagination) {
+		const from = (page - 1) * PAGE_SIZE;
+		const to = from + PAGE_SIZE - 1;
+		query = query.range(from, to);
+	}
 
 	const { data, error: loadError, count } = await query;
 	if (loadError) {
@@ -70,7 +67,15 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		throw error(500, 'Unable to load animals');
 	}
 
-	const animals = (data ?? []).map((row) => ({
+	let filtered = data ?? [];
+
+	if (inquiriesFilter === 'has') {
+		filtered = filtered.filter((row) => (row.inquiries?.[0]?.count ?? 0) > 0);
+	} else if (inquiriesFilter === 'none') {
+		filtered = filtered.filter((row) => (row.inquiries?.[0]?.count ?? 0) === 0);
+	}
+
+	const animals = filtered.map((row) => ({
 		...row,
 		thumb: row.animal_photos?.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0]?.image_url ?? '',
 		inquiryCount: row.inquiries?.[0]?.count ?? 0,
@@ -78,8 +83,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		isStale: Date.now() - new Date(row.created_at).getTime() > 30 * DAY_MS
 	}));
 
-	const total = count ?? animals.length;
-	const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+	const total = inquiriesFilter ? animals.length : count ?? animals.length;
+	const totalPages = usePagination ? Math.max(1, Math.ceil(total / PAGE_SIZE)) : 1;
+	const currentPage = usePagination ? page : 1;
 
 	return {
 		animals,
@@ -89,7 +95,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			species: speciesFilter,
 			inquiries: inquiriesFilter,
 			sort,
-			page,
+			page: currentPage,
 			totalPages
 		}
 	};
