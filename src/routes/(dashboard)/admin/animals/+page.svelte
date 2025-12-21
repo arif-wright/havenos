@@ -345,12 +345,7 @@
 						>
 							{animal.isArchived ? 'Archived' : statusLabels[animal.status] ?? animal.status}
 						</span>
-						<span class="text-sm font-semibold text-slate-800">
-							{animal.inquiryCount}
-							{#if animal.inquiryCount === 0}
-								<span class="ml-1 text-[10px] text-slate-500">None</span>
-							{/if}
-						</span>
+						<span class="text-sm font-semibold text-slate-800">{animal.inquiryCount}</span>
 						<span class="text-sm text-slate-700">{animal.species}</span>
 						<span class="text-sm text-slate-700">{new Date(animal.created_at).toLocaleDateString()}</span>
 						<div class="flex flex-wrap gap-2 text-sm font-semibold">
