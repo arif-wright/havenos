@@ -113,6 +113,7 @@ Policies require RLS to be enabled on every table, so double-check that `auth.ui
 - Public trust fields on rescues: mission statement, adoption process, response time
 - Animal page “what happens next” derived from rescue info
 - Duplicate inquiry hint (same email + animal, last 7 days) is non-blocking
+- Public Profile editing now lives under `/admin/settings`
 
 ## Development Conventions
 - Mutations use SvelteKit server actions for explicit error handling

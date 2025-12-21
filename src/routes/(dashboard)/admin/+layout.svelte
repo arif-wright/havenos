@@ -10,7 +10,8 @@
 		{ href: '/admin/animals', label: 'Animals' },
 		{ href: '/admin/inquiries', label: 'Inquiries' },
 		{ href: '/admin/templates', label: 'Templates' },
-		{ href: '/admin/team', label: 'Team' }
+		{ href: '/admin/team', label: 'Team' },
+		{ href: '/admin/settings', label: 'Settings' }
 	];
 </script>
 
