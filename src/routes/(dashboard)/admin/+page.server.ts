@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const { data: inquiries, error: inquiryError } = await locals.supabase
 		.from('inquiries')
-		.select('id, adopter_name, status, created_at, animals(name)')
+		.select('id, adopter_name, status, created_at, first_responded_at, animals(name)')
 		.eq('rescue_id', rescue.id)
 		.order('created_at', { ascending: false })
 		.limit(5);
@@ -41,7 +41,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const { data: allInquiries } = await locals.supabase
 		.from('inquiries')
-		.select('id, status, created_at, animals(name), inquiry_status_history(to_status, created_at)')
+		.select('id, status, created_at, first_responded_at, animals(name)')
 		.eq('rescue_id', rescue.id);
 
 	const recentNew = allInquiries?.filter((inq) => new Date(inq.created_at).getTime() >= recentCutoff) ?? [];
@@ -63,9 +63,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		if (!allInquiries) return null;
 		const deltas: number[] = [];
 		for (const inq of allInquiries) {
-			const firstContact = inq.inquiry_status_history?.find((h) => h.to_status === 'contacted');
-			if (firstContact) {
-				deltas.push(new Date(firstContact.created_at).getTime() - new Date(inq.created_at).getTime());
+			if (inq.first_responded_at) {
+				deltas.push(new Date(inq.first_responded_at).getTime() - new Date(inq.created_at).getTime());
 			}
 		}
 		if (!deltas.length) return null;
@@ -73,19 +72,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return Math.round(avgMs / (1000 * 60 * 60)); // hours
 	})();
 
-	const timeToAdoption = (() => {
-		if (!allInquiries) return null;
-		const deltas: number[] = [];
-		for (const inq of allInquiries) {
-			const adopted = inq.inquiry_status_history?.find((h) => h.to_status === 'adopted');
-			if (adopted) {
-				deltas.push(new Date(adopted.created_at).getTime() - new Date(inq.created_at).getTime());
-			}
-		}
-		if (!deltas.length) return null;
-		const avgMs = deltas.reduce((a, b) => a + b, 0) / deltas.length;
-		return Math.round(avgMs / (1000 * 60 * 60 * 24)); // days
-	})();
+	const staleCount =
+		allInquiries?.filter(
+			(inq) => inq.status === 'new' && new Date(inq.created_at).getTime() <= staleCutoff
+		).length ?? 0;
 
 	return {
 		stats: {
@@ -100,8 +90,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		},
 		analytics: {
 			timeToFirstResponseHours: timeToFirstResponse,
-			timeToAdoptionDays: timeToAdoption,
-			inquiriesPerAnimal: animals && animals.length ? (allInquiries?.length ?? 0) / animals.length : 0
+			inquiriesPerAnimal: animals && animals.length ? (allInquiries?.length ?? 0) / animals.length : 0,
+			staleCount
 		}
 	};
 };

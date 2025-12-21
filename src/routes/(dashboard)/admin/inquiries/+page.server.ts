@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 	const { data, error: inquiryError } = await locals.supabase
 		.from('inquiries')
-		.select('id, adopter_name, adopter_email, message, status, created_at, animals(id, name)')
+		.select('id, adopter_name, adopter_email, message, status, created_at, first_responded_at, animals(id, name)')
 		.eq('rescue_id', rescue.id)
 		.order('created_at', { ascending: false });
 
@@ -24,7 +24,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const recentCutoff = now - 7 * 24 * 60 * 60 * 1000;
 	const staleCutoff = now - 48 * 60 * 60 * 1000;
 
-	const newInquiries = data?.filter((inq) => new Date(inq.created_at).getTime() >= recentCutoff) ?? [];
+	const decorated =
+		data?.map((inq) => ({
+			...inq,
+			isStale: inq.status === 'new' && new Date(inq.created_at).getTime() <= staleCutoff
+		})) ?? [];
+
+	const newInquiries = decorated.filter((inq) => new Date(inq.created_at).getTime() >= recentCutoff);
 	const noResponse = data?.filter(
 		(inq) => inq.status === 'new' && new Date(inq.created_at).getTime() <= staleCutoff
 	) ?? [];
@@ -39,13 +45,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		animals?.filter((animal) => Array.isArray(animal.inquiries) && animal.inquiries[0]?.count === 0) ?? [];
 
 	return {
-		inquiries: data ?? [],
+		inquiries: decorated,
 		focus: url.searchParams.get('focus'),
 		slices: {
 			newInquiries,
 			noResponse,
 			animalsNoInquiries
-		}
+		},
+		staleCount: decorated.filter((inq) => inq.isStale).length
 	};
 };
 
@@ -69,7 +76,7 @@ export const actions: Actions = {
 
 		const { data: existing, error: fetchError } = await locals.supabase
 			.from('inquiries')
-			.select('status')
+			.select('status, first_responded_at')
 			.eq('id', parsed.data.inquiryId)
 			.maybeSingle();
 
@@ -78,9 +85,15 @@ export const actions: Actions = {
 			return fail(404, { serverError: 'Inquiry not found.' });
 		}
 
+		const shouldSetFirstResponse =
+			existing.status === 'new' && parsed.data.status !== 'new' && !existing.first_responded_at;
+
 		const { error: updateError } = await locals.supabase
 			.from('inquiries')
-			.update({ status: parsed.data.status })
+			.update({
+				status: parsed.data.status,
+				first_responded_at: shouldSetFirstResponse ? new Date().toISOString() : existing.first_responded_at
+			})
 			.eq('id', parsed.data.inquiryId);
 
 		if (updateError) {

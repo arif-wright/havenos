@@ -53,7 +53,7 @@
 					id={inquiry.id}
 					class={`flex flex-col gap-4 py-4 md:flex-row md:justify-between md:gap-8 ${
 						data.focus === inquiry.id ? 'bg-emerald-50/40 px-3 md:px-4' : ''
-					}`}
+					} ${inquiry.isStale ? 'border border-amber-200 bg-amber-50/50' : ''} ${['closed', 'adopted'].includes(inquiry.status) ? 'opacity-70' : ''}`}
 				>
 					<div class="flex-1">
 						<p class="text-sm font-semibold text-slate-900">
@@ -66,6 +66,14 @@
 						<p class="mt-3 rounded-md bg-slate-50 p-3 text-sm text-slate-700 whitespace-pre-line">
 							{inquiry.message || 'No message provided.'}
 						</p>
+						<div class="mt-2 flex flex-wrap gap-2 text-xs font-semibold">
+							{#if inquiry.isStale}
+								<span class="rounded-md bg-amber-100 px-2 py-1 text-amber-800">Needs Attention</span>
+							{/if}
+							{#if ['closed', 'adopted'].includes(inquiry.status)}
+								<span class="rounded-md bg-slate-100 px-2 py-1 text-slate-600">Completed</span>
+							{/if}
+						</div>
 						<a class="text-xs font-semibold text-emerald-700" href={`/admin/inquiries/${inquiry.id}`}>
 							Open detail →
 						</a>

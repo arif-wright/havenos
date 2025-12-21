@@ -77,14 +77,8 @@
 			</p>
 		</div>
 		<div class="rounded-lg border border-slate-200 p-4">
-			<p class="text-xs uppercase tracking-wide text-slate-500">Avg time to adoption</p>
-			<p class="mt-1 text-lg font-semibold text-slate-900">
-				{#if data.analytics.timeToAdoptionDays === null}
-					–
-				{:else}
-					{data.analytics.timeToAdoptionDays}d
-				{/if}
-			</p>
+			<p class="text-xs uppercase tracking-wide text-slate-500">Stale inquiries</p>
+			<p class="mt-1 text-lg font-semibold text-slate-900">{data.analytics.staleCount}</p>
 		</div>
 		<div class="rounded-lg border border-slate-200 p-4">
 			<p class="text-xs uppercase tracking-wide text-slate-500">Inquiries per animal</p>

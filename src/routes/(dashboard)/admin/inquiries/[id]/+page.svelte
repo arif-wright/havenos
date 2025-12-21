@@ -17,11 +17,22 @@
 			For {data.inquiry.animals?.name ?? 'Unknown animal'} ·
 			{new Date(data.inquiry.created_at).toLocaleString()}
 		</p>
+		{#if data.inquiry.first_responded_at}
+			<p class="text-xs text-slate-500">
+				First responded: {new Date(data.inquiry.first_responded_at).toLocaleString()}
+			</p>
+		{/if}
 	</header>
 
 	{#if form?.serverError}
 		<p class="rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
 			{form.serverError}
+		</p>
+	{/if}
+
+	{#if data.inquiry.isStale}
+		<p class="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+			This inquiry has not yet been responded to.
 		</p>
 	{/if}
 

@@ -1,7 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { inquiryNoteSchema, inquiryStatusSchema } from '$lib/validation';
-import { addInquiryNote, getInquiryDetail, logInquiryStatusChange, updateInquiryStatus } from '$lib/server/inquiries';
+import { addInquiryNote, getInquiryDetail, logInquiryStatusChange } from '$lib/server/inquiries';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const user = await locals.getUser();
@@ -25,7 +25,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	}
 
 	return {
-		inquiry: data,
+		inquiry: {
+			...data,
+			isStale: data.status === 'new' && new Date(data.created_at).getTime() <= Date.now() - 48 * 60 * 60 * 1000
+		},
 		statusOptions: [
 			{ value: 'new', label: 'New' },
 			{ value: 'contacted', label: 'Contacted' },
@@ -58,7 +61,7 @@ export const actions: Actions = {
 
 		const { data: existing, error: fetchError } = await locals.supabase
 			.from('inquiries')
-			.select('status')
+			.select('status, first_responded_at')
 			.eq('id', params.id)
 			.maybeSingle();
 
@@ -67,7 +70,16 @@ export const actions: Actions = {
 			return fail(404, { serverError: 'Inquiry not found.' });
 		}
 
-		const { error: updateError } = await updateInquiryStatus(locals.supabase, params.id, parsed.data.status);
+		const shouldSetFirstResponse =
+			existing.status === 'new' && parsed.data.status !== 'new' && !existing.first_responded_at;
+
+		const { error: updateError } = await locals.supabase
+			.from('inquiries')
+			.update({
+				status: parsed.data.status,
+				first_responded_at: shouldSetFirstResponse ? new Date().toISOString() : existing.first_responded_at
+			})
+			.eq('id', params.id);
 		if (updateError) {
 			console.error(updateError);
 			return fail(500, { serverError: 'Unable to update inquiry.' });

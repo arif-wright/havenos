@@ -187,6 +187,7 @@ export type Database = {
 					adopter_email: string;
 					message: string | null;
 					status: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
+					first_responded_at: string | null;
 					created_at: string;
 				};
 				Insert: {
@@ -197,6 +198,7 @@ export type Database = {
 					adopter_email: string;
 					message?: string | null;
 					status?: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
+					first_responded_at?: string | null;
 					created_at?: string;
 				};
 				Update: {
@@ -207,6 +209,7 @@ export type Database = {
 					adopter_email?: string;
 					message?: string | null;
 					status?: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
+					first_responded_at?: string | null;
 					created_at?: string;
 				};
 				Relationships: [

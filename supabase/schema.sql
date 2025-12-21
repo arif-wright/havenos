@@ -59,6 +59,7 @@ create table if not exists inquiries (
     adopter_email text not null,
     message text,
     status text not null default 'new' check (status in ('new', 'contacted', 'meet_greet', 'application', 'approved', 'adopted', 'closed')),
+    first_responded_at timestamptz,
     created_at timestamptz not null default timezone('utc', now())
 );
 
