@@ -115,6 +115,13 @@ Policies require RLS to be enabled on every table, so double-check that `auth.ui
 - Duplicate inquiry hint (same email + animal, last 7 days) is non-blocking
 - Public Profile editing now lives under `/admin/settings`
 
+### Phase 4.5 pets management + polish
+- Animals index is a compact row-based surface with server-backed search, filters (status, species, inquiry presence), sorts, and pagination (20 per page)
+- Bulk actions: archive selected or change status (also re-activates); row-level quick archive/activate + manage links
+- Subtle signals for stale listings (30d+), zero inquiries, and inquiry counts without noisy colors
+- “Add animal” is now an intentional flow via `/admin/animals/new` instead of an inline form
+- Dashboard keeps operational focus; analytics are visually de-emphasized and the public profile editor lives in Settings
+
 ## Development Conventions
 - Mutations use SvelteKit server actions for explicit error handling
 - The Supabase client is configured per-request in `src/hooks.server.ts`
