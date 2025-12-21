@@ -14,6 +14,7 @@
 	};
 
 	let selected = new Set<string>();
+	let showCreate = false;
 
 	const toggleSelect = (id: string) => {
 		const next = new Set(selected);
@@ -31,6 +32,23 @@
 	onMount(() => {
 		selected = new Set();
 	});
+
+	$: createValues = {
+		name: form?.action === 'create' ? form?.values?.name ?? '' : '',
+		species: form?.action === 'create' ? form?.values?.species ?? '' : '',
+		breed: form?.action === 'create' ? form?.values?.breed ?? '' : '',
+		age: form?.action === 'create' ? form?.values?.age ?? '' : '',
+		sex: form?.action === 'create' ? form?.values?.sex ?? '' : '',
+		description: form?.action === 'create' ? form?.values?.description ?? '' : '',
+		status: form?.action === 'create' ? form?.values?.status ?? 'available' : 'available',
+		tags: form?.action === 'create' ? form?.values?.tags ?? '' : ''
+	};
+
+	$: createErrors = (form?.action === 'create' ? form?.errors ?? {} : {}) as Record<string, string[]>;
+
+	$: if (form?.action === 'create' && form?.serverError) {
+		showCreate = true;
+	}
 </script>
 
 <section class="flex flex-wrap items-center justify-between gap-3">
@@ -38,12 +56,13 @@
 		<h1 class="text-2xl font-semibold text-slate-900">Animals</h1>
 		<p class="text-sm text-slate-600">Compact list for fast management.</p>
 	</div>
-	<a
+	<button
 		class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
-		href="/admin/animals/new"
+		type="button"
+		on:click={() => (showCreate = true)}
 	>
 		Add animal
-	</a>
+	</button>
 </section>
 
 <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -151,6 +170,123 @@
 			</form>
 		</div>
 	</section>
+{/if}
+
+{#if showCreate}
+	<div class="fixed inset-0 z-20 flex items-center justify-center bg-slate-900/40 px-4">
+		<div class="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+			<div class="flex items-start justify-between gap-3">
+				<div>
+					<h2 class="text-xl font-semibold text-slate-900">Add animal</h2>
+					<p class="text-sm text-slate-600">Create a new listing for your rescue.</p>
+				</div>
+				<button
+					class="rounded-md px-2 py-1 text-sm font-semibold text-slate-600 hover:bg-slate-100"
+					type="button"
+					on:click={() => (showCreate = false)}
+				>
+					Close
+				</button>
+			</div>
+			{#if form?.action === 'create' && form?.serverError}
+				<p class="mt-4 rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+					{form.serverError}
+				</p>
+			{/if}
+			<form method="POST" action="?/create" class="mt-5 grid gap-4 md:grid-cols-2">
+				<label class="text-sm font-medium text-slate-700">
+					Name
+					<input
+						name="name"
+						value={createValues.name}
+						required
+						class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					/>
+					{#if createErrors.name}
+						<span class="mt-1 block text-xs text-rose-600">{createErrors.name[0]}</span>
+					{/if}
+				</label>
+				<label class="text-sm font-medium text-slate-700">
+					Species
+					<input
+						name="species"
+						value={createValues.species}
+						required
+						class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					/>
+					{#if createErrors.species}
+						<span class="mt-1 block text-xs text-rose-600">{createErrors.species[0]}</span>
+					{/if}
+				</label>
+				<label class="text-sm font-medium text-slate-700">
+					Breed
+					<input
+						name="breed"
+						value={createValues.breed}
+						class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					/>
+				</label>
+				<label class="text-sm font-medium text-slate-700">
+					Age
+					<input
+						name="age"
+						value={createValues.age}
+						class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					/>
+				</label>
+				<label class="text-sm font-medium text-slate-700">
+					Sex
+					<input
+						name="sex"
+						value={createValues.sex}
+						class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					/>
+				</label>
+				<label class="text-sm font-medium text-slate-700">
+					Status
+					<select
+						name="status"
+						class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					>
+						<option value="available" selected={createValues.status === 'available'}>Available</option>
+						<option value="hold" selected={createValues.status === 'hold'}>On hold</option>
+						<option value="adopted" selected={createValues.status === 'adopted'}>Adopted</option>
+					</select>
+				</label>
+				<label class="text-sm font-medium text-slate-700 md:col-span-2">
+					Tags (comma separated)
+					<input
+						name="tags"
+						value={createValues.tags}
+						class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					/>
+				</label>
+				<label class="text-sm font-medium text-slate-700 md:col-span-2">
+					Description
+					<textarea
+						name="description"
+						rows="4"
+						class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					>{createValues.description}</textarea>
+				</label>
+				<div class="md:col-span-2 flex items-center gap-3">
+					<button
+						type="submit"
+						class="inline-flex rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+					>
+						Create animal
+					</button>
+					<button
+						type="button"
+						class="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+						on:click={() => (showCreate = false)}
+					>
+						Cancel
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
 {/if}
 
 <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
