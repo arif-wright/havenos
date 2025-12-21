@@ -245,3 +245,67 @@ create policy "Members read email_logs" on email_logs
 drop policy if exists "Service inserts email_logs" on email_logs;
 create policy "Service inserts email_logs" on email_logs
     for insert with check (auth.role() = 'service_role');
+
+-- rescue_invitations
+alter table rescue_invitations enable row level security;
+
+drop policy if exists "Members read rescue_invitations" on rescue_invitations;
+create policy "Members read rescue_invitations" on rescue_invitations
+    for select using (
+        exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = rescue_invitations.rescue_id
+              and rm.user_id = auth.uid()
+        )
+    );
+
+drop policy if exists "Owners admins manage rescue_invitations" on rescue_invitations;
+create policy "Owners admins manage rescue_invitations" on rescue_invitations
+    for all using (
+        exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = rescue_invitations.rescue_id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
+        )
+    )
+    with check (
+        exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = rescue_invitations.rescue_id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
+        )
+    );
+
+-- saved_reply_templates
+alter table saved_reply_templates enable row level security;
+
+drop policy if exists "Members read saved_reply_templates" on saved_reply_templates;
+create policy "Members read saved_reply_templates" on saved_reply_templates
+    for select using (
+        exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = saved_reply_templates.rescue_id
+              and rm.user_id = auth.uid()
+        )
+    );
+
+drop policy if exists "Owners admins manage saved_reply_templates" on saved_reply_templates;
+create policy "Owners admins manage saved_reply_templates" on saved_reply_templates
+    for all using (
+        exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = saved_reply_templates.rescue_id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
+        )
+    )
+    with check (
+        exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = saved_reply_templates.rescue_id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
+        )
+    );

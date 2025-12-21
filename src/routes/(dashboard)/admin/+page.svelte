@@ -92,3 +92,40 @@
 		</div>
 	</div>
 </section>
+
+<section class="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+	<h2 class="text-xl font-semibold text-slate-900">Public profile</h2>
+	<p class="text-sm text-slate-600">Share your mission, process, and expected response times.</p>
+	<form method="POST" action="?/updateRescue" class="mt-4 space-y-4">
+		<label class="block text-sm font-medium text-slate-700">
+			Mission statement
+			<textarea
+				name="mission_statement"
+				rows="3"
+				class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+			>{data.currentRescue?.mission_statement}</textarea>
+		</label>
+		<label class="block text-sm font-medium text-slate-700">
+			Adoption process
+			<textarea
+				name="adoption_process"
+				rows="4"
+				class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+			>{data.currentRescue?.adoption_process}</textarea>
+		</label>
+		<label class="block text-sm font-medium text-slate-700">
+			Response time
+			<input
+				name="response_time_text"
+				class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+				value={data.currentRescue?.response_time_text}
+			/>
+		</label>
+		<button
+			type="submit"
+			class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+		>
+			Save
+		</button>
+	</form>
+</section>

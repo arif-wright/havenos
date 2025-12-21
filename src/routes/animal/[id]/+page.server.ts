@@ -39,7 +39,7 @@ export const actions: Actions = {
 
 		const { data: animal, error: animalError } = await locals.supabase
 			.from('animals')
-		.select('id, name, rescue_id, rescues(name, contact_email)')
+		.select('id, name, rescue_id, rescues(name, contact_email, adoption_process, response_time_text)')
 		.eq('id', params.id)
 		.eq('is_active', true)
 		.maybeSingle();

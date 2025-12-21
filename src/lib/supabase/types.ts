@@ -15,6 +15,9 @@ export type Database = {
 					name: string;
 					slug: string;
 					contact_email: string;
+					mission_statement: string | null;
+					adoption_process: string | null;
+					response_time_text: string | null;
 					created_at: string;
 				};
 				Insert: {
@@ -22,6 +25,9 @@ export type Database = {
 					name: string;
 					slug: string;
 					contact_email: string;
+					mission_statement?: string | null;
+					adoption_process?: string | null;
+					response_time_text?: string | null;
 					created_at?: string;
 				};
 				Update: {
@@ -29,6 +35,9 @@ export type Database = {
 					name?: string;
 					slug?: string;
 					contact_email?: string;
+					mission_statement?: string | null;
+					adoption_process?: string | null;
+					response_time_text?: string | null;
 					created_at?: string;
 				};
 				Relationships: [];
@@ -301,6 +310,8 @@ export type Database = {
 					subject: string;
 					status: 'sent' | 'failed';
 					error_message: string | null;
+					send_type: 'system' | 'template' | 'follow_up' | 'invite' | 'other' | null;
+					template_id: string | null;
 					created_at: string;
 				};
 				Insert: {
@@ -311,6 +322,8 @@ export type Database = {
 					subject: string;
 					status: 'sent' | 'failed';
 					error_message?: string | null;
+					send_type?: 'system' | 'template' | 'follow_up' | 'invite' | 'other' | null;
+					template_id?: string | null;
 					created_at?: string;
 				};
 				Update: {
@@ -321,6 +334,8 @@ export type Database = {
 					subject?: string;
 					status?: 'sent' | 'failed';
 					error_message?: string | null;
+					send_type?: 'system' | 'template' | 'follow_up' | 'invite' | 'other' | null;
+					template_id?: string | null;
 					created_at?: string;
 				};
 				Relationships: [
@@ -332,6 +347,89 @@ export type Database = {
 					},
 					{
 						foreignKeyName: 'email_logs_rescue_id_fkey';
+						columns: ['rescue_id'];
+						referencedRelation: 'rescues';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			rescue_invitations: {
+				Row: {
+					id: string;
+					rescue_id: string;
+					email: string;
+					role: 'owner' | 'admin' | 'staff';
+					token: string;
+					created_by: string;
+					created_at: string;
+					expires_at: string;
+					accepted_at: string | null;
+				};
+				Insert: {
+					id?: string;
+					rescue_id: string;
+					email: string;
+					role: 'owner' | 'admin' | 'staff';
+					token: string;
+					created_by: string;
+					created_at?: string;
+					expires_at?: string;
+					accepted_at?: string | null;
+				};
+				Update: {
+					id?: string;
+					rescue_id?: string;
+					email?: string;
+					role?: 'owner' | 'admin' | 'staff';
+					token?: string;
+					created_by?: string;
+					created_at?: string;
+					expires_at?: string;
+					accepted_at?: string | null;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'rescue_invitations_rescue_id_fkey';
+						columns: ['rescue_id'];
+						referencedRelation: 'rescues';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			saved_reply_templates: {
+				Row: {
+					id: string;
+					rescue_id: string;
+					name: string;
+					subject: string;
+					body: string;
+					created_by: string;
+					updated_at: string;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					rescue_id: string;
+					name: string;
+					subject: string;
+					body: string;
+					created_by: string;
+					updated_at?: string;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					rescue_id?: string;
+					name?: string;
+					subject?: string;
+					body?: string;
+					created_by?: string;
+					updated_at?: string;
+					created_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'saved_reply_templates_rescue_id_fkey';
 						columns: ['rescue_id'];
 						referencedRelation: 'rescues';
 						referencedColumns: ['id'];

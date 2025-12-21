@@ -24,12 +24,32 @@
 					href={`mailto:${data.rescue.contact_email}`}>{data.rescue.contact_email}</a
 				>.
 			</p>
+			{#if data.rescue.response_time_text}
+				<p class="mt-1 text-xs text-slate-500">Typical response: {data.rescue.response_time_text}</p>
+			{/if}
 		</div>
 		<a
 			class="inline-flex items-center justify-center rounded-md border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
 			href="/"
 			>About HavenOS</a
 		>
+	</div>
+</section>
+
+<section class="border-b border-slate-200 bg-white">
+	<div class="mx-auto grid max-w-6xl gap-6 px-4 py-10 md:grid-cols-2">
+		<div class="rounded-xl border border-slate-200 bg-slate-50 p-6">
+			<h2 class="text-lg font-semibold text-slate-900">Mission</h2>
+			<p class="mt-2 text-sm text-slate-700">
+				{data.rescue.mission_statement || 'This rescue has not shared their mission yet.'}
+			</p>
+		</div>
+		<div class="rounded-xl border border-slate-200 bg-slate-50 p-6">
+			<h2 class="text-lg font-semibold text-slate-900">Adoption process</h2>
+			<p class="mt-2 whitespace-pre-line text-sm text-slate-700">
+				{data.rescue.adoption_process || 'Adoption process details will be shared during your conversation.'}
+			</p>
+		</div>
 	</div>
 </section>
 

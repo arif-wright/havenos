@@ -29,11 +29,22 @@ type EmailLogInput = {
 	subject: string;
 	status: 'sent' | 'failed';
 	error?: string | null;
-	inquiryId: string;
+	inquiryId?: string | null;
 	rescueId: string;
+	sendType?: 'system' | 'template' | 'follow_up' | 'invite' | 'other';
+	templateId?: string | null;
 };
 
-const logEmail = async ({ to, subject, status, error, inquiryId, rescueId }: EmailLogInput) => {
+const logEmail = async ({
+	to,
+	subject,
+	status,
+	error,
+	inquiryId = null,
+	rescueId,
+	sendType = 'other',
+	templateId = null
+}: EmailLogInput) => {
 	// Lazy import to avoid circular deps
 	const { getServiceSupabase } = await import('$lib/server/supabaseService');
 	const service = getServiceSupabase();
@@ -43,7 +54,9 @@ const logEmail = async ({ to, subject, status, error, inquiryId, rescueId }: Ema
 		status,
 		error_message: error ?? null,
 		inquiry_id: inquiryId,
-		rescue_id: rescueId
+		rescue_id: rescueId,
+		send_type: sendType,
+		template_id: templateId
 	});
 	if (insertError) {
 		console.error('Failed to log email', insertError);
@@ -107,7 +120,8 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 				status: 'failed',
 				error: result.error.message,
 				inquiryId: payload.inquiryId,
-				rescueId: payload.rescueId
+				rescueId: payload.rescueId,
+				sendType: 'system'
 			});
 		} else {
 			await logEmail({
@@ -115,7 +129,8 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 				subject: adopterTemplate.subject,
 				status: 'sent',
 				inquiryId: payload.inquiryId,
-				rescueId: payload.rescueId
+				rescueId: payload.rescueId,
+				sendType: 'system'
 			});
 		}
 	} catch (error) {
@@ -127,7 +142,8 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 			status: 'failed',
 			error: error instanceof Error ? error.message : 'Unknown adopter send error',
 			inquiryId: payload.inquiryId,
-			rescueId: payload.rescueId
+			rescueId: payload.rescueId,
+			sendType: 'system'
 		});
 	}
 
@@ -152,7 +168,8 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 					status: 'failed',
 					error: result.error.message,
 					inquiryId: payload.inquiryId,
-					rescueId: payload.rescueId
+					rescueId: payload.rescueId,
+					sendType: 'system'
 				});
 			}
 			await logEmail({
@@ -161,7 +178,8 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 				status: result.error ? 'failed' : 'sent',
 				error: result.error?.message,
 				inquiryId: payload.inquiryId,
-				rescueId: payload.rescueId
+				rescueId: payload.rescueId,
+				sendType: 'system'
 			});
 		} catch (error) {
 			console.error('Resend rescue email exception', error);
@@ -172,10 +190,87 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 				status: 'failed',
 				error: error instanceof Error ? error.message : 'Unknown rescue send error',
 				inquiryId: payload.inquiryId,
-				rescueId: payload.rescueId
+				rescueId: payload.rescueId,
+				sendType: 'system'
 			});
 		}
 	}
 
 	return { adopterEmailId, rescueEmailId, errors, skipped: false };
+};
+
+type TemplateSendPayload = {
+	rescueId: string;
+	inquiryId: string | null;
+	to: string;
+	subject: string;
+	body: string;
+	templateId?: string | null;
+	sendType?: 'template' | 'follow_up' | 'invite' | 'other';
+};
+
+export const sendTemplateEmail = async ({
+	rescueId,
+	inquiryId,
+	to,
+	subject,
+	body,
+	templateId = null,
+	sendType = 'template'
+}: TemplateSendPayload) => {
+	if (!resendClient || !RESEND_FROM_EMAIL) {
+		console.warn('Resend credentials missing, skipping transactional emails');
+		return { errors: ['Resend is not configured'], skipped: true };
+	}
+
+	const errors: string[] = [];
+
+	try {
+		const result = await resendClient.emails.send({
+			from: RESEND_FROM_EMAIL,
+			to,
+			subject,
+			html: body,
+			text: body
+		});
+		if (result.error) {
+			errors.push(result.error.message);
+			console.error('Resend template email error', result.error);
+			await logEmail({
+				to,
+				subject,
+				status: 'failed',
+				error: result.error.message,
+				inquiryId,
+				rescueId,
+				sendType,
+				templateId
+			});
+		} else {
+			await logEmail({
+				to,
+				subject,
+				status: 'sent',
+				inquiryId,
+				rescueId,
+				sendType,
+				templateId
+			});
+		}
+	} catch (error) {
+		console.error('Resend template email exception', error);
+		errors.push('Failed to send email');
+		await logEmail({
+			to,
+			subject,
+			status: 'failed',
+			error: error instanceof Error ? error.message : 'Unknown send error',
+			inquiryId,
+			rescueId,
+			sendType,
+			templateId
+		});
+	}
+
+	return { errors, skipped: false };
 };

@@ -5,6 +5,7 @@
 	export let form: ActionData;
 
 	const statusOptions = data.statusOptions;
+	const templateErrors = (form?.errors ?? {}) as Record<string, string[]>;
 </script>
 
 <div class="space-y-8">
@@ -33,6 +34,11 @@
 	{#if data.inquiry.isStale}
 		<p class="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
 			This inquiry has not yet been responded to.
+		</p>
+	{/if}
+	{#if data.hasDuplicate}
+		<p class="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+			Possible duplicate inquiry from this adopter for this animal within the last 7 days.
 		</p>
 	{/if}
 
@@ -81,11 +87,11 @@
 			</div>
 		</section>
 
-		<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-			<h2 class="text-lg font-semibold text-slate-900">Internal notes</h2>
-			<form method="POST" action="?/addNote" class="mt-3 space-y-3">
-				<input type="hidden" name="inquiryId" value={data.inquiry.id} />
-				<textarea
+	<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+		<h2 class="text-lg font-semibold text-slate-900">Internal notes</h2>
+		<form method="POST" action="?/addNote" class="mt-3 space-y-3">
+			<input type="hidden" name="inquiryId" value={data.inquiry.id} />
+			<textarea
 					name="body"
 					rows="4"
 					class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
@@ -133,6 +139,85 @@
 						{/if}
 					</div>
 				{/each}
+			</div>
+		{/if}
+	</section>
+
+	<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+		<h2 class="text-lg font-semibold text-slate-900">Send a saved reply</h2>
+		{#if data.templates.length === 0}
+			<p class="mt-2 text-sm text-slate-500">No templates yet.</p>
+		{:else}
+			<form method="POST" action="?/sendTemplate" class="mt-3 grid gap-3 md:grid-cols-3">
+				<input type="hidden" name="inquiryId" value={data.inquiry.id} />
+				<input type="hidden" name="sendType" value="template" />
+				<label class="text-sm font-medium text-slate-700">
+					Recipient
+					<input
+						name="to"
+						value={data.inquiry.adopter_email}
+						class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+						required
+					/>
+				</label>
+				<label class="text-sm font-medium text-slate-700">
+					Template
+					<select
+						name="templateId"
+						class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					>
+						{#each data.templates as template}
+							<option value={template.id}>{template.name}</option>
+						{/each}
+					</select>
+				</label>
+				<div class="flex items-end">
+					<button
+						type="submit"
+						class="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+					>
+						Send
+					</button>
+				</div>
+				{#if form?.emailErrors}
+					<p class="text-xs text-rose-600 md:col-span-3">{form.emailErrors[0]}</p>
+				{/if}
+			</form>
+
+			{#if data.inquiry.isStale}
+				<form method="POST" action="?/sendTemplate" class="mt-4 grid gap-3 md:grid-cols-3">
+					<input type="hidden" name="inquiryId" value={data.inquiry.id} />
+					<input type="hidden" name="sendType" value="follow_up" />
+					<input type="hidden" name="to" value={data.inquiry.adopter_email} />
+					<label class="text-sm font-medium text-slate-700">
+						Follow-up template
+						<select
+							name="templateId"
+							class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+						>
+							{#each data.templates as template}
+								<option value={template.id}>{template.name}</option>
+							{/each}
+						</select>
+					</label>
+					<div class="flex items-end">
+						<button
+							type="submit"
+							class="w-full rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100"
+						>
+							Send follow-up
+						</button>
+					</div>
+				</form>
+			{/if}
+		{/if}
+
+		{#if data.inquiry.isStale}
+			<div class="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+				<p class="text-sm font-semibold text-amber-800">Follow-up</p>
+				<p class="text-xs text-amber-700">
+					Send a gentle follow-up to re-engage. Uses the same saved reply flow above.
+				</p>
 			</div>
 		{/if}
 	</section>

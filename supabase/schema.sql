@@ -6,6 +6,9 @@ create table if not exists rescues (
     name text not null,
     slug text not null unique,
     contact_email text not null,
+    mission_statement text,
+    adoption_process text,
+    response_time_text text,
     created_at timestamptz not null default timezone('utc', now())
 );
 
@@ -125,6 +128,35 @@ create table if not exists inquiry_notes (
 
 create index if not exists idx_inquiry_notes_inquiry on inquiry_notes(inquiry_id, created_at desc);
 
+-- Phase 4: invitations and saved reply templates
+create table if not exists rescue_invitations (
+    id uuid primary key default gen_random_uuid(),
+    rescue_id uuid not null references rescues(id) on delete cascade,
+    email text not null,
+    role text not null check (role in ('owner','admin','staff')),
+    token text not null unique,
+    created_by uuid not null references auth.users(id) on delete cascade,
+    created_at timestamptz not null default timezone('utc', now()),
+    expires_at timestamptz not null default timezone('utc', now()) + interval '7 days',
+    accepted_at timestamptz
+);
+
+create index if not exists idx_rescue_invitations_rescue on rescue_invitations(rescue_id, created_at desc);
+create index if not exists idx_rescue_invitations_email on rescue_invitations(email);
+
+create table if not exists saved_reply_templates (
+    id uuid primary key default gen_random_uuid(),
+    rescue_id uuid not null references rescues(id) on delete cascade,
+    name text not null,
+    subject text not null,
+    body text not null,
+    created_by uuid not null references auth.users(id) on delete cascade,
+    updated_at timestamptz not null default timezone('utc', now()),
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_saved_reply_templates_rescue on saved_reply_templates(rescue_id, updated_at desc);
+
 create table if not exists email_logs (
     id uuid primary key default gen_random_uuid(),
     rescue_id uuid not null references rescues(id) on delete cascade,
@@ -133,6 +165,8 @@ create table if not exists email_logs (
     subject text not null,
     status text not null check (status in ('sent', 'failed')),
     error_message text,
+    send_type text check (send_type in ('system', 'template', 'follow_up', 'invite', 'other')) default 'other',
+    template_id uuid references saved_reply_templates(id) on delete set null,
     created_at timestamptz not null default timezone('utc', now())
 );
 

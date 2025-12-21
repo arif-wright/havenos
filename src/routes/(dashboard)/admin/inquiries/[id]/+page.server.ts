@@ -2,6 +2,8 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { inquiryNoteSchema, inquiryStatusSchema } from '$lib/validation';
 import { addInquiryNote, getInquiryDetail, logInquiryStatusChange } from '$lib/server/inquiries';
+import { listTemplates } from '$lib/server/templates';
+import { sendTemplateEmail } from '$lib/email/resend';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const user = await locals.getUser();
@@ -24,11 +26,25 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		throw error(404, 'Inquiry not found');
 	}
 
+	const { data: templates } = await listTemplates(locals.supabase, rescue.id);
+
+	const duplicateCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+	const { data: dupes } = await locals.supabase
+		.from('inquiries')
+		.select('id, created_at')
+		.eq('animal_id', data.animal_id)
+		.eq('adopter_email', data.adopter_email)
+		.neq('id', data.id)
+		.gte('created_at', duplicateCutoff)
+		.order('created_at', { ascending: false });
+
 	return {
 		inquiry: {
 			...data,
 			isStale: data.status === 'new' && new Date(data.created_at).getTime() <= Date.now() - 48 * 60 * 60 * 1000
 		},
+		hasDuplicate: (dupes?.length ?? 0) > 0,
+		templates: templates ?? [],
 		statusOptions: [
 			{ value: 'new', label: 'New' },
 			{ value: 'contacted', label: 'Contacted' },
@@ -116,6 +132,53 @@ export const actions: Actions = {
 		if (insertError) {
 			console.error(insertError);
 			return fail(500, { serverError: 'Unable to add note.' });
+		}
+
+		return { success: true };
+	},
+	sendTemplate: async ({ request, locals, params }) => {
+		const user = await locals.getUser();
+		const rescue = locals.currentRescue;
+		if (!user || !rescue) {
+			return fail(403, { serverError: 'Not authorized' });
+		}
+
+		const form = await request.formData();
+		const templateId = String(form.get('templateId') ?? '');
+		const to = String(form.get('to') ?? '');
+		const sendType = (String(form.get('sendType') ?? 'template') as
+			| 'template'
+			| 'follow_up'
+			| 'other') || 'template';
+
+		if (!templateId || !to) {
+			return fail(400, { serverError: 'Template and recipient required.' });
+		}
+
+		const { data: template, error: tmplError } = await locals.supabase
+			.from('saved_reply_templates')
+			.select('*')
+			.eq('id', templateId)
+			.eq('rescue_id', rescue.id)
+			.maybeSingle();
+
+		if (tmplError || !template) {
+			console.error(tmplError);
+			return fail(404, { serverError: 'Template not found.' });
+		}
+
+		const result = await sendTemplateEmail({
+			rescueId: rescue.id,
+			inquiryId: params.id,
+			to,
+			subject: template.subject,
+			body: template.body,
+			templateId: template.id,
+			sendType
+		});
+
+		if (result.errors.length) {
+			return fail(500, { serverError: 'Unable to send email.', emailErrors: result.errors });
 		}
 
 		return { success: true };

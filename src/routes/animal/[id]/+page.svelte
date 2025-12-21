@@ -112,6 +112,9 @@ export let form: ActionData;
 	<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">
 		<h2 class="text-2xl font-semibold text-slate-900">Apply to adopt</h2>
 		<p class="mt-2 text-sm text-slate-500">Send a note to the rescue team. They will reply via email.</p>
+		{#if data.animal.rescues?.response_time_text}
+			<p class="mt-1 text-xs text-slate-500">Expected response: {data.animal.rescues.response_time_text}</p>
+		{/if}
 
 		{#if form?.success}
 			<div class="mt-4 rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
@@ -181,5 +184,12 @@ export let form: ActionData;
 				By submitting you agree that {data.animal.rescues?.name} may contact you about this animal.
 			</p>
 		</form>
+		<div class="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+			<p class="font-semibold text-slate-900">What happens next</p>
+			<p class="mt-1">
+				{data.animal.rescues?.adoption_process ||
+					'The rescue team will review your inquiry and reach out with next steps.'}
+			</p>
+		</div>
 	</section>
 </div>
