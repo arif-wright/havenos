@@ -43,9 +43,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	}
 
 	if (inquiriesFilter === 'has') {
-		query = query.gt('count', 0, { referencedTable: 'inquiries' });
+		query = query.gte('inquiries.count', 1);
 	} else if (inquiriesFilter === 'none') {
-		query = query.eq('count', 0, { referencedTable: 'inquiries' });
+		query = query.eq('inquiries.count', 0);
 	}
 
 	if (sort === 'newest') {
