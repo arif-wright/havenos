@@ -4,36 +4,42 @@
 	export let data: PageData;
 </script>
 
-<div class="grid gap-6 lg:grid-cols-3">
-	<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-		<p class="text-sm text-slate-500">Active animals</p>
-		<p class="mt-2 text-3xl font-semibold text-slate-900">{data.stats.activeAnimals}</p>
-		<p class="text-xs text-slate-400">of {data.stats.totalAnimals} total</p>
+<section class="space-y-4">
+	<h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Overview</h2>
+	<div class="grid gap-4 lg:grid-cols-3">
+		<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+			<p class="text-sm text-slate-500">Active animals</p>
+			<p class="mt-2 text-3xl font-semibold text-slate-900">{data.stats.activeAnimals}</p>
+			<p class="text-xs text-slate-400">of {data.stats.totalAnimals} total</p>
+		</div>
+		<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+			<p class="text-sm text-slate-500">New inquiries</p>
+			<p class="mt-2 text-3xl font-semibold text-slate-900">{data.stats.newInquiries}</p>
+		</div>
+		<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+			<p class="text-sm text-slate-500">Adoptions marked</p>
+			<p class="mt-2 text-3xl font-semibold text-slate-900">{data.stats.adopted}</p>
+		</div>
 	</div>
-	<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-		<p class="text-sm text-slate-500">New inquiries</p>
-		<p class="mt-2 text-3xl font-semibold text-slate-900">{data.stats.newInquiries}</p>
-	</div>
-	<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-		<p class="text-sm text-slate-500">Adoptions marked</p>
-		<p class="mt-2 text-3xl font-semibold text-slate-900">{data.stats.adopted}</p>
-	</div>
-</div>
+</section>
 
-<div class="mt-6 grid gap-6 md:grid-cols-3">
-	<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-		<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">New (7d)</p>
-		<p class="mt-2 text-2xl font-semibold text-slate-900">{data.crmSlices.recentNew.length}</p>
+<section class="mt-6 space-y-4">
+	<h2 class="text-sm font-semibold uppercase tracking-wide text-amber-600">Attention needed</h2>
+	<div class="grid gap-4 md:grid-cols-3">
+		<div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+			<p class="text-xs font-semibold uppercase tracking-wide text-amber-700">New (7d)</p>
+			<p class="mt-2 text-2xl font-semibold text-slate-900">{data.crmSlices.recentNew.length}</p>
+		</div>
+		<div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+			<p class="text-xs font-semibold uppercase tracking-wide text-amber-700">No response 48h+</p>
+			<p class="mt-2 text-2xl font-semibold text-slate-900">{data.crmSlices.noResponse.length}</p>
+		</div>
+		<div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+			<p class="text-xs font-semibold uppercase tracking-wide text-amber-700">Animals with zero inquiries</p>
+			<p class="mt-2 text-2xl font-semibold text-slate-900">{data.crmSlices.animalsNoInquiries.length}</p>
+		</div>
 	</div>
-	<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-		<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">No response 48h+</p>
-		<p class="mt-2 text-2xl font-semibold text-slate-900">{data.crmSlices.noResponse.length}</p>
-	</div>
-	<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-		<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Animals with zero inquiries</p>
-		<p class="mt-2 text-2xl font-semibold text-slate-900">{data.crmSlices.animalsNoInquiries.length}</p>
-	</div>
-</div>
+</section>
 
 <section class="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 	<div class="flex items-center justify-between">
@@ -44,31 +50,38 @@
 		<p class="mt-6 text-sm text-slate-500">No inquiries yet.</p>
 	{:else}
 		<div class="mt-6 divide-y divide-slate-100">
-			{#each data.recentInquiries as inquiry}
-				<div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
-					<div>
-						<p class="text-sm font-semibold text-slate-900">{inquiry.adopter_name}</p>
-						<p class="text-xs text-slate-500">
+			{#each data.recentInquiries as inquiry, index}
+				<div
+					class={`flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between ${
+						index === 0 ? 'rounded-lg bg-emerald-50/60 px-3' : ''
+					}`}
+				>
+					<div class="space-y-1">
+						<p class={`text-sm font-semibold ${index === 0 ? 'text-emerald-800' : 'text-slate-900'}`}>
+							{inquiry.adopter_name}
+						</p>
+						<p class="text-xs font-semibold text-slate-600">
 							For {inquiry.animals?.name ?? 'an animal'} · {new Date(inquiry.created_at).toLocaleString()}
 						</p>
 					</div>
 					<a
-						class="text-sm font-medium text-emerald-600"
+						class="inline-flex items-center justify-center rounded-md border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
 						href={`/admin/inquiries?focus=${inquiry.id}`}
-						>Update status</a
 					>
+						Update status
+					</a>
 				</div>
 			{/each}
 		</div>
 	{/if}
 </section>
 
-<section class="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-	<h2 class="text-xl font-semibold text-slate-900">Analytics</h2>
-	<div class="mt-4 grid gap-4 md:grid-cols-3 text-sm text-slate-700">
-		<div class="rounded-lg border border-slate-200 p-4">
+<section class="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
+	<h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Analytics (background)</h2>
+	<div class="mt-3 grid gap-3 md:grid-cols-3">
+		<div class="rounded-lg border border-slate-200 bg-white/70 p-3">
 			<p class="text-xs uppercase tracking-wide text-slate-500">Avg time to first response</p>
-			<p class="mt-1 text-lg font-semibold text-slate-900">
+			<p class="mt-1 text-base font-semibold text-slate-800">
 				{#if data.analytics.timeToFirstResponseHours === null}
 					–
 				{:else}
@@ -76,13 +89,13 @@
 				{/if}
 			</p>
 		</div>
-		<div class="rounded-lg border border-slate-200 p-4">
+		<div class="rounded-lg border border-slate-200 bg-white/70 p-3">
 			<p class="text-xs uppercase tracking-wide text-slate-500">Stale inquiries</p>
-			<p class="mt-1 text-lg font-semibold text-slate-900">{data.analytics.staleCount}</p>
+			<p class="mt-1 text-base font-semibold text-slate-800">{data.analytics.staleCount}</p>
 		</div>
-		<div class="rounded-lg border border-slate-200 p-4">
+		<div class="rounded-lg border border-slate-200 bg-white/70 p-3">
 			<p class="text-xs uppercase tracking-wide text-slate-500">Inquiries per animal</p>
-			<p class="mt-1 text-lg font-semibold text-slate-900">
+			<p class="mt-1 text-base font-semibold text-slate-800">
 				{#if Number.isNaN(data.analytics.inquiriesPerAnimal)}
 					–
 				{:else}
@@ -93,39 +106,41 @@
 	</div>
 </section>
 
-<section class="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-	<h2 class="text-xl font-semibold text-slate-900">Public profile</h2>
-	<p class="text-sm text-slate-600">Share your mission, process, and expected response times.</p>
-	<form method="POST" action="?/updateRescue" class="mt-4 space-y-4">
-		<label class="block text-sm font-medium text-slate-700">
-			Mission statement
-			<textarea
-				name="mission_statement"
-				rows="3"
-				class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-			>{data.currentRescue?.mission_statement}</textarea>
-		</label>
-		<label class="block text-sm font-medium text-slate-700">
-			Adoption process
-			<textarea
-				name="adoption_process"
-				rows="4"
-				class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-			>{data.currentRescue?.adoption_process}</textarea>
-		</label>
-		<label class="block text-sm font-medium text-slate-700">
-			Response time
-			<input
-				name="response_time_text"
-				class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-				value={data.currentRescue?.response_time_text}
-			/>
-		</label>
-		<button
-			type="submit"
-			class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
-		>
-			Save
-		</button>
-	</form>
+<section class="mt-10 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+	<details open class="space-y-4">
+		<summary class="cursor-pointer text-sm font-semibold text-slate-800">Public profile</summary>
+		<p class="text-xs text-slate-500">Keep adopters informed with your mission and process.</p>
+		<form method="POST" action="?/updateRescue" class="space-y-4 text-sm">
+			<label class="block font-medium text-slate-700">
+				Mission statement
+				<textarea
+					name="mission_statement"
+					rows="3"
+					class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+				>{data.currentRescue?.mission_statement}</textarea>
+			</label>
+			<label class="block font-medium text-slate-700">
+				Adoption process
+				<textarea
+					name="adoption_process"
+					rows="4"
+					class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+				>{data.currentRescue?.adoption_process}</textarea>
+			</label>
+			<label class="block font-medium text-slate-700">
+				Response time
+				<input
+					name="response_time_text"
+					class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					value={data.currentRescue?.response_time_text}
+				/>
+			</label>
+			<button
+				type="submit"
+				class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+			>
+				Save
+			</button>
+		</form>
+	</details>
 </section>
