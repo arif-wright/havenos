@@ -350,6 +350,14 @@
 						<span class="text-sm text-slate-700">{new Date(animal.created_at).toLocaleDateString()}</span>
 						<div class="flex flex-wrap gap-2 text-sm font-semibold">
 							<a
+								class="rounded-md border border-slate-200 px-3 py-1 text-slate-700 hover:bg-slate-50"
+								href={`/animal/${animal.id}`}
+								target="_blank"
+								rel="noreferrer"
+							>
+								View public
+							</a>
+							<a
 								class="rounded-md border border-emerald-600 px-3 py-1 text-emerald-700 hover:bg-emerald-50"
 								href={`/admin/animals/${animal.id}`}
 							>
