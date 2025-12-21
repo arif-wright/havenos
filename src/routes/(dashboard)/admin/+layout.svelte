@@ -19,7 +19,7 @@
 	<header class="border-b border-slate-200 bg-white">
 		<div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between">
 			<div>
-				<p class="text-xs uppercase tracking-widest text-emerald-600">HavenOS</p>
+				<p class="text-xs uppercase tracking-widest text-emerald-600">RescueOS</p>
 				<h1 class="text-2xl font-semibold text-slate-900">{data.currentRescue?.name}</h1>
 				<p class="text-sm text-slate-500">{data.currentRescue?.contact_email}</p>
 			</div>
