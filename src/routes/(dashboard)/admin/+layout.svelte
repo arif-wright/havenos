@@ -24,11 +24,19 @@
 			</div>
 			<nav class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
 				{#each links as link}
-					{#if $page.url.pathname === link.href || $page.url.pathname.startsWith(`${link.href}/`)}
-						<span class="rounded-md bg-emerald-50 px-3 py-1 text-emerald-700">{link.label}</span>
-					{:else}
-						<a class="rounded-md px-3 py-1 hover:bg-slate-100" href={link.href}>{link.label}</a>
-					{/if}
+					<a
+						class={`rounded-md px-3 py-1 hover:bg-slate-100 ${
+							$page.url.pathname === link.href || $page.url.pathname.startsWith(`${link.href}/`)
+								? 'bg-emerald-50 text-emerald-700'
+								: ''
+						}`}
+						href={link.href}
+						aria-current={$page.url.pathname === link.href || $page.url.pathname.startsWith(`${link.href}/`)
+							? 'page'
+							: undefined}
+					>
+						{link.label}
+					</a>
 				{/each}
 				<form method="POST" action="/admin/logout">
 					<button
