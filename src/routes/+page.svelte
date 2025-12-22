@@ -1,50 +1,67 @@
 <section class="space-y-10">
-	<div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-		<div class="grid gap-8 lg:grid-cols-[1.1fr,1fr] lg:items-center">
+	<div class="relative overflow-hidden rounded-[32px] border border-slate-100 bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 p-8 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.3)]">
+		<div class="absolute -left-16 -top-24 h-64 w-64 rounded-full bg-emerald-100 blur-3xl opacity-60"></div>
+		<div class="absolute -right-10 -bottom-20 h-80 w-80 rounded-full bg-indigo-100 blur-3xl opacity-70"></div>
+
+		<div class="relative grid gap-10 lg:grid-cols-[1.05fr,1fr] lg:items-center">
 			<div class="space-y-5">
-				<p class="text-sm font-semibold uppercase tracking-wide text-emerald-600">RescueOS</p>
-				<h1 class="text-4xl font-bold text-slate-900">A calm home for adoptable pets and inquiries.</h1>
+				<p class="inline-flex items-center rounded-full bg-white/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 shadow-sm">
+					Rescue-first platform
+				</p>
+				<h1 class="text-4xl font-bold leading-tight text-slate-900 md:text-5xl">
+					A calm, real workspace for adoptable pets and inquiries.
+				</h1>
 				<p class="max-w-3xl text-lg text-slate-700">
-					RescueOS keeps animals, inquiries, and public pages together so teams stay clear and adopters know
-					what happens next.
+					RescueOS keeps animals, inquiries, and public pages together so teams stay confident and adopters
+					know exactly what happens next.
 				</p>
 				<div class="mt-4 flex flex-wrap gap-3">
 					<a
-						class="rounded-md bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-500"
+						class="rounded-md bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
 						href="/rescues"
 					>
 						Browse rescues
 					</a>
 					<a
-						class="rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+						class="rounded-md border border-slate-300 bg-white/70 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
 						href="/for-rescues"
 					>
 						For rescues
 					</a>
 					<a
-						class="rounded-md border border-emerald-200 px-5 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+						class="rounded-md border border-emerald-200 bg-emerald-50/80 px-5 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50"
 						href="/rescue/sample"
 					>
 						View sample rescue
 					</a>
 					<a
-						class="rounded-md border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+						class="rounded-md border border-slate-200 bg-white/70 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
 						href="/pets"
 					>
 						View adoptable pets
 					</a>
 				</div>
+				<div class="flex flex-wrap gap-3 text-sm text-slate-600">
+					<span class="inline-flex items-center gap-1 rounded-full bg-white/70 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+						✔ Inquiry history & notes
+					</span>
+					<span class="inline-flex items-center gap-1 rounded-full bg-white/70 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+						✔ Public pages kept in sync
+					</span>
+					<span class="inline-flex items-center gap-1 rounded-full bg-white/70 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+						✔ Team-ready roles
+					</span>
+				</div>
 			</div>
+
 			<div class="relative">
-				<div class="absolute inset-0 rounded-3xl bg-emerald-100/40 blur-3xl"></div>
-				<div class="relative rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-md">
-					<div class="overflow-hidden rounded-xl border border-slate-100 bg-slate-900/5 shadow-sm">
+				<div class="relative rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-xl">
+					<div class="overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
 						<img
 							src="/images/rescueos-animals.svg"
 							alt="RescueOS animals management view"
-							class="w-full opacity-95"
+							class="w-full"
 							loading="lazy"
-							style="filter: blur(2px);"
 						/>
 					</div>
 					<p class="mt-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
