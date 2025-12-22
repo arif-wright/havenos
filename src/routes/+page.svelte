@@ -1,36 +1,57 @@
 <section class="space-y-10">
 	<div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-		<p class="text-sm font-semibold uppercase tracking-wide text-emerald-600">RescueOS</p>
-		<h1 class="mt-3 text-4xl font-bold text-slate-900">Help more animals get home without burning out.</h1>
-		<p class="mt-4 max-w-3xl text-lg text-slate-700">
-			RescueOS keeps adoptable pets, inquiries, and public pages in one calm workspace so rescues never lose a
-			message and adopters know what to expect.
-		</p>
-		<div class="mt-8 flex flex-wrap gap-3">
-			<a
-				class="rounded-md bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-500"
-				href="/rescues"
-			>
-				Browse rescues
-			</a>
-			<a
-				class="rounded-md border border-emerald-200 px-5 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
-				href="/rescue/sample"
-			>
-				View sample rescue
-			</a>
-			<a
-				class="rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-				href="/for-rescues"
-			>
-				For rescues
-			</a>
-			<a
-				class="rounded-md border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-				href="/pets"
-			>
-				View adoptable pets
-			</a>
+		<div class="grid gap-8 lg:grid-cols-[1.1fr,1fr] lg:items-center">
+			<div class="space-y-5">
+				<p class="text-sm font-semibold uppercase tracking-wide text-emerald-600">RescueOS</p>
+				<h1 class="text-4xl font-bold text-slate-900">A calm home for adoptable pets and inquiries.</h1>
+				<p class="max-w-3xl text-lg text-slate-700">
+					RescueOS keeps animals, inquiries, and public pages together so teams stay clear and adopters know
+					what happens next.
+				</p>
+				<div class="mt-4 flex flex-wrap gap-3">
+					<a
+						class="rounded-md bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-500"
+						href="/rescues"
+					>
+						Browse rescues
+					</a>
+					<a
+						class="rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+						href="/for-rescues"
+					>
+						For rescues
+					</a>
+					<a
+						class="rounded-md border border-emerald-200 px-5 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+						href="/rescue/sample"
+					>
+						View sample rescue
+					</a>
+					<a
+						class="rounded-md border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+						href="/pets"
+					>
+						View adoptable pets
+					</a>
+				</div>
+			</div>
+			<div class="relative">
+				<div class="absolute inset-0 rounded-3xl bg-emerald-100/40 blur-3xl"></div>
+				<div class="relative rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-md">
+					<div class="overflow-hidden rounded-xl border border-slate-100 bg-slate-900/5 shadow-sm">
+						<img
+							src="/images/rescueos-animals.svg"
+							alt="RescueOS animals management view"
+							class="w-full opacity-95"
+							loading="lazy"
+							style="filter: blur(2px);"
+						/>
+					</div>
+					<p class="mt-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+						Animals management (sample data)
+					</p>
+				</div>
+			</div>
 		</div>
 	</div>
 
