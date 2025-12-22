@@ -1,12 +1,14 @@
 <section class="space-y-10">
-	<div class="relative overflow-visible rounded-[32px] bg-gradient-radial from-white via-slate-50 to-emerald-50/50 p-10 shadow-[0_26px_70px_-48px_rgba(15,23,42,0.45)]">
-		<div class="pointer-events-none absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/20 blur-3xl"></div>
-		<div class="pointer-events-none absolute -right-12 top-10 h-56 w-56 rounded-full bg-indigo-200/15 blur-3xl"></div>
-		<div class="pointer-events-none absolute bottom-0 left-1/3 h-40 w-64 -translate-y-10 rounded-full bg-slate-900/5 blur-3xl"></div>
+	<div class="relative overflow-visible bg-gradient-to-br from-white via-slate-50 to-emerald-50/40 px-4 py-14 sm:px-6 lg:px-8">
+		<div class="pointer-events-none absolute inset-0">
+			<div class="absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/15 blur-3xl"></div>
+			<div class="absolute right-16 top-10 h-64 w-64 rounded-full bg-indigo-200/12 blur-3xl"></div>
+			<div class="absolute bottom-6 left-1/3 h-32 w-72 rounded-full bg-slate-900/5 blur-3xl"></div>
+		</div>
 
-		<div class="relative grid gap-12 lg:grid-cols-[1.05fr,1fr] lg:items-center">
-			<div class="space-y-6 lg:pt-6">
-				<p class="inline-flex items-center rounded-full bg-white/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 shadow-sm">
+		<div class="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.05fr,1fr]">
+			<div class="space-y-6 z-10">
+				<p class="inline-flex items-center rounded-full bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 shadow-sm">
 					Rescue-first platform
 				</p>
 				<h1 class="text-4xl font-bold leading-tight text-slate-900 md:text-5xl">
@@ -24,7 +26,7 @@
 						Browse rescues
 					</a>
 					<a
-						class="rounded-md border border-slate-300 bg-white/70 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
+						class="rounded-md border border-slate-300 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
 						href="/for-rescues"
 					>
 						For rescues
@@ -36,29 +38,29 @@
 						View sample rescue
 					</a>
 					<a
-						class="rounded-md border border-slate-200 bg-white/70 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
+						class="rounded-md border border-slate-200 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
 						href="/pets"
 					>
 						View adoptable pets
 					</a>
 				</div>
 				<div class="flex flex-wrap gap-3 text-sm text-slate-600">
-					<span class="inline-flex items-center gap-1 rounded-full bg-white/70 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+					<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
 						✔ Inquiry history & notes
 					</span>
-					<span class="inline-flex items-center gap-1 rounded-full bg-white/70 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+					<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
 						✔ Public pages kept in sync
 					</span>
-					<span class="inline-flex items-center gap-1 rounded-full bg-white/70 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+					<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
 						✔ Team-ready roles
 					</span>
 				</div>
 			</div>
 
-			<div class="relative -mt-6 lg:-mt-2">
-				<div class="pointer-events-none absolute -left-6 -top-8 h-24 w-24 rounded-full bg-emerald-200/30 blur-2xl"></div>
-				<div class="relative -right-4 rounded-3xl bg-white/85 p-3 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.55)] lg:-right-8 lg:-translate-y-4">
-					<div class="overflow-hidden rounded-2xl shadow-[0_18px_50px_-32px_rgba(15,23,42,0.35)]">
+			<div class="relative">
+				<div class="pointer-events-none absolute -left-10 top-10 h-24 w-24 rounded-full bg-emerald-200/30 blur-2xl"></div>
+				<div class="absolute -right-14 top-4 w-[520px] translate-y-6 rotate-0 rounded-2xl shadow-[0_24px_70px_-40px_rgba(15,23,42,0.55)] lg:translate-y-10">
+					<div class="overflow-hidden rounded-2xl shadow-[0_20px_60px_-38px_rgba(15,23,42,0.35)]">
 						<img
 							src="/images/rescueos-animals.svg"
 							alt="RescueOS animals management view"
@@ -66,9 +68,6 @@
 							loading="lazy"
 						/>
 					</div>
-					<p class="mt-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
-						Animals management (sample data)
-					</p>
 				</div>
 			</div>
 		</div>
