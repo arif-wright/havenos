@@ -122,6 +122,14 @@ Policies require RLS to be enabled on every table, so double-check that `auth.ui
 - “Add animal” is now an intentional flow via `/admin/animals/new` instead of an inline form
 - Dashboard keeps operational focus; analytics are visually de-emphasized and the public profile editor lives in Settings
 
+### Phase 3.75 public surface
+- Homepage rewritten for adopters and rescues with clear CTAs (browse rescues, sample rescue, admin info)
+- Sample rescue at `/rescue/sample` to avoid 404s while demonstrating the public view
+- Public rescue directory at `/rescues` and aggregate adoptables at `/pets`
+- Public nav (Home, Browse rescues, For rescues, Admin login)
+- “For rescues” orientation page explaining access and expectations
+- Admins can edit rescue name, contact email, and public profile fields in `/admin/settings`
+
 ## Development Conventions
 - Mutations use SvelteKit server actions for explicit error handling
 - The Supabase client is configured per-request in `src/hooks.server.ts`

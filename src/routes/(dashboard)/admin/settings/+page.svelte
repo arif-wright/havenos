@@ -30,6 +30,8 @@
 	{/if}
 	<div class="mt-4">
 		<PublicProfileForm
+			name={data.currentRescue?.name}
+			contactEmail={data.currentRescue?.contact_email}
 			mission={data.currentRescue?.mission_statement}
 			adoptionProcess={data.currentRescue?.adoption_process}
 			responseTime={data.currentRescue?.response_time_text}
