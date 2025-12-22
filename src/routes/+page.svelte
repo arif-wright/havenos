@@ -1,10 +1,11 @@
 <section class="space-y-10">
-	<div class="relative overflow-hidden rounded-[32px] border border-slate-100 bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 p-8 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.3)]">
-		<div class="absolute -left-16 -top-24 h-64 w-64 rounded-full bg-emerald-100 blur-3xl opacity-60"></div>
-		<div class="absolute -right-10 -bottom-20 h-80 w-80 rounded-full bg-indigo-100 blur-3xl opacity-70"></div>
+	<div class="relative overflow-visible rounded-[32px] bg-gradient-radial from-white via-slate-50 to-emerald-50/50 p-10 shadow-[0_26px_70px_-48px_rgba(15,23,42,0.45)]">
+		<div class="pointer-events-none absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/20 blur-3xl"></div>
+		<div class="pointer-events-none absolute -right-12 top-10 h-56 w-56 rounded-full bg-indigo-200/15 blur-3xl"></div>
+		<div class="pointer-events-none absolute bottom-0 left-1/3 h-40 w-64 -translate-y-10 rounded-full bg-slate-900/5 blur-3xl"></div>
 
-		<div class="relative grid gap-10 lg:grid-cols-[1.05fr,1fr] lg:items-center">
-			<div class="space-y-5">
+		<div class="relative grid gap-12 lg:grid-cols-[1.05fr,1fr] lg:items-center">
+			<div class="space-y-6 lg:pt-6">
 				<p class="inline-flex items-center rounded-full bg-white/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 shadow-sm">
 					Rescue-first platform
 				</p>
@@ -54,9 +55,10 @@
 				</div>
 			</div>
 
-			<div class="relative">
-				<div class="relative rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-xl">
-					<div class="overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
+			<div class="relative -mt-6 lg:-mt-2">
+				<div class="pointer-events-none absolute -left-6 -top-8 h-24 w-24 rounded-full bg-emerald-200/30 blur-2xl"></div>
+				<div class="relative -right-4 rounded-3xl bg-white/85 p-3 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.55)] lg:-right-8 lg:-translate-y-4">
+					<div class="overflow-hidden rounded-2xl shadow-[0_18px_50px_-32px_rgba(15,23,42,0.35)]">
 						<img
 							src="/images/rescueos-animals.svg"
 							alt="RescueOS animals management view"
