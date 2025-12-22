@@ -1,5 +1,5 @@
-<section class="space-y-10">
-	<div class="relative overflow-visible bg-gradient-to-br from-white via-slate-50 to-emerald-50/40 px-4 py-14 sm:px-6 lg:px-8">
+<section class="space-y-12">
+	<div class="relative overflow-visible bg-gradient-to-br from-white via-slate-50 to-emerald-50/40 px-4 pt-14 pb-24 sm:px-6 lg:px-8">
 		<div class="pointer-events-none absolute inset-0">
 			<div class="absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/15 blur-3xl"></div>
 			<div class="absolute right-16 top-10 h-64 w-64 rounded-full bg-indigo-200/12 blur-3xl"></div>
@@ -20,25 +20,25 @@
 				</p>
 				<div class="mt-4 flex flex-wrap gap-3">
 					<a
-						class="rounded-md bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
+						class="rounded-md bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
 						href="/rescues"
 					>
 						Browse rescues
 					</a>
 					<a
-						class="rounded-md border border-slate-300 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
+						class="rounded-md border border-slate-200 bg-white/85 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
 						href="/for-rescues"
 					>
 						For rescues
 					</a>
 					<a
-						class="rounded-md border border-emerald-200 bg-emerald-50/80 px-5 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50"
+						class="rounded-md border border-emerald-200 bg-emerald-50/85 px-5 py-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50"
 						href="/rescue/sample"
 					>
 						View sample rescue
 					</a>
 					<a
-						class="rounded-md border border-slate-200 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white"
+						class="rounded-md border border-slate-200 bg-white/85 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
 						href="/pets"
 					>
 						View adoptable pets
@@ -59,8 +59,8 @@
 
 			<div class="relative">
 				<div class="pointer-events-none absolute -left-10 top-10 h-24 w-24 rounded-full bg-emerald-200/30 blur-2xl"></div>
-				<div class="absolute -right-14 top-4 w-[520px] translate-y-6 rotate-0 rounded-2xl shadow-[0_24px_70px_-40px_rgba(15,23,42,0.55)] lg:translate-y-10">
-					<div class="overflow-hidden rounded-2xl shadow-[0_20px_60px_-38px_rgba(15,23,42,0.35)]">
+				<div class="absolute -right-16 top-2 w-[520px] translate-y-8 rounded-2xl shadow-[0_26px_80px_-46px_rgba(15,23,42,0.6)] lg:-right-20 lg:translate-y-12">
+					<div class="overflow-hidden rounded-2xl shadow-[0_22px_70px_-40px_rgba(15,23,42,0.45)]">
 						<img
 							src="/images/rescueos-animals.svg"
 							alt="RescueOS animals management view"
@@ -73,22 +73,22 @@
 		</div>
 	</div>
 
-	<div class="grid gap-6 md:grid-cols-3">
-		<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+	<div class="grid gap-6 md:grid-cols-3 -mt-6">
+		<div class="rounded-2xl bg-white p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
 			<h3 class="text-lg font-semibold text-slate-900">For adopters</h3>
 			<p class="mt-2 text-sm text-slate-600">
 				Find rescues, browse adoptable animals, and send an inquiry that won’t get lost. Every rescue page
 				shows what happens next and how to reach them.
 			</p>
 		</div>
-		<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+		<div class="rounded-2xl bg-white p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
 			<h3 class="text-lg font-semibold text-slate-900">For rescues</h3>
 			<p class="mt-2 text-sm text-slate-600">
 				A single dashboard for animals, inquiries, team notes, and email history. Clear guardrails so nothing
 				slips through the cracks.
 			</p>
 		</div>
-		<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+		<div class="rounded-2xl bg-white p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
 			<h3 class="text-lg font-semibold text-slate-900">Why it’s different</h3>
 			<p class="mt-2 text-sm text-slate-600">
 				RescueOS is built with rescues first: operational calm, predictable workflows, and public pages that
