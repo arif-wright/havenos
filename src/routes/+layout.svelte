@@ -15,7 +15,7 @@
 </svelte:head>
 
 {#if isPublicShell}
-	<div class="min-h-screen bg-slate-50 text-slate-900">
+	<div class="min-h-screen bg-[#e8edf3] text-slate-900">
 		<header class="border-b border-slate-200 bg-white">
 			<div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
 				<a href="/" class="text-lg font-semibold text-slate-900">RescueOS</a>

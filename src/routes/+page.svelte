@@ -1,5 +1,5 @@
 <section class="space-y-12">
-	<div class="relative overflow-visible bg-gradient-to-br from-white via-slate-50 to-emerald-50/40 px-4 pt-14 pb-24 sm:px-6 lg:px-8">
+	<div class="relative overflow-visible bg-gradient-to-br from-[#e8edf3] via-[#eef2f6] to-emerald-50/50 px-4 pt-14 pb-24 sm:px-6 lg:px-8">
 	<div class="pointer-events-none absolute inset-0">
 		<div class="absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/15 blur-3xl"></div>
 		<div class="absolute right-16 top-10 h-64 w-64 rounded-full bg-indigo-200/12 blur-3xl"></div>
@@ -75,21 +75,21 @@
 	</div>
 
 	<div class="grid gap-6 md:grid-cols-3 -mt-6">
-		<div class="rounded-2xl bg-white p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
+		<div class="rounded-2xl bg-white/90 p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
 			<h3 class="text-lg font-semibold text-slate-900">For adopters</h3>
 			<p class="mt-2 text-sm text-slate-600">
 				Find rescues, browse adoptable animals, and send an inquiry that won’t get lost. Every rescue page
 				shows what happens next and how to reach them.
 			</p>
 		</div>
-		<div class="rounded-2xl bg-white p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
+		<div class="rounded-2xl bg-white/90 p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
 			<h3 class="text-lg font-semibold text-slate-900">For rescues</h3>
 			<p class="mt-2 text-sm text-slate-600">
 				A single dashboard for animals, inquiries, team notes, and email history. Clear guardrails so nothing
 				slips through the cracks.
 			</p>
 		</div>
-		<div class="rounded-2xl bg-white p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
+		<div class="rounded-2xl bg-white/90 p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
 			<h3 class="text-lg font-semibold text-slate-900">Why it’s different</h3>
 			<p class="mt-2 text-sm text-slate-600">
 				RescueOS is built with rescues first: operational calm, predictable workflows, and public pages that
@@ -98,7 +98,7 @@
 		</div>
 	</div>
 
-	<section class="rounded-3xl bg-white p-8 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
+	<section class="rounded-3xl bg-white/90 p-8 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
 		<h2 class="text-2xl font-semibold text-slate-900">How it works</h2>
 		<div class="mt-4 grid gap-4 md:grid-cols-3">
 			<div class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
