@@ -1,11 +1,12 @@
 <section class="space-y-12">
-	<div class="relative overflow-visible bg-gradient-to-br from-[#dce3eb] via-[#e4e9f1] to-emerald-50/50 px-4 pt-14 pb-24 sm:px-6 lg:px-8">
-	<div class="pointer-events-none absolute inset-0">
-		<div class="absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/15 blur-3xl"></div>
-		<div class="absolute right-16 top-10 h-64 w-64 rounded-full bg-indigo-200/12 blur-3xl"></div>
-		<div class="absolute bottom-6 left-1/3 h-32 w-72 rounded-full bg-slate-900/5 blur-3xl"></div>
-		<div class="absolute inset-x-0 bottom-[-80px] h-40 bg-gradient-to-b from-transparent via-slate-800/6 to-transparent"></div>
-	</div>
+	<div class="relative overflow-visible px-4 pt-14 pb-24 sm:px-6 lg:px-8">
+		<div class="pointer-events-none absolute inset-0">
+			<div class="absolute inset-0 bg-gradient-to-b from-[#c6d1de] via-[#d4dce7cc] to-transparent"></div>
+			<div class="absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/15 blur-3xl"></div>
+			<div class="absolute right-16 top-10 h-64 w-64 rounded-full bg-indigo-200/12 blur-3xl"></div>
+			<div class="absolute bottom-6 left-1/3 h-32 w-72 rounded-full bg-slate-900/5 blur-3xl"></div>
+			<div class="absolute inset-x-0 bottom-[-80px] h-40 bg-gradient-to-b from-transparent via-slate-800/6 to-transparent"></div>
+		</div>
 
 		<div class="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.05fr,1fr]">
 			<div class="space-y-6 z-10">
