@@ -17,7 +17,86 @@
 					Rescue-first platform
 				</p>
 				<h1 class="text-4xl font-bold leading-tight text-slate-900 md:text-5xl">
-					A
+					<span class="relative inline-block px-1.5 py-0.5 text-inherit">
+						<span class="absolute inset-[-6px] -z-10 rounded-3xl bg-emerald-200/50 blur-xl opacity-70"></span>
+						<span class="rounded-3xl bg-emerald-200/35 px-1 py-0.5">
+							Calm, reliable
+						</span>
+					</span>
+					rescue workspace.
+				</h1>
+				<p class="max-w-3xl text-lg text-slate-700">
+					RescueOS keeps animals, inquiries, and public pages together so teams stay confident and adopters
+					know exactly what happens next.
+				</p>
+				<div class="mt-4 flex flex-wrap gap-3">
+					<a
+						class="rounded-md bg-emerald-800 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-200/60"
+						href="/rescues"
+					>
+						Browse rescues
+					</a>
+					<a
+						class="rounded-md border border-slate-200 bg-white/85 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
+						href="/for-rescues"
+					>
+						For rescues
+					</a>
+				</div>
+			</div>
+
+			<div class="relative">
+				<div class="pointer-events-none absolute -left-10 top-10 h-24 w-24 rounded-full bg-emerald-200/30 blur-2xl"></div>
+				<div class="absolute -right-16 top-2 w-[520px] translate-y-8 rounded-2xl shadow-[0_26px_80px_-46px_rgba(15,23,42,0.6)] lg:-right-20 lg:translate-y-12">
+					<div class="overflow-hidden rounded-2xl shadow-[0_22px_70px_-40px_rgba(15,23,42,0.45)]">
+						<img
+							src="/images/rescueos-animals.svg"
+							alt="RescueOS animals management view"
+							class="w-full"
+							loading="lazy"
+						/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="flex flex-wrap items-center justify-between gap-4 -mt-4">
+		<div class="flex flex-wrap gap-3 text-sm text-slate-600">
+			<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+				✔ Inquiry history & notes
+			</span>
+			<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+				✔ Public pages kept in sync
+			</span>
+			<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+				✔ Team-ready roles
+			</span>
+		</div>
+		<div class="flex flex-wrap gap-3">
+			<a
+				class="rounded-md border border-emerald-200 bg-emerald-50/85 px-5 py-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50"
+				href="/rescue/sample"
+			>
+				View sample rescue
+			</a>
+			<a
+				class="rounded-md border border-slate-200 bg-white/85 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
+				href="/pets"
+			>
+				View adoptable pets
+			</a>
+		</div>
+	</div>
+
+	<div class="grid gap-6 md:grid-cols-3 -mt-6">
+		<div class="rounded-2xl bg-white/90 p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
+			<h3 class="text-lg font-semibold text-slate-900">For adopters</h3>
+			<p class="mt-2 text-sm text-slate-600">
+				Find rescues, browse adoptable animals, and send an inquiry that won’t get lost. Every rescue page
+				shows what happens next and how to reach them.
+			</p>
+		</div>
 					<span class="relative inline-block px-1.5 py-0.5 text-inherit">
 						<span class="absolute inset-[-6px] -z-10 rounded-3xl bg-emerald-200/50 blur-xl opacity-70"></span>
 						<span class="rounded-3xl bg-emerald-200/35 px-1 py-0.5">
