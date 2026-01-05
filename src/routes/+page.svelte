@@ -1,7 +1,8 @@
 <section class="space-y-12">
 	<div class="relative overflow-visible px-4 pt-14 pb-24 sm:px-6 lg:px-8">
 		<div class="pointer-events-none absolute inset-0">
-			<div class="absolute inset-0 bg-gradient-to-b from-[#c6d1de] via-[#d4dce7cc] to-transparent"></div>
+			<div class="absolute inset-0 bg-gradient-to-br from-[#c1ccd9e6] via-[#d4dce7cc] to-[#e7edf5a0]"></div>
+			<div class="absolute -left-6 top-6 h-64 w-80 rounded-full bg-slate-400/15 blur-3xl"></div>
 			<div class="absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/15 blur-3xl"></div>
 			<div class="absolute right-16 top-10 h-64 w-64 rounded-full bg-indigo-200/12 blur-3xl"></div>
 			<div class="absolute bottom-6 left-1/3 h-32 w-72 rounded-full bg-slate-900/5 blur-3xl"></div>
@@ -22,7 +23,7 @@
 				</p>
 				<div class="mt-4 flex flex-wrap gap-3">
 					<a
-						class="rounded-md bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+						class="rounded-md bg-emerald-800 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-200/60"
 						href="/rescues"
 					>
 						Browse rescues
