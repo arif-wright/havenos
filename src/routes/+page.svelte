@@ -2,6 +2,7 @@
 	<div class="relative overflow-visible px-4 pt-14 pb-24 sm:px-6 lg:px-8">
 		<div class="pointer-events-none absolute inset-0">
 			<div class="absolute inset-0 bg-gradient-to-br from-[#c1ccd9e6] via-[#d4dce7cc] to-[#e7edf5a0]"></div>
+			<div class="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-slate-900/10"></div>
 			<div class="absolute -left-6 top-6 h-64 w-80 rounded-full bg-slate-400/15 blur-3xl"></div>
 			<div class="absolute left-8 top-10 h-80 w-96 rounded-full bg-[radial-gradient(circle_at_20%_40%,rgba(147,197,183,0.18),transparent_60%)]"></div>
 			<div class="absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/15 blur-3xl"></div>
@@ -16,7 +17,14 @@
 					Rescue-first platform
 				</p>
 				<h1 class="text-4xl font-bold leading-tight text-slate-900 md:text-5xl">
-					A <span class="rounded-md bg-emerald-200/60 px-1.5 py-0.5">calm, real</span> workspace for adoptable pets and inquiries.
+					A
+					<span class="relative inline-block px-1.5 py-0.5 text-inherit">
+						<span class="absolute inset-[-6px] -z-10 rounded-3xl bg-emerald-200/50 blur-xl opacity-70"></span>
+						<span class="rounded-3xl bg-emerald-200/35 px-1 py-0.5">
+							calm, real
+						</span>
+					</span>
+					workspace for adoptable pets and inquiries.
 				</h1>
 				<p class="max-w-3xl text-lg text-slate-700">
 					RescueOS keeps animals, inquiries, and public pages together so teams stay confident and adopters
