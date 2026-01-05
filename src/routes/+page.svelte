@@ -43,29 +43,6 @@
 					>
 						For rescues
 					</a>
-					<a
-						class="rounded-md border border-emerald-200 bg-emerald-50/85 px-5 py-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50"
-						href="/rescue/sample"
-					>
-						View sample rescue
-					</a>
-					<a
-						class="rounded-md border border-slate-200 bg-white/85 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
-						href="/pets"
-					>
-						View adoptable pets
-					</a>
-				</div>
-				<div class="flex flex-wrap gap-3 text-sm text-slate-600">
-					<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
-						✔ Inquiry history & notes
-					</span>
-					<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
-						✔ Public pages kept in sync
-					</span>
-					<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
-						✔ Team-ready roles
-					</span>
 				</div>
 			</div>
 
@@ -82,6 +59,34 @@
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+
+	<div class="flex flex-wrap items-center justify-between gap-4 -mt-4">
+		<div class="flex flex-wrap gap-3 text-sm text-slate-600">
+			<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+				✔ Inquiry history & notes
+			</span>
+			<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+				✔ Public pages kept in sync
+			</span>
+			<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
+				✔ Team-ready roles
+			</span>
+		</div>
+		<div class="flex flex-wrap gap-3">
+			<a
+				class="rounded-md border border-emerald-200 bg-emerald-50/85 px-5 py-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50"
+				href="/rescue/sample"
+			>
+				View sample rescue
+			</a>
+			<a
+				class="rounded-md border border-slate-200 bg-white/85 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
+				href="/pets"
+			>
+				View adoptable pets
+			</a>
 		</div>
 	</div>
 
