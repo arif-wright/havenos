@@ -17,13 +17,7 @@
 					Rescue-first platform
 				</p>
 				<h1 class="text-4xl font-bold leading-tight text-slate-900 md:text-5xl">
-					<span class="relative inline-block px-1.5 py-0.5 text-inherit">
-						<span class="absolute inset-[-6px] -z-10 rounded-3xl bg-emerald-200/50 blur-xl opacity-70"></span>
-						<span class="rounded-3xl bg-emerald-200/35 px-1 py-0.5">
-							Calm, reliable
-						</span>
-					</span>
-					rescue workspace.
+					A calm, reliable rescue workspace.
 				</h1>
 				<p class="max-w-3xl text-lg text-slate-700">
 					RescueOS keeps animals, inquiries, and public pages together so teams stay confident and adopters
