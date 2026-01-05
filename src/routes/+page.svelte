@@ -3,6 +3,7 @@
 		<div class="pointer-events-none absolute inset-0">
 			<div class="absolute inset-0 bg-gradient-to-br from-[#c1ccd9e6] via-[#d4dce7cc] to-[#e7edf5a0]"></div>
 			<div class="absolute -left-6 top-6 h-64 w-80 rounded-full bg-slate-400/15 blur-3xl"></div>
+			<div class="absolute left-8 top-10 h-80 w-96 rounded-full bg-[radial-gradient(circle_at_20%_40%,rgba(147,197,183,0.18),transparent_60%)]"></div>
 			<div class="absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/15 blur-3xl"></div>
 			<div class="absolute right-16 top-10 h-64 w-64 rounded-full bg-indigo-200/12 blur-3xl"></div>
 			<div class="absolute bottom-6 left-1/3 h-32 w-72 rounded-full bg-slate-900/5 blur-3xl"></div>
@@ -15,7 +16,7 @@
 					Rescue-first platform
 				</p>
 				<h1 class="text-4xl font-bold leading-tight text-slate-900 md:text-5xl">
-					A calm, real workspace for adoptable pets and inquiries.
+					A <span class="rounded-md bg-emerald-200/60 px-1.5 py-0.5">calm, real</span> workspace for adoptable pets and inquiries.
 				</h1>
 				<p class="max-w-3xl text-lg text-slate-700">
 					RescueOS keeps animals, inquiries, and public pages together so teams stay confident and adopters
