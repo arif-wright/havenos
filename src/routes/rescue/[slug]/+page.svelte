@@ -69,7 +69,7 @@
 	</div>
 </section>
 
-<section class="bg-slate-50">
+<section class="bg-transparent">
 	<div class="mx-auto max-w-6xl pb-8">
 		<div class="overflow-hidden rounded-b-2xl bg-white shadow-sm">
 			<div class="grid gap-6 p-6 md:grid-cols-2">
