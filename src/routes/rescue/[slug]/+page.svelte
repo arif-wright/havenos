@@ -102,8 +102,8 @@
 	</div>
 </section>
 
-<section class="bg-white">
-	<div class="mx-auto max-w-6xl px-4 py-6 bg-white rounded-b-2xl">
+<section class="bg-slate-50">
+	<div class="mx-auto max-w-6xl px-4 py-6 bg-slate-50 rounded-b-xl overflow-hidden">
 		<form method="get" class="grid gap-4 md:grid-cols-3">
 			<label class="text-sm font-medium text-slate-700">
 				<span>Species</span>
