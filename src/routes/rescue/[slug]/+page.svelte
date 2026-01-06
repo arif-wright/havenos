@@ -24,7 +24,7 @@
 
 <section class="border-b border-slate-200 bg-white">
 	<div class="relative overflow-hidden">
-		<div class="h-48 w-full bg-gradient-to-r from-emerald-100 to-slate-100">
+		<div class="h-48 w-full overflow-hidden rounded-t-2xl bg-gradient-to-r from-emerald-100 to-slate-100">
 			{#if data.rescue.cover_url}
 				<img src={data.rescue.cover_url} alt="" class="h-full w-full object-cover" />
 			{/if}
