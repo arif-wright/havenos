@@ -9,30 +9,63 @@
 		adopted: 'Adopted'
 	};
 
+	const responseLabels: Record<string, string> = {
+		same_day: 'Same day',
+		'24_48': '24–48 hours',
+		'3_5': '3–5 days',
+		'1w_plus': '1+ week'
+	};
+
 	const getPhoto = (animal: NonNullable<PageData['animals']>[number]) =>
 		animal.animal_photos?.[0]?.image_url;
+
+	const adoptionSteps = data.rescue.adoption_steps as string[] | null;
 </script>
 
-<section class="bg-white border-b border-slate-200">
-	<div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:py-16">
-		<div>
-			<p class="text-sm font-medium uppercase tracking-widest text-emerald-600">Rescue</p>
-			<h1 class="text-3xl font-semibold text-slate-900 sm:text-4xl">{data.rescue.name}</h1>
-			<p class="mt-2 text-slate-600">
-				Active adoptables managed by {data.rescue.name}. Need help? Email <a
-					class="font-medium text-emerald-700 hover:text-emerald-800"
-					href={`mailto:${data.rescue.contact_email}`}>{data.rescue.contact_email}</a
-				>.
-			</p>
-			{#if data.rescue.response_time_text}
-				<p class="mt-1 text-xs text-slate-500">Typical response: {data.rescue.response_time_text}</p>
+<section class="border-b border-slate-200 bg-white">
+	<div class="relative overflow-hidden">
+		<div class="h-48 w-full bg-gradient-to-r from-emerald-100 to-slate-100">
+			{#if data.rescue.cover_url}
+				<img src={data.rescue.cover_url} alt="" class="h-full w-full object-cover" />
 			{/if}
 		</div>
-		<a
-			class="inline-flex items-center justify-center rounded-md border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
-			href="/"
-			>About HavenOS</a
-		>
+		<div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 pb-6 pt-4 sm:flex-row sm:items-end sm:justify-between">
+			<div class="-mt-12 flex items-center gap-4">
+				<div class="h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-emerald-50 shadow">
+					{#if data.rescue.logo_url}
+						<img src={data.rescue.logo_url} alt="Rescue logo" class="h-full w-full object-cover" />
+					{:else}
+						<div class="flex h-full items-center justify-center text-lg font-semibold text-emerald-700">
+							{data.rescue.name.slice(0, 2).toUpperCase()}
+						</div>
+					{/if}
+				</div>
+				<div>
+					<p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Rescue</p>
+					<h1 class="text-3xl font-semibold text-slate-900 sm:text-4xl">{data.rescue.name}</h1>
+					<p class="text-sm text-slate-600">
+						{data.rescue.tagline || data.rescue.location_text || 'Adoptable pets and updates.'}
+					</p>
+					{#if data.rescue.location_text}
+						<p class="text-xs text-slate-500">Based in {data.rescue.location_text}</p>
+					{/if}
+				</div>
+			</div>
+			<div class="flex flex-wrap items-center gap-2">
+				{#if data.rescue.website_url}
+					<a class="rounded-md border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50" href={data.rescue.website_url} target="_blank" rel="noreferrer">Website</a>
+				{/if}
+				{#if data.rescue.instagram_url}
+					<a class="rounded-md border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50" href={data.rescue.instagram_url} target="_blank" rel="noreferrer">Instagram</a>
+				{/if}
+				{#if data.rescue.facebook_url}
+					<a class="rounded-md border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50" href={data.rescue.facebook_url} target="_blank" rel="noreferrer">Facebook</a>
+				{/if}
+				{#if data.rescue.donation_url}
+					<a class="rounded-md bg-emerald-600 px-3 py-1 text-sm font-semibold text-white hover:bg-emerald-500" href={data.rescue.donation_url} target="_blank" rel="noreferrer">Donate</a>
+				{/if}
+			</div>
+		</div>
 	</div>
 </section>
 
@@ -44,11 +77,25 @@
 				{data.rescue.mission_statement || 'This rescue has not shared their mission yet.'}
 			</p>
 		</div>
-		<div class="rounded-xl border border-slate-200 bg-slate-50 p-6">
-			<h2 class="text-lg font-semibold text-slate-900">Adoption process</h2>
-			<p class="mt-2 whitespace-pre-line text-sm text-slate-700">
-				{data.rescue.adoption_process || 'Adoption process details will be shared during your conversation.'}
-			</p>
+		<div class="rounded-xl border border-slate-200 bg-slate-50 p-6 space-y-3">
+			<h2 class="text-lg font-semibold text-slate-900">How adoption works</h2>
+			{#if adoptionSteps?.length}
+				<ol class="space-y-2 text-sm text-slate-700 list-decimal list-inside">
+					{#each adoptionSteps as step}
+						<li>{step}</li>
+					{/each}
+				</ol>
+			{:else}
+				<p class="text-sm text-slate-600">Adoption steps will be shared during your conversation.</p>
+			{/if}
+			{#if data.rescue.response_time_enum}
+				<p class="text-xs text-slate-500">Typical response: {responseLabels[data.rescue.response_time_enum] ?? data.rescue.response_time_text}</p>
+			{:else if data.rescue.response_time_text}
+				<p class="text-xs text-slate-500">Typical response: {data.rescue.response_time_text}</p>
+			{/if}
+			{#if data.rescue.adoption_process}
+				<p class="text-sm whitespace-pre-line text-slate-700">{data.rescue.adoption_process}</p>
+			{/if}
 		</div>
 	</div>
 </section>

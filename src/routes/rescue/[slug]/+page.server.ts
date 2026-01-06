@@ -1,12 +1,18 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { getPublicRescueBySlug, listPublicAnimals } from '$lib/server/animals';
+import { getServiceSupabase } from '$lib/server/supabaseService';
 
 export const load: PageServerLoad = async ({ params, url, locals }) => {
-	const { data: rescue, error: rescueError } = await getPublicRescueBySlug(
-		locals.supabase,
-		params.slug
-	);
+	let { data: rescue, error: rescueError } = await getPublicRescueBySlug(locals.supabase, params.slug);
+
+	// Allow owners/admins to preview even if is_public=false
+	if (!rescue && locals.currentRescue?.slug === params.slug) {
+		const service = getServiceSupabase();
+		const { data: fallback, error: fallbackError } = await service.from('rescues').select('*').eq('slug', params.slug).maybeSingle();
+		if (fallbackError) rescueError = fallbackError;
+		rescue = fallback ?? null;
+	}
 
 	if (rescueError) {
 		console.error(rescueError);

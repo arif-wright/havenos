@@ -18,6 +18,18 @@ export type Database = {
 					mission_statement: string | null;
 					adoption_process: string | null;
 					response_time_text: string | null;
+					tagline: string | null;
+					location_text: string | null;
+					website_url: string | null;
+					facebook_url: string | null;
+					instagram_url: string | null;
+					donation_url: string | null;
+					logo_url: string | null;
+					cover_url: string | null;
+					response_time_enum: string | null;
+					adoption_steps: Json | null;
+					is_public: boolean;
+					updated_at: string;
 					created_at: string;
 				};
 				Insert: {
@@ -28,6 +40,18 @@ export type Database = {
 					mission_statement?: string | null;
 					adoption_process?: string | null;
 					response_time_text?: string | null;
+					tagline?: string | null;
+					location_text?: string | null;
+					website_url?: string | null;
+					facebook_url?: string | null;
+					instagram_url?: string | null;
+					donation_url?: string | null;
+					logo_url?: string | null;
+					cover_url?: string | null;
+					response_time_enum?: string | null;
+					adoption_steps?: Json | null;
+					is_public?: boolean;
+					updated_at?: string;
 					created_at?: string;
 				};
 				Update: {
@@ -38,6 +62,18 @@ export type Database = {
 					mission_statement?: string | null;
 					adoption_process?: string | null;
 					response_time_text?: string | null;
+					tagline?: string | null;
+					location_text?: string | null;
+					website_url?: string | null;
+					facebook_url?: string | null;
+					instagram_url?: string | null;
+					donation_url?: string | null;
+					logo_url?: string | null;
+					cover_url?: string | null;
+					response_time_enum?: string | null;
+					adoption_steps?: Json | null;
+					is_public?: boolean;
+					updated_at?: string;
 					created_at?: string;
 				};
 				Relationships: [];
@@ -489,6 +525,27 @@ export type Database = {
 					expires_at: string | null;
 					accepted_at: string | null;
 					canceled_at: string | null;
+				};
+				Relationships: [];
+			};
+			public_rescues: {
+				Row: {
+					id: string | null;
+					name: string | null;
+					slug: string | null;
+					tagline: string | null;
+					location_text: string | null;
+					mission_statement: string | null;
+					adoption_process: string | null;
+					response_time_enum: string | null;
+					adoption_steps: Json | null;
+					website_url: string | null;
+					facebook_url: string | null;
+					instagram_url: string | null;
+					donation_url: string | null;
+					logo_url: string | null;
+					cover_url: string | null;
+					is_public: boolean | null;
 				};
 				Relationships: [];
 			};

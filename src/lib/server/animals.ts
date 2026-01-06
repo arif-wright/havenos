@@ -39,7 +39,7 @@ export const getAnimalForRescue = async (supabase: DbClient, animalId: string) =
 };
 
 export const getPublicRescueBySlug = async (supabase: DbClient, slug: string) => {
-	return supabase.from('rescues').select('*').eq('slug', slug).maybeSingle();
+	return supabase.from('public_rescues').select('*').eq('slug', slug).maybeSingle();
 };
 
 type PublicAnimalFilters = {

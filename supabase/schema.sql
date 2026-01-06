@@ -9,7 +9,19 @@ create table if not exists rescues (
     mission_statement text,
     adoption_process text,
     response_time_text text,
-    created_at timestamptz not null default timezone('utc', now())
+    created_at timestamptz not null default timezone('utc', now()),
+    tagline text,
+    location_text text,
+    website_url text,
+    facebook_url text,
+    instagram_url text,
+    donation_url text,
+    logo_url text,
+    cover_url text,
+    response_time_enum text,
+    adoption_steps jsonb,
+    is_public boolean not null default true,
+    updated_at timestamptz not null default timezone('utc', now())
 );
 
 create table if not exists rescue_admins (
@@ -74,6 +86,19 @@ begin
   return new;
 end;
 $$ language plpgsql;
+
+create or replace function handle_rescues_updated_at() returns trigger as $$
+begin
+  new.updated_at = timezone('utc', now());
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists rescues_set_updated_at on rescues;
+create trigger rescues_set_updated_at
+before update on rescues
+for each row
+execute procedure handle_rescues_updated_at();
 
 drop trigger if exists animals_set_updated_at on animals;
 create trigger animals_set_updated_at
@@ -175,6 +200,73 @@ create table if not exists email_logs (
 
 create index if not exists idx_email_logs_rescue on email_logs(rescue_id, created_at desc);
 create index if not exists idx_email_logs_inquiry on email_logs(inquiry_id, created_at desc);
+
+-- Public-facing view for rescues
+create or replace view public_rescues as
+select
+    id,
+    name,
+    slug,
+    tagline,
+    location_text,
+    mission_statement,
+    adoption_process,
+    response_time_enum,
+    adoption_steps,
+    website_url,
+    facebook_url,
+    instagram_url,
+    donation_url,
+    logo_url,
+    cover_url,
+    is_public
+from rescues;
+
+drop policy if exists "public rescues readable" on rescues;
+create policy "public rescues readable" on rescues
+    for select using (is_public is true and slug is not null);
+
+-- Storage bucket for rescue media (public read)
+insert into storage.buckets (id, name, public)
+values ('rescue-media', 'rescue-media', true)
+on conflict (id) do nothing;
+
+drop policy if exists "Public read rescue-media" on storage.objects;
+create policy "Public read rescue-media" on storage.objects
+    for select using (bucket_id = 'rescue-media');
+
+drop policy if exists "Members write rescue-media" on storage.objects;
+create policy "Members write rescue-media" on storage.objects
+    for insert with check (
+        bucket_id = 'rescue-media'
+        and exists (
+            select 1 from rescue_members rm
+            where rm.user_id = auth.uid()
+              and rm.rescue_id = split_part(name, '/', 1)::uuid
+        )
+    );
+
+drop policy if exists "Members update rescue-media" on storage.objects;
+create policy "Members update rescue-media" on storage.objects
+    for update using (
+        bucket_id = 'rescue-media'
+        and exists (
+            select 1 from rescue_members rm
+            where rm.user_id = auth.uid()
+              and rm.rescue_id = split_part(name, '/', 1)::uuid
+        )
+    );
+
+drop policy if exists "Members delete rescue-media" on storage.objects;
+create policy "Members delete rescue-media" on storage.objects
+    for delete using (
+        bucket_id = 'rescue-media'
+        and exists (
+            select 1 from rescue_members rm
+            where rm.user_id = auth.uid()
+              and rm.rescue_id = split_part(name, '/', 1)::uuid
+        )
+    );
 
 -- Profiles for human-friendly names
 create table if not exists profiles (
