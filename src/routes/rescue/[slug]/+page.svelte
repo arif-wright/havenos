@@ -155,7 +155,7 @@
 </section>
 
 <section class="bg-transparent">
-	<div class="mx-auto max-w-6xl px-4 pb-12 pt-6">
+	<div class="mx-auto max-w-6xl pb-12 pt-6">
 		{#if data.animals.length === 0}
 			<div class="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center">
 				<p class="text-lg font-medium text-slate-700">No animals match those filters yet.</p>
