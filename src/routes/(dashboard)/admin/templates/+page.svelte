@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { ActionData, PageData } from './$types';
 
 	export let data: PageData;
@@ -23,11 +22,19 @@
 
 	const templates = data.templates ?? [];
 
-	onMount(() => {
-		if (templates.length > 0) {
+	// Ensure something is selected as soon as templates are available (SSR + CSR)
+	$: {
+		if (!selectedId && templates.length > 0) {
 			selectTemplate(templates[0].id);
 		}
-	});
+		// If the current selection was removed (e.g., after delete), reset to first
+		if (selectedId && !templates.find((t) => t.id === selectedId) && templates.length > 0) {
+			selectTemplate(templates[0].id);
+		}
+		if (templates.length === 0) {
+			selectedId = null;
+		}
+	}
 
 	const filtered = () => {
 		if (!search) return templates;
