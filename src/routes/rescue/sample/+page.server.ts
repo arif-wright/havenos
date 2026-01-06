@@ -148,6 +148,48 @@ const sampleAnimals = [
 					'https://images.unsplash.com/photo-1589952283406-b53a7d1347e8?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 			}
 		]
+	},
+	{
+		id: 'demo-cat-4',
+		name: 'Willow',
+		species: 'Cat',
+		status: 'available',
+		description: 'Quiet calico who loves sunbeams and gentle pets.',
+		tags: ['Calm', 'Indoor only'],
+		animal_photos: [
+			{
+				image_url:
+					'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1100&q=80'
+			}
+		]
+	},
+	{
+		id: 'demo-dog-5',
+		name: 'Milo',
+		species: 'Dog',
+		status: 'available',
+		description: 'Friendly mixed-breed pup who enjoys park walks.',
+		tags: ['Good with kids', 'Leash trained'],
+		animal_photos: [
+			{
+				image_url:
+					'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1100&q=80'
+			}
+		]
+	},
+	{
+		id: 'demo-bird-1',
+		name: 'Sunny',
+		species: 'Bird',
+		status: 'available',
+		description: 'Cheerful cockatiel who loves whistles and millet treats.',
+		tags: ['Talkative', 'Hand-tame'],
+		animal_photos: [
+			{
+				image_url:
+					'https://images.unsplash.com/photo-1542377287-475db5747b1c?auto=format&fit=crop&w=1100&q=80'
+			}
+		]
 	}
 ];
 
