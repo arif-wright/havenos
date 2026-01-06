@@ -24,8 +24,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/onboarding');
 	}
 
+	// Always fetch fresh copy to avoid stale locals and show latest saved values
+	const { data: freshRescue, error } = await locals.supabase.from('rescues').select('*').eq('id', rescue.id).maybeSingle();
+	if (error) {
+		console.error('settings load rescue refresh error', error);
+	}
+
 	return {
-		currentRescue: rescue
+		currentRescue: freshRescue ?? rescue
 	};
 };
 
