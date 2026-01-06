@@ -27,6 +27,9 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		species: url.searchParams.get('species') || undefined,
 		status: url.searchParams.get('status') as 'available' | 'hold' | 'adopted' | undefined
 	};
+	const pageSize = 9;
+	const pageParam = parseInt(url.searchParams.get('page') || '1', 10);
+	const page = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
 	if (filters.status && !['available', 'hold', 'adopted'].includes(filters.status)) {
 		filters.status = undefined;
@@ -35,7 +38,12 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		filters.species = filters.species.toLowerCase();
 	}
 
-	const { data: animals, error: animalError } = await listPublicAnimals(locals.supabase, rescue.id, filters);
+	const { data: animals, error: animalError, count } = await listPublicAnimals(
+		locals.supabase,
+		rescue.id,
+		filters,
+		{ page, pageSize }
+	);
 
 	if (animalError) {
 		console.error(animalError);
@@ -62,6 +70,9 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	return {
 		rescue,
 		animals: animals ?? [],
+		total: count ?? animals?.length ?? 0,
+		page,
+		pageSize,
 		filters,
 		searchParams: Object.fromEntries(url.searchParams.entries()),
 		speciesOptions,

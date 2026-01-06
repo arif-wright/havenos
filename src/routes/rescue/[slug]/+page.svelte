@@ -20,6 +20,18 @@
 		animal.animal_photos?.[0]?.image_url;
 
 	const adoptionSteps = data.rescue.adoption_steps as string[] | null;
+
+	const totalPages = Math.max(1, Math.ceil((data.total || 0) / data.pageSize));
+
+	const pageStart =
+		data.animals.length === 0 ? 0 : (data.page - 1) * data.pageSize + 1;
+	const pageEnd = data.animals.length === 0 ? 0 : pageStart + data.animals.length - 1;
+
+	const buildPageLink = (page: number) => {
+		const params = new URLSearchParams(data.searchParams as Record<string, string>);
+		params.set('page', page.toString());
+		return `?${params.toString()}`;
+	};
 </script>
 
 <section class="border-b border-slate-200 bg-transparent">
@@ -104,6 +116,7 @@
 			</div>
 			<div class="border-t border-slate-200 bg-slate-50 px-4 py-6 sm:px-6">
 				<form method="get" class="grid gap-4 md:grid-cols-3">
+					<input type="hidden" name="page" value="1" />
 					<label class="text-sm font-medium text-slate-700">
 						<span>Species</span>
 						<select
@@ -207,6 +220,37 @@
 					</a>
 				{/each}
 			</div>
+			{#if totalPages > 1}
+				<div class="mt-8 flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+					<span>
+						Showing {pageStart}&ndash;{pageEnd} of {data.total}
+					</span>
+					<div class="flex items-center gap-2">
+						<a
+							class={`rounded-md border px-3 py-2 font-semibold ${
+								data.page <= 1
+									? 'cursor-not-allowed border-slate-200 text-slate-400'
+									: 'border-slate-300 text-slate-700 hover:bg-slate-50'
+							}`}
+							aria-disabled={data.page <= 1}
+							href={data.page <= 1 ? '#' : buildPageLink(data.page - 1)}
+						>
+							Prev
+						</a>
+						<a
+							class={`rounded-md border px-3 py-2 font-semibold ${
+								data.page >= totalPages
+									? 'cursor-not-allowed border-slate-200 text-slate-400'
+									: 'border-slate-300 text-slate-700 hover:bg-slate-50'
+							}`}
+							aria-disabled={data.page >= totalPages}
+							href={data.page >= totalPages ? '#' : buildPageLink(data.page + 1)}
+						>
+							Next
+						</a>
+					</div>
+				</div>
+			{/if}
 		{/if}
 	</div>
 </section>

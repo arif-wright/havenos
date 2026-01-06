@@ -50,11 +50,15 @@ type PublicAnimalFilters = {
 export const listPublicAnimals = async (
 	supabase: DbClient,
 	rescueId: string,
-	filters: PublicAnimalFilters
+	filters: PublicAnimalFilters,
+	options?: { page?: number; pageSize?: number }
 ) => {
+	const pageSize = options?.pageSize ?? 9;
+	const page = Math.max(1, options?.page ?? 1);
+	const offset = (page - 1) * pageSize;
 	let query = supabase
 		.from('animals')
-		.select('*, animal_photos(*)')
+		.select('*, animal_photos(*)', { count: 'exact' })
 		.eq('rescue_id', rescueId)
 		.eq('is_active', true)
 		.order('status', { ascending: true })
@@ -68,7 +72,7 @@ export const listPublicAnimals = async (
 		query = query.eq('status', filters.status);
 	}
 
-	return query;
+	return query.range(offset, offset + pageSize - 1);
 };
 
 export const getPublicAnimalById = async (supabase: DbClient, animalId: string) => {

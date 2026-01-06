@@ -106,6 +106,48 @@ const sampleAnimals = [
 					'https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=900&q=80'
 			}
 		]
+	},
+	{
+		id: 'demo-cat-3',
+		name: 'Olive',
+		species: 'Cat',
+		status: 'available',
+		description: 'Playful tuxedo cat who loves wand toys.',
+		tags: ['Indoor only'],
+		animal_photos: [
+			{
+				image_url:
+					'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=900&q=80'
+			}
+		]
+	},
+	{
+		id: 'demo-dog-4',
+		name: 'Bailey',
+		species: 'Dog',
+		status: 'available',
+		description: 'Gentle senior pup looking for a calm home.',
+		tags: ['Low energy', 'Senior'],
+		animal_photos: [
+			{
+				image_url:
+					'https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&w=900&q=80'
+			}
+		]
+	},
+	{
+		id: 'demo-rabbit-2',
+		name: 'Hazel',
+		species: 'Rabbit',
+		status: 'available',
+		description: 'Soft, curious rabbit who enjoys gentle pets.',
+		tags: ['Bonded friendly'],
+		animal_photos: [
+			{
+				image_url:
+					'https://images.unsplash.com/photo-1546238232-20216dec9f78?auto=format&fit=crop&w=900&q=80'
+			}
+		]
 	}
 ];
 
@@ -121,16 +163,25 @@ export const load: PageServerLoad = async ({ url }) => {
 		species: url.searchParams.get('species') || undefined,
 		status: (url.searchParams.get('status') as string | undefined) || undefined
 	};
+	const pageSize = 9;
+	const pageParam = parseInt(url.searchParams.get('page') || '1', 10);
+	const page = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
 	const animalsFiltered = sampleAnimals.filter((a) => {
 		if (filters.species && a.species.toLowerCase() !== filters.species.toLowerCase()) return false;
 		if (filters.status && a.status !== filters.status) return false;
 		return true;
 	});
+	const total = animalsFiltered.length;
+	const start = (page - 1) * pageSize;
+	const animalsPaged = animalsFiltered.slice(start, start + pageSize);
 
 	return {
 		rescue: sampleRescue,
-		animals: animalsFiltered,
+		animals: animalsPaged,
+		total,
+		page,
+		pageSize,
 		filters,
 		searchParams: Object.fromEntries(url.searchParams.entries()),
 		speciesOptions,
