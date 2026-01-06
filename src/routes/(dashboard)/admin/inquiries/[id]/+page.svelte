@@ -18,6 +18,11 @@
 			For {data.inquiry.animals?.name ?? 'Unknown animal'} ·
 			{new Date(data.inquiry.created_at).toLocaleString()}
 		</p>
+		{#if data.inquiry.archived_at}
+			<p class="text-xs text-slate-500">
+				Archived on {new Date(data.inquiry.archived_at).toLocaleString()}
+			</p>
+		{/if}
 		{#if data.inquiry.first_responded_at}
 			<p class="text-xs text-slate-500">
 				First responded: {new Date(data.inquiry.first_responded_at).toLocaleString()}
@@ -36,6 +41,11 @@
 			This inquiry has not yet been responded to.
 		</p>
 	{/if}
+	{#if data.inquiry.archived_at}
+		<p class="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+			This inquiry is archived. You can restore it to return it to the active list.
+		</p>
+	{/if}
 	{#if data.hasDuplicate}
 		<p class="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
 			Possible duplicate inquiry from this adopter for this animal within the last 7 days.
@@ -51,6 +61,7 @@
 						<select
 							name="status"
 							class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							disabled={!!data.inquiry.archived_at}
 						>
 							{#each statusOptions as option}
 								<option value={option.value} selected={option.value === data.inquiry.status}>
@@ -59,12 +70,14 @@
 							{/each}
 						</select>
 					</label>
-					<button
-						class="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
-						type="submit"
-					>
-						Update
-					</button>
+					{#if !data.inquiry.archived_at}
+						<button
+							class="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+							type="submit"
+						>
+							Update
+						</button>
+					{/if}
 				</form>
 			</div>
 			<p class="mt-2 text-sm text-slate-600">{data.inquiry.message || 'No public message.'}</p>
@@ -88,6 +101,30 @@
 		</section>
 
 	<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+		<div class="mb-4 flex flex-wrap items-center gap-3">
+			{#if data.inquiry.archived_at}
+				<form method="POST" action="?/restore">
+					<button
+						type="submit"
+						class="rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+					>
+						Restore to active
+					</button>
+				</form>
+			{:else}
+				<form method="POST" action="?/archive">
+					<button
+						type="submit"
+						class="rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+						on:click={(e) => {
+							if (!confirm('Archive this inquiry? You can restore anytime.')) e.preventDefault();
+						}}
+					>
+						Archive
+					</button>
+				</form>
+			{/if}
+		</div>
 		<h2 class="text-lg font-semibold text-slate-900">Internal notes</h2>
 		<form method="POST" action="?/addNote" class="mt-3 space-y-3">
 			<input type="hidden" name="inquiryId" value={data.inquiry.id} />

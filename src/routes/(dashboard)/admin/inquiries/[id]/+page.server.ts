@@ -41,7 +41,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	return {
 		inquiry: {
 			...data,
-			isStale: data.status === 'new' && new Date(data.created_at).getTime() <= Date.now() - 48 * 60 * 60 * 1000
+			isStale:
+				['new', 'pending'].includes(data.status) &&
+				new Date(data.created_at).getTime() <= Date.now() - 48 * 60 * 60 * 1000
 		},
 		hasDuplicate: (dupes?.length ?? 0) > 0,
 		templates: templates ?? [],
@@ -110,6 +112,38 @@ export const actions: Actions = {
 		);
 
 		return { success: true };
+	},
+	archive: async ({ locals, params }) => {
+		const user = await locals.getUser();
+		if (!user) return fail(403, { serverError: 'Not authenticated' });
+
+		const { error: updateError } = await locals.supabase
+			.from('inquiries')
+			.update({ archived_at: new Date().toISOString(), archived_by: user.id })
+			.eq('id', params.id);
+
+		if (updateError) {
+			console.error(updateError);
+			return fail(500, { serverError: 'Unable to archive inquiry.' });
+		}
+
+		throw redirect(303, '/admin/inquiries');
+	},
+	restore: async ({ locals, params }) => {
+		const user = await locals.getUser();
+		if (!user) return fail(403, { serverError: 'Not authenticated' });
+
+		const { error: updateError } = await locals.supabase
+			.from('inquiries')
+			.update({ archived_at: null, archived_by: null })
+			.eq('id', params.id);
+
+		if (updateError) {
+			console.error(updateError);
+			return fail(500, { serverError: 'Unable to restore inquiry.' });
+		}
+
+		throw redirect(303, '/admin/inquiries?view=archived');
 	},
 	addNote: async ({ request, locals, params }) => {
 		const user = await locals.getUser();

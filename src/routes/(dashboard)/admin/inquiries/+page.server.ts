@@ -1,4 +1,4 @@
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { inquiryStatusSchema, inquiryNoteSchema } from '$lib/validation';
 import { logInquiryStatusChange, addInquiryNote } from '$lib/server/inquiries';
@@ -9,15 +9,20 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		throw error(403, 'Missing rescue');
 	}
 
+	const view = url.searchParams.get('view') === 'archived' ? 'archived' : 'active';
 	const statusFilter = url.searchParams.get('status') || '';
 	const daysFilter = Number(url.searchParams.get('days') || '');
 	const staleFilter = url.searchParams.get('stale') === '1';
+	const animalFilter = url.searchParams.get('animal') || '';
+	const isArchived = view === 'archived';
 
 	const { data, error: inquiryError } = await locals.supabase
 		.from('inquiries')
-		.select('id, adopter_name, adopter_email, message, status, created_at, first_responded_at, animals(id, name)')
+		.select(
+			'id, adopter_name, adopter_email, message, status, created_at, first_responded_at, archived_at, archived_by, animals(id, name)'
+		)
 		.eq('rescue_id', rescue.id)
-		.order('created_at', { ascending: false });
+		.order(isArchived ? 'archived_at' : 'created_at', { ascending: false });
 
 	if (inquiryError) {
 		console.error(inquiryError);
@@ -31,10 +36,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const decorated =
 		data?.map((inq) => ({
 			...inq,
-			isStale: inq.status === 'new' && new Date(inq.created_at).getTime() <= staleCutoff
+			isStale:
+				['new', 'pending'].includes(inq.status) && new Date(inq.created_at).getTime() <= staleCutoff,
+			isArchived: !!inq.archived_at
 		})) ?? [];
 
 	let filtered = decorated;
+	filtered = filtered.filter((inq) => inq.isArchived === isArchived);
 	if (statusFilter) {
 		filtered = filtered.filter((inq) => inq.status === statusFilter);
 	}
@@ -45,10 +53,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	if (staleFilter) {
 		filtered = filtered.filter((inq) => inq.isStale);
 	}
+	if (animalFilter) {
+		filtered = filtered.filter((inq) => inq.animals?.id === animalFilter);
+	}
 
 	const newInquiries = decorated.filter((inq) => new Date(inq.created_at).getTime() >= recentCutoff);
 	const noResponse = data?.filter(
-		(inq) => inq.status === 'new' && new Date(inq.created_at).getTime() <= staleCutoff
+		(inq) => ['new', 'pending'].includes(inq.status) && new Date(inq.created_at).getTime() <= staleCutoff
 	) ?? [];
 
 	const { data: animals } = await locals.supabase
@@ -73,8 +84,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		appliedFilters: {
 			status: statusFilter,
 			days: !Number.isNaN(daysFilter) && daysFilter > 0 ? daysFilter : null,
-			stale: staleFilter
-		}
+			stale: staleFilter,
+			animal: animalFilter
+		},
+		view,
+		animals: animals ?? []
 	};
 };
 
@@ -132,6 +146,52 @@ export const actions: Actions = {
 		);
 
 		return { success: true };
+	},
+
+	archive: async ({ request, locals }) => {
+		const form = await request.formData();
+		const inquiryId = String(form.get('inquiryId') ?? '');
+		if (!inquiryId) return fail(400, { serverError: 'Invalid request' });
+
+		const user = await locals.getUser();
+		if (!user) {
+			return fail(403, { serverError: 'Not authenticated' });
+		}
+
+		const { error: updateError } = await locals.supabase
+			.from('inquiries')
+			.update({ archived_at: new Date().toISOString(), archived_by: user.id })
+			.eq('id', inquiryId);
+
+		if (updateError) {
+			console.error(updateError);
+			return fail(500, { serverError: 'Unable to archive inquiry.' });
+		}
+
+		throw redirect(303, '/admin/inquiries');
+	},
+
+	restore: async ({ request, locals }) => {
+		const form = await request.formData();
+		const inquiryId = String(form.get('inquiryId') ?? '');
+		if (!inquiryId) return fail(400, { serverError: 'Invalid request' });
+
+		const user = await locals.getUser();
+		if (!user) {
+			return fail(403, { serverError: 'Not authenticated' });
+		}
+
+		const { error: updateError } = await locals.supabase
+			.from('inquiries')
+			.update({ archived_at: null, archived_by: null })
+			.eq('id', inquiryId);
+
+		if (updateError) {
+			console.error(updateError);
+			return fail(500, { serverError: 'Unable to restore inquiry.' });
+		}
+
+		throw redirect(303, '/admin/inquiries?view=archived');
 	},
 
 	addNote: async ({ request, locals }) => {
