@@ -69,87 +69,86 @@
 	</div>
 </section>
 
-<section class="bg-white">
-	<div class="mx-auto max-w-6xl px-4 py-8">
-		<div class="grid gap-6 md:grid-cols-2">
-			<div class="rounded-xl border border-slate-200 bg-slate-50 p-6">
-				<h2 class="text-lg font-semibold text-slate-900">Mission</h2>
-				<p class="mt-2 text-sm text-slate-700">
-					{data.rescue.mission_statement || 'This rescue has not shared their mission yet.'}
-				</p>
+<section class="bg-slate-50">
+	<div class="mx-auto max-w-6xl px-4 pb-8">
+		<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+			<div class="grid gap-6 p-6 md:grid-cols-2">
+				<div class="rounded-xl border border-slate-200 bg-slate-50 p-6">
+					<h2 class="text-lg font-semibold text-slate-900">Mission</h2>
+					<p class="mt-2 text-sm text-slate-700">
+						{data.rescue.mission_statement || 'This rescue has not shared their mission yet.'}
+					</p>
+				</div>
+				<div class="rounded-xl border border-slate-200 bg-slate-50 p-6 space-y-3">
+					<h2 class="text-lg font-semibold text-slate-900">How adoption works</h2>
+					{#if adoptionSteps?.length}
+						<ol class="space-y-2 text-sm text-slate-700 list-decimal list-inside">
+							{#each adoptionSteps as step}
+								<li>{step}</li>
+							{/each}
+						</ol>
+					{:else}
+						<p class="text-sm text-slate-600">Adoption steps will be shared during your conversation.</p>
+					{/if}
+					{#if data.rescue.response_time_enum}
+						<p class="text-xs text-slate-500">Typical response: {responseLabels[data.rescue.response_time_enum] ?? data.rescue.response_time_text}</p>
+					{:else if data.rescue.response_time_text}
+						<p class="text-xs text-slate-500">Typical response: {data.rescue.response_time_text}</p>
+					{/if}
+					{#if data.rescue.adoption_process}
+						<p class="text-sm whitespace-pre-line text-slate-700">{data.rescue.adoption_process}</p>
+					{/if}
+				</div>
 			</div>
-			<div class="rounded-xl border border-slate-200 bg-slate-50 p-6 space-y-3">
-				<h2 class="text-lg font-semibold text-slate-900">How adoption works</h2>
-				{#if adoptionSteps?.length}
-					<ol class="space-y-2 text-sm text-slate-700 list-decimal list-inside">
-						{#each adoptionSteps as step}
-							<li>{step}</li>
-						{/each}
-					</ol>
-				{:else}
-					<p class="text-sm text-slate-600">Adoption steps will be shared during your conversation.</p>
-				{/if}
-				{#if data.rescue.response_time_enum}
-					<p class="text-xs text-slate-500">Typical response: {responseLabels[data.rescue.response_time_enum] ?? data.rescue.response_time_text}</p>
-				{:else if data.rescue.response_time_text}
-					<p class="text-xs text-slate-500">Typical response: {data.rescue.response_time_text}</p>
-				{/if}
-				{#if data.rescue.adoption_process}
-					<p class="text-sm whitespace-pre-line text-slate-700">{data.rescue.adoption_process}</p>
-				{/if}
+			<div class="border-t border-slate-200 bg-slate-50 px-4 py-6 sm:px-6">
+				<form method="get" class="grid gap-4 md:grid-cols-3">
+					<label class="text-sm font-medium text-slate-700">
+						<span>Species</span>
+						<select
+							class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							name="species"
+							aria-label="Filter by species"
+						>
+							<option value="">All</option>
+							{#each data.speciesOptions as option}
+								<option value={option.toLowerCase()} selected={data.filters.species === option.toLowerCase()}>
+									{option}
+								</option>
+							{/each}
+						</select>
+					</label>
+					<label class="text-sm font-medium text-slate-700">
+						<span>Status</span>
+						<select
+							class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							name="status"
+							aria-label="Filter by status"
+						>
+							<option value="">All</option>
+							{#each data.statusOptions as option}
+								<option value={option} selected={data.filters.status === option}>
+									{statusLabels[option] ?? option}
+								</option>
+							{/each}
+						</select>
+					</label>
+					<div class="flex items-end gap-3">
+						<button
+							type="submit"
+							class="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+						>
+							Apply Filters
+						</button>
+						<a
+							href="."
+							class="w-full rounded-md border border-slate-300 px-4 py-2 text-center text-sm font-semibold text-slate-600 hover:bg-white"
+						>
+							Reset
+						</a>
+					</div>
+				</form>
 			</div>
 		</div>
-	</div>
-</section>
-
-<section class="bg-slate-50">
-	<div class="mx-auto max-w-6xl px-4 py-6 bg-slate-50 rounded-b-xl overflow-hidden">
-		<form method="get" class="grid gap-4 md:grid-cols-3">
-			<label class="text-sm font-medium text-slate-700">
-				<span>Species</span>
-				<select
-					class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-					name="species"
-					aria-label="Filter by species"
-				>
-					<option value="">All</option>
-					{#each data.speciesOptions as option}
-						<option value={option.toLowerCase()} selected={data.filters.species === option.toLowerCase()}>
-							{option}
-						</option>
-					{/each}
-				</select>
-			</label>
-			<label class="text-sm font-medium text-slate-700">
-				<span>Status</span>
-				<select
-					class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-					name="status"
-					aria-label="Filter by status"
-				>
-					<option value="">All</option>
-					{#each data.statusOptions as option}
-						<option value={option} selected={data.filters.status === option}>
-							{statusLabels[option] ?? option}
-						</option>
-					{/each}
-				</select>
-			</label>
-			<div class="flex items-end gap-3">
-				<button
-					type="submit"
-					class="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
-				>
-					Apply Filters
-				</button>
-				<a
-					href="."
-					class="w-full rounded-md border border-slate-300 px-4 py-2 text-center text-sm font-semibold text-slate-600 hover:bg-white"
-				>
-					Reset
-				</a>
-			</div>
-		</form>
 	</div>
 </section>
 
