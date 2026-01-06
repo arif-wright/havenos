@@ -11,6 +11,7 @@ import {
 	updateMemberRole
 } from '$lib/server/team';
 import { sendTemplateEmail } from '$lib/email/resend';
+import { getServiceSupabase } from '$lib/server/supabaseService';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const rescue = locals.currentRescue;
@@ -22,15 +23,32 @@ export const load: PageServerLoad = async ({ locals }) => {
 	if (membersError) {
 		console.error('team load members error', membersError);
 	}
-	const members =
+	let members =
 		membersRaw?.map((m: any) => ({
 			rescue_id: m.rescue_id,
 			user_id: m.user_id,
 			role: m.role,
 			joined_at: m.joined_at ?? m.created_at,
-			display_name: m.display_name ?? m.profiles?.display_name ?? m.auth_users?.email?.split('@')[0] ?? 'Member',
-			email: m.email ?? m.auth_users?.email ?? null
+			display_name: m.display_name ?? null,
+			email: m.email ?? null
 		})) ?? [];
+
+	// If display names/emails missing (fallback path), enrich from profiles/auth.users via service role
+	if (members.length > 0 && members.some((m) => !m.display_name || !m.email)) {
+		const ids = members.map((m) => m.user_id);
+		const service = getServiceSupabase();
+		const { data: profileRows } = await service.from('profiles').select('id, display_name').in('id', ids);
+		const { data: userRows } = await service.from('auth.users').select('id, email').in('id', ids);
+		members = members.map((m) => {
+			const prof = profileRows?.find((p) => p.id === m.user_id);
+			const usr = userRows?.find((u) => u.id === m.user_id);
+			return {
+				...m,
+				display_name: m.display_name ?? prof?.display_name ?? (usr?.email ? usr.email.split('@')[0] : 'Member'),
+				email: m.email ?? usr?.email ?? null
+			};
+		});
+	}
 
 	const { data: invites, error: invitesError } = await listInvitations(locals.supabase, rescue.id);
 	if (invitesError) {

@@ -10,19 +10,7 @@ export const listMembers = async (supabase: DbClient, rescueId: string) => {
 	if (rpc.error) {
 		console.error('listMembers rpc failed, falling back to service query', rpc.error);
 		const service = getServiceSupabase();
-		return service
-			.from('rescue_members')
-			.select(
-				`
-        rescue_id,
-        user_id,
-        role,
-        created_at,
-        profiles:profiles(display_name),
-        auth_users:auth.users(email)
-      `
-			)
-			.eq('rescue_id', rescueId);
+		return service.from('rescue_members').select('rescue_id,user_id,role,created_at').eq('rescue_id', rescueId);
 	}
 	return rpc;
 };
