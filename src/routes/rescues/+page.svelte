@@ -1,13 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-
-	export let data: PageData;
-</script>
-
-<script lang="ts">
 	import { navigating } from '$app/stores';
 	import { tick } from 'svelte';
 
+	export let data: PageData;
 	let search = data.search ?? '';
 	let debounceHandle: ReturnType<typeof setTimeout> | null = null;
 
