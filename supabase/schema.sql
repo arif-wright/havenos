@@ -63,6 +63,8 @@ create table if not exists inquiries (
     message text,
     status text not null default 'new' check (status in ('new', 'contacted', 'meet_greet', 'application', 'approved', 'adopted', 'closed')),
     first_responded_at timestamptz,
+    archived_at timestamptz,
+    archived_by uuid references auth.users(id) on delete set null,
     created_at timestamptz not null default timezone('utc', now())
 );
 
@@ -102,6 +104,7 @@ create index if not exists idx_animals_rescue_id on animals(rescue_id);
 create index if not exists idx_animals_status_active on animals(status, is_active);
 create index if not exists idx_photos_animal on animal_photos(animal_id, sort_order);
 create index if not exists idx_inquiries_rescue on inquiries(rescue_id, created_at desc);
+create index if not exists idx_inquiries_archived on inquiries(rescue_id, archived_at desc);
 create index if not exists idx_inquiries_animal on inquiries(animal_id, created_at desc);
 create index if not exists idx_rescue_members_user on rescue_members(user_id);
 create index if not exists idx_rescue_members_rescue on rescue_members(rescue_id);
