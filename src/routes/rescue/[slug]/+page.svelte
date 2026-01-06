@@ -71,34 +71,32 @@
 
 <section class="bg-white">
 	<div class="mx-auto max-w-6xl px-4 py-8">
-		<div class="rounded-2xl border border-slate-200 bg-white p-6">
-			<div class="grid gap-6 md:grid-cols-2">
-				<div class="rounded-xl border border-slate-200 bg-slate-50 p-6">
-					<h2 class="text-lg font-semibold text-slate-900">Mission</h2>
-					<p class="mt-2 text-sm text-slate-700">
-						{data.rescue.mission_statement || 'This rescue has not shared their mission yet.'}
-					</p>
-				</div>
-				<div class="rounded-xl border border-slate-200 bg-slate-50 p-6 space-y-3">
-					<h2 class="text-lg font-semibold text-slate-900">How adoption works</h2>
-					{#if adoptionSteps?.length}
-						<ol class="space-y-2 text-sm text-slate-700 list-decimal list-inside">
-							{#each adoptionSteps as step}
-								<li>{step}</li>
-							{/each}
-						</ol>
-					{:else}
-						<p class="text-sm text-slate-600">Adoption steps will be shared during your conversation.</p>
-					{/if}
-					{#if data.rescue.response_time_enum}
-						<p class="text-xs text-slate-500">Typical response: {responseLabels[data.rescue.response_time_enum] ?? data.rescue.response_time_text}</p>
-					{:else if data.rescue.response_time_text}
-						<p class="text-xs text-slate-500">Typical response: {data.rescue.response_time_text}</p>
-					{/if}
-					{#if data.rescue.adoption_process}
-						<p class="text-sm whitespace-pre-line text-slate-700">{data.rescue.adoption_process}</p>
-					{/if}
-				</div>
+		<div class="grid gap-6 md:grid-cols-2">
+			<div class="rounded-xl border border-slate-200 bg-slate-50 p-6">
+				<h2 class="text-lg font-semibold text-slate-900">Mission</h2>
+				<p class="mt-2 text-sm text-slate-700">
+					{data.rescue.mission_statement || 'This rescue has not shared their mission yet.'}
+				</p>
+			</div>
+			<div class="rounded-xl border border-slate-200 bg-slate-50 p-6 space-y-3">
+				<h2 class="text-lg font-semibold text-slate-900">How adoption works</h2>
+				{#if adoptionSteps?.length}
+					<ol class="space-y-2 text-sm text-slate-700 list-decimal list-inside">
+						{#each adoptionSteps as step}
+							<li>{step}</li>
+						{/each}
+					</ol>
+				{:else}
+					<p class="text-sm text-slate-600">Adoption steps will be shared during your conversation.</p>
+				{/if}
+				{#if data.rescue.response_time_enum}
+					<p class="text-xs text-slate-500">Typical response: {responseLabels[data.rescue.response_time_enum] ?? data.rescue.response_time_text}</p>
+				{:else if data.rescue.response_time_text}
+					<p class="text-xs text-slate-500">Typical response: {data.rescue.response_time_text}</p>
+				{/if}
+				{#if data.rescue.adoption_process}
+					<p class="text-sm whitespace-pre-line text-slate-700">{data.rescue.adoption_process}</p>
+				{/if}
 			</div>
 		</div>
 	</div>
@@ -165,50 +163,48 @@
 				</p>
 			</div>
 		{:else}
-			<div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
-				<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-					{#each data.animals as animal}
-						<a
-							href={`/animal/${animal.id}`}
-							class="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-						>
-							{#if getPhoto(animal)}
-								<img
-									src={getPhoto(animal)}
-									alt={`Photo of ${animal.name}`}
-									class="aspect-[4/3] w-full object-cover transition group-hover:scale-105"
-									loading="lazy"
-								/>
-							{:else}
-								<div class="aspect-[4/3] w-full bg-slate-100"></div>
-							{/if}
-							<div class="flex flex-1 flex-col gap-3 px-4 py-5">
-								<div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wide">
-									<span class="text-emerald-600">{animal.species}</span>
-									<span
-										class={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-											animal.status === 'available'
-												? 'bg-emerald-100 text-emerald-700'
-												: animal.status === 'hold'
-													? 'bg-amber-100 text-amber-700'
-													: 'bg-slate-200 text-slate-700'
-										}`}
-										>{animal.status}</span
-									>
-								</div>
-								<h2 class="text-lg font-semibold text-slate-900">{animal.name}</h2>
-								<p class="text-sm text-slate-600 h-16 overflow-hidden text-ellipsis">{animal.description}</p>
-								{#if animal.tags?.length}
-									<div class="mt-auto flex flex-wrap gap-2">
-										{#each animal.tags as tag}
-											<span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{tag}</span>
-										{/each}
-									</div>
-								{/if}
+			<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				{#each data.animals as animal}
+					<a
+						href={`/animal/${animal.id}`}
+						class="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+					>
+						{#if getPhoto(animal)}
+							<img
+								src={getPhoto(animal)}
+								alt={`Photo of ${animal.name}`}
+								class="aspect-[4/3] w-full object-cover transition group-hover:scale-105"
+								loading="lazy"
+							/>
+						{:else}
+							<div class="aspect-[4/3] w-full bg-slate-100"></div>
+						{/if}
+						<div class="flex flex-1 flex-col gap-3 px-4 py-5">
+							<div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wide">
+								<span class="text-emerald-600">{animal.species}</span>
+								<span
+									class={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+										animal.status === 'available'
+											? 'bg-emerald-100 text-emerald-700'
+											: animal.status === 'hold'
+												? 'bg-amber-100 text-amber-700'
+												: 'bg-slate-200 text-slate-700'
+									}`}
+									>{animal.status}</span
+								>
 							</div>
-						</a>
-					{/each}
-				</div>
+							<h2 class="text-lg font-semibold text-slate-900">{animal.name}</h2>
+							<p class="text-sm text-slate-600 h-16 overflow-hidden text-ellipsis">{animal.description}</p>
+							{#if animal.tags?.length}
+								<div class="mt-auto flex flex-wrap gap-2">
+									{#each animal.tags as tag}
+										<span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{tag}</span>
+									{/each}
+								</div>
+							{/if}
+						</div>
+					</a>
+				{/each}
 			</div>
 		{/if}
 	</div>
