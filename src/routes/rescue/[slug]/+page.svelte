@@ -29,41 +29,43 @@
 				<img src={data.rescue.cover_url} alt="" class="h-full w-full object-cover" />
 			{/if}
 		</div>
-		<div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 pb-12 pt-8 sm:flex-row sm:items-end sm:justify-between">
-			<div class="-mt-10 flex items-start gap-4">
-				<div class="h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-emerald-50 shadow">
-					{#if data.rescue.logo_url}
-						<img src={data.rescue.logo_url} alt="Rescue logo" class="h-full w-full object-cover" />
-					{:else}
-						<div class="flex h-full items-center justify-center text-lg font-semibold text-emerald-700">
-							{data.rescue.name.slice(0, 2).toUpperCase()}
-						</div>
+		<div class="bg-white">
+			<div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 pb-12 pt-8 sm:flex-row sm:items-end sm:justify-between">
+				<div class="-mt-10 flex items-start gap-4">
+					<div class="h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-emerald-50 shadow">
+						{#if data.rescue.logo_url}
+							<img src={data.rescue.logo_url} alt="Rescue logo" class="h-full w-full object-cover" />
+						{:else}
+							<div class="flex h-full items-center justify-center text-lg font-semibold text-emerald-700">
+								{data.rescue.name.slice(0, 2).toUpperCase()}
+							</div>
+						{/if}
+					</div>
+					<div class="pt-4">
+						<p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Rescue</p>
+						<h1 class="text-3xl font-semibold text-slate-900 sm:text-4xl">{data.rescue.name}</h1>
+						<p class="text-sm text-slate-600">
+							{data.rescue.tagline || data.rescue.location_text || 'Adoptable pets and updates.'}
+						</p>
+						{#if data.rescue.location_text}
+							<p class="text-xs text-slate-500">Based in {data.rescue.location_text}</p>
+						{/if}
+					</div>
+				</div>
+				<div class="flex flex-wrap items-center gap-2">
+					{#if data.rescue.website_url}
+						<a class="rounded-md border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50" href={data.rescue.website_url} target="_blank" rel="noreferrer">Website</a>
+					{/if}
+					{#if data.rescue.instagram_url}
+						<a class="rounded-md border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50" href={data.rescue.instagram_url} target="_blank" rel="noreferrer">Instagram</a>
+					{/if}
+					{#if data.rescue.facebook_url}
+						<a class="rounded-md border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50" href={data.rescue.facebook_url} target="_blank" rel="noreferrer">Facebook</a>
+					{/if}
+					{#if data.rescue.donation_url}
+						<a class="rounded-md bg-emerald-600 px-3 py-1 text-sm font-semibold text-white hover:bg-emerald-500" href={data.rescue.donation_url} target="_blank" rel="noreferrer">Donate</a>
 					{/if}
 				</div>
-				<div class="pt-4">
-					<p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Rescue</p>
-					<h1 class="text-3xl font-semibold text-slate-900 sm:text-4xl">{data.rescue.name}</h1>
-					<p class="text-sm text-slate-600">
-						{data.rescue.tagline || data.rescue.location_text || 'Adoptable pets and updates.'}
-					</p>
-					{#if data.rescue.location_text}
-						<p class="text-xs text-slate-500">Based in {data.rescue.location_text}</p>
-					{/if}
-				</div>
-			</div>
-			<div class="flex flex-wrap items-center gap-2">
-				{#if data.rescue.website_url}
-					<a class="rounded-md border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50" href={data.rescue.website_url} target="_blank" rel="noreferrer">Website</a>
-				{/if}
-				{#if data.rescue.instagram_url}
-					<a class="rounded-md border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50" href={data.rescue.instagram_url} target="_blank" rel="noreferrer">Instagram</a>
-				{/if}
-				{#if data.rescue.facebook_url}
-					<a class="rounded-md border border-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50" href={data.rescue.facebook_url} target="_blank" rel="noreferrer">Facebook</a>
-				{/if}
-				{#if data.rescue.donation_url}
-					<a class="rounded-md bg-emerald-600 px-3 py-1 text-sm font-semibold text-white hover:bg-emerald-500" href={data.rescue.donation_url} target="_blank" rel="noreferrer">Donate</a>
-				{/if}
 			</div>
 		</div>
 	</div>
