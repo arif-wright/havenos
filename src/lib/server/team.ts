@@ -6,15 +6,45 @@ import crypto from 'crypto';
 type DbClient = SupabaseClient<Database>;
 
 export const listMembers = async (supabase: DbClient, rescueId: string) => {
-	return supabase.rpc('get_rescue_members', { p_rescue_id: rescueId });
+	const rpc = await supabase.rpc('get_rescue_members', { p_rescue_id: rescueId });
+	if (rpc.error) {
+		console.error('listMembers rpc failed, falling back to service query', rpc.error);
+		const service = getServiceSupabase();
+		return service
+			.from('rescue_members')
+			.select(
+				`
+        rescue_id,
+        user_id,
+        role,
+        created_at,
+        profiles:profiles(display_name),
+        auth_users:auth.users(email)
+      `
+			)
+			.eq('rescue_id', rescueId);
+	}
+	return rpc;
 };
 
 export const listInvitations = async (supabase: DbClient, rescueId: string) => {
-	return supabase
+	const { data, error } = await supabase
 		.from('rescue_pending_invitations')
 		.select('*')
 		.eq('rescue_id', rescueId)
 		.order('created_at', { ascending: false });
+	if (error) {
+		console.error('listInvitations view failed, falling back to base table', error);
+		const service = getServiceSupabase();
+		return service
+			.from('rescue_invitations')
+			.select('*')
+			.eq('rescue_id', rescueId)
+			.is('accepted_at', null)
+			.is('canceled_at', null)
+			.order('created_at', { ascending: false });
+	}
+	return { data, error };
 };
 
 export const createInvitation = async (

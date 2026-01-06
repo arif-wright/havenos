@@ -18,11 +18,27 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/onboarding');
 	}
 
-	const { data: members } = await listMembers(locals.supabase, rescue.id);
-	const { data: invites } = await listInvitations(locals.supabase, rescue.id);
+	const { data: membersRaw, error: membersError } = await listMembers(locals.supabase, rescue.id);
+	if (membersError) {
+		console.error('team load members error', membersError);
+	}
+	const members =
+		membersRaw?.map((m: any) => ({
+			rescue_id: m.rescue_id,
+			user_id: m.user_id,
+			role: m.role,
+			joined_at: m.joined_at ?? m.created_at,
+			display_name: m.display_name ?? m.profiles?.display_name ?? m.auth_users?.email?.split('@')[0] ?? 'Member',
+			email: m.email ?? m.auth_users?.email ?? null
+		})) ?? [];
+
+	const { data: invites, error: invitesError } = await listInvitations(locals.supabase, rescue.id);
+	if (invitesError) {
+		console.error('team load invites error', invitesError);
+	}
 
 	return {
-		members: members ?? [],
+		members,
 		invitations: invites ?? [],
 		currentMemberRole: locals.currentMemberRole ?? 'staff',
 		canManage: ['owner', 'admin'].includes(locals.currentMemberRole ?? 'staff')
