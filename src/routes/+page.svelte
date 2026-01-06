@@ -108,37 +108,6 @@
 	</div>
 
 	<section class="rounded-3xl bg-white/90 p-8 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
-		<script>
-			let audience: 'adopters' | 'rescues' = 'adopters';
-			const adopterSteps = [
-				{
-					title: 'Browse rescues & pets',
-					body: "Search rescues and see who’s currently available."
-				},
-				{
-					title: 'Send an inquiry',
-					body: 'Message the rescue in one form—no guessing where it went.'
-				},
-				{
-					title: 'Know what happens next',
-					body: 'Each rescue shows response time and adoption steps so you’re not left waiting.'
-				}
-			];
-			const rescueSteps = [
-				{
-					title: 'Publish your rescue',
-					body: 'Set your public page once; it stays in sync with your dashboard.'
-				},
-				{
-					title: 'List animals',
-					body: 'Keep names, photos, and statuses updated.'
-				},
-				{
-					title: 'Respond with clarity',
-					body: 'Track every inquiry with statuses, notes, and templates.'
-				}
-			];
-		</script>
 		<h2 class="text-2xl font-semibold text-slate-900">How it works</h2>
 		<div class="mt-3 flex gap-2 rounded-xl bg-slate-50 p-1" role="tablist" aria-label="How it works audience toggle">
 			{#each ['adopters', 'rescues'] as tab}
@@ -172,3 +141,34 @@
 		</div>
 	</section>
 </section>
+<script lang="ts">
+	let audience: 'adopters' | 'rescues' = 'adopters';
+	const adopterSteps = [
+		{
+			title: 'Browse rescues & pets',
+			body: "Search rescues and see who’s currently available."
+		},
+		{
+			title: 'Send an inquiry',
+			body: 'Message the rescue in one form—no guessing where it went.'
+		},
+		{
+			title: 'Know what happens next',
+			body: 'Each rescue shows response time and adoption steps so you’re not left waiting.'
+		}
+	];
+	const rescueSteps = [
+		{
+			title: 'Publish your rescue',
+			body: 'Set your public page once; it stays in sync with your dashboard.'
+		},
+		{
+			title: 'List animals',
+			body: 'Keep names, photos, and statuses updated.'
+		},
+		{
+			title: 'Respond with clarity',
+			body: 'Track every inquiry with statuses, notes, and templates.'
+		}
+	];
+</script>
