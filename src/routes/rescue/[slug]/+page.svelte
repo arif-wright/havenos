@@ -29,8 +29,8 @@
 				<img src={data.rescue.cover_url} alt="" class="h-full w-full object-cover" />
 			{/if}
 		</div>
-		<div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 pb-12 pt-6 sm:flex-row sm:items-end sm:justify-between">
-			<div class="-mt-12 flex items-start gap-4 sm:-mt-10">
+		<div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 pb-12 pt-8 sm:flex-row sm:items-end sm:justify-between">
+			<div class="-mt-10 flex items-start gap-4">
 				<div class="h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-emerald-50 shadow">
 					{#if data.rescue.logo_url}
 						<img src={data.rescue.logo_url} alt="Rescue logo" class="h-full w-full object-cover" />
@@ -40,7 +40,7 @@
 						</div>
 					{/if}
 				</div>
-				<div>
+				<div class="pt-4">
 					<p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Rescue</p>
 					<h1 class="text-3xl font-semibold text-slate-900 sm:text-4xl">{data.rescue.name}</h1>
 					<p class="text-sm text-slate-600">
