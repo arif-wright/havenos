@@ -28,16 +28,18 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.select('id, adopter_name, status, created_at, first_responded_at, animals(name)')
 		.eq('rescue_id', rescue.id)
 		.order('created_at', { ascending: false })
-		.limit(5);
+		.limit(10);
 
 	if (inquiryError) {
 		console.error(inquiryError);
 		throw error(500, 'Unable to load inquiries');
 	}
 
+	const now = Date.now();
 	const newInquiries = inquiries?.filter((inq) => inq.status === 'new').length ?? 0;
-	const recentCutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-	const staleCutoff = Date.now() - 48 * 60 * 60 * 1000;
+	const recentCutoff = now - 7 * 24 * 60 * 60 * 1000;
+	const staleCutoff = now - 48 * 60 * 60 * 1000;
+	const freshCutoff = now - 24 * 60 * 60 * 1000;
 
 	const { data: allInquiries } = await locals.supabase
 		.from('inquiries')
@@ -77,12 +79,24 @@ export const load: PageServerLoad = async ({ locals }) => {
 			(inq) => inq.status === 'new' && new Date(inq.created_at).getTime() <= staleCutoff
 		).length ?? 0;
 
+	const attentionTotals = {
+		recentNew: recentNew.length,
+		noResponse: noResponse.length,
+		animalsNoInquiries: animalsNoInquiries.length
+	};
+
+	const recentList =
+		inquiries?.slice(0, 5).map((inq) => ({
+			...inq,
+			isFresh: inq.status === 'new' && new Date(inq.created_at).getTime() >= freshCutoff
+		})) ?? [];
+
 	return {
 		stats: {
 			...stats,
 			newInquiries
 		},
-		recentInquiries: inquiries ?? [],
+		recentInquiries: recentList,
 		crmSlices: {
 			recentNew,
 			noResponse,
@@ -92,7 +106,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 			timeToFirstResponseHours: timeToFirstResponse,
 			inquiriesPerAnimal: animals && animals.length ? (allInquiries?.length ?? 0) / animals.length : 0,
 			staleCount
-		}
+		},
+		attentionTotals,
+		hasAttention: Object.values(attentionTotals).some((count) => count > 0)
 	};
 };
 

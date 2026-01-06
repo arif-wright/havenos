@@ -17,7 +17,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const search = url.searchParams.get('q')?.trim() || '';
 	const statusFilter = url.searchParams.get('status') || '';
 	const speciesFilter = url.searchParams.get('species') || '';
-	const inquiriesFilter = url.searchParams.get('inquiries') || '';
+	const inquiriesFilterParam = url.searchParams.get('inquiries') || '';
+	const zeroInquiries = url.searchParams.get('zeroInquiries') === '1';
+	const inquiriesFilter = zeroInquiries ? 'none' : inquiriesFilterParam;
 	const sort = (url.searchParams.get('sort') as SortOption) || 'newest';
 	const page = Math.max(1, Number(url.searchParams.get('page') || '1'));
 	const usePagination = inquiriesFilter ? false : true;

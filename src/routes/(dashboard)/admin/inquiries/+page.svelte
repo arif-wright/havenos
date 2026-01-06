@@ -47,8 +47,16 @@
 	{#if data.inquiries.length === 0}
 		<p class="mt-6 text-sm text-slate-500">No inquiries yet.</p>
 	{:else}
+		{#if data.appliedFilters.status || data.appliedFilters.days || data.appliedFilters.stale}
+			<p class="mt-4 text-xs text-slate-500">
+				Filtered:
+				{#if data.appliedFilters.status}status={data.appliedFilters.status}{/if}
+				{#if data.appliedFilters.days} · last {data.appliedFilters.days} days{/if}
+				{#if data.appliedFilters.stale} · stale only{/if}
+			</p>
+		{/if}
 		<div class="mt-6 divide-y divide-slate-100">
-			{#each data.inquiries as inquiry}
+			{#each data.filteredInquiries as inquiry}
 				<div
 					id={inquiry.id}
 					class={`flex flex-col gap-4 py-4 md:flex-row md:justify-between md:gap-8 ${

@@ -9,6 +9,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		throw error(403, 'Missing rescue');
 	}
 
+	const statusFilter = url.searchParams.get('status') || '';
+	const daysFilter = Number(url.searchParams.get('days') || '');
+	const staleFilter = url.searchParams.get('stale') === '1';
+
 	const { data, error: inquiryError } = await locals.supabase
 		.from('inquiries')
 		.select('id, adopter_name, adopter_email, message, status, created_at, first_responded_at, animals(id, name)')
@@ -30,6 +34,18 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			isStale: inq.status === 'new' && new Date(inq.created_at).getTime() <= staleCutoff
 		})) ?? [];
 
+	let filtered = decorated;
+	if (statusFilter) {
+		filtered = filtered.filter((inq) => inq.status === statusFilter);
+	}
+	if (!Number.isNaN(daysFilter) && daysFilter > 0) {
+		const cutoff = now - daysFilter * 24 * 60 * 60 * 1000;
+		filtered = filtered.filter((inq) => new Date(inq.created_at).getTime() >= cutoff);
+	}
+	if (staleFilter) {
+		filtered = filtered.filter((inq) => inq.isStale);
+	}
+
 	const newInquiries = decorated.filter((inq) => new Date(inq.created_at).getTime() >= recentCutoff);
 	const noResponse = data?.filter(
 		(inq) => inq.status === 'new' && new Date(inq.created_at).getTime() <= staleCutoff
@@ -46,13 +62,19 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 	return {
 		inquiries: decorated,
+		filteredInquiries: filtered,
 		focus: url.searchParams.get('focus'),
 		slices: {
 			newInquiries,
 			noResponse,
 			animalsNoInquiries
 		},
-		staleCount: decorated.filter((inq) => inq.isStale).length
+		staleCount: decorated.filter((inq) => inq.isStale).length,
+		appliedFilters: {
+			status: statusFilter,
+			days: !Number.isNaN(daysFilter) && daysFilter > 0 ? daysFilter : null,
+			stale: staleFilter
+		}
 	};
 };
 
