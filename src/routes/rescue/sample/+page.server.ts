@@ -16,7 +16,7 @@ const sampleRescue = {
 	facebook_url: 'https://facebook.com',
 	instagram_url: 'https://instagram.com',
 	donation_url: 'https://donate.rescueos.com',
-	logo_url: 'https://images.unsplash.com/photo-1504203700686-0f3b3a5d5f2a?auto=format&fit=crop&w=300&q=80',
+	logo_url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=300&q=80',
 	cover_url:
 		'https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=1600&q=80',
 	is_public: true
@@ -61,7 +61,7 @@ const sampleAnimals = [
 		animal_photos: [
 			{
 				image_url:
-					'https://images.unsplash.com/photo-1504203700686-0f3b3a5d5f2a?auto=format&fit=crop&w=900&q=80'
+					'https://images.unsplash.com/photo-1511044568932-338cba0ad803?auto=format&fit=crop&w=900&q=80'
 			}
 		]
 	},
@@ -75,7 +75,7 @@ const sampleAnimals = [
 		animal_photos: [
 			{
 				image_url:
-					'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=80'
+					'https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=900&q=80'
 			}
 		]
 	},
@@ -89,7 +89,7 @@ const sampleAnimals = [
 		animal_photos: [
 			{
 				image_url:
-					'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80'
+					'https://images.unsplash.com/photo-1494256997604-768d1f608cac?auto=format&fit=crop&w=900&q=80'
 			}
 		]
 	},
@@ -103,7 +103,7 @@ const sampleAnimals = [
 		animal_photos: [
 			{
 				image_url:
-					'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'
+					'https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=900&q=80'
 			}
 		]
 	}
