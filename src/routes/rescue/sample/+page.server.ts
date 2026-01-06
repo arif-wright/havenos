@@ -159,7 +159,7 @@ const sampleAnimals = [
 		animal_photos: [
 			{
 				image_url:
-					'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1100&q=80'
+					'https://images.unsplash.com/photo-1583795128727-6ec3642408f8?q=80&w=1057&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 			}
 		]
 	},
@@ -173,7 +173,7 @@ const sampleAnimals = [
 		animal_photos: [
 			{
 				image_url:
-					'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1100&q=80'
+					'https://images.unsplash.com/photo-1587300003388-59208cc962cb?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 			}
 		]
 	},
@@ -187,7 +187,7 @@ const sampleAnimals = [
 		animal_photos: [
 			{
 				image_url:
-					'https://images.unsplash.com/photo-1542377287-475db5747b1c?auto=format&fit=crop&w=1100&q=80'
+					'https://images.unsplash.com/photo-1458410489211-ba19aa2f2902?q=80&w=1492&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 			}
 		]
 	}
