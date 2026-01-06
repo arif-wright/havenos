@@ -219,7 +219,9 @@ select
     donation_url,
     logo_url,
     cover_url,
-    is_public
+    is_public,
+    created_at,
+    updated_at
 from rescues;
 
 drop policy if exists "public rescues readable" on rescues;

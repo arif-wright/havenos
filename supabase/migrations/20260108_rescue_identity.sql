@@ -48,7 +48,9 @@ select
     donation_url,
     logo_url,
     cover_url,
-    is_public
+    is_public,
+    created_at,
+    updated_at
 from public.rescues;
 
 alter view public.public_rescues owner to postgres;

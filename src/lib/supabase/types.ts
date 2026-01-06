@@ -546,6 +546,8 @@ export type Database = {
 					logo_url: string | null;
 					cover_url: string | null;
 					is_public: boolean | null;
+					created_at: string | null;
+					updated_at: string | null;
 				};
 				Relationships: [];
 			};
