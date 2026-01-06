@@ -103,7 +103,7 @@
 </section>
 
 <section class="border-b border-slate-200 bg-slate-50">
-	<div class="mx-auto max-w-6xl px-4 py-6 rounded-xl border border-slate-200 bg-white">
+	<div class="mx-auto max-w-6xl px-4 py-6 rounded-b-xl border border-slate-200 bg-white">
 		<form method="get" class="grid gap-4 md:grid-cols-3">
 			<label class="text-sm font-medium text-slate-700">
 				<span>Species</span>
@@ -154,7 +154,7 @@
 </section>
 
 <section class="bg-slate-50">
-	<div class="mx-auto max-w-6xl px-4 pb-12 pt-4">
+	<div class="mx-auto max-w-6xl px-4 pb-12 pt-6">
 		{#if data.animals.length === 0}
 			<div class="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center">
 				<p class="text-lg font-medium text-slate-700">No animals match those filters yet.</p>
