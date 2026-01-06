@@ -12,17 +12,29 @@ export const upsertProfileForUser = async (supabase: DbClient, user: User | null
 		user.email?.split('@')[0] ??
 		'Member';
 
-	// Best-effort upsert of current user profile
-	const { error } = await supabase.from('profiles').upsert(
-		{
-			id: user.id,
-			display_name: displayFallback,
-			email: user.email ?? null
-		},
-		{ onConflict: 'id' }
-	);
+	// Insert only if missing to avoid overwriting user-chosen profile fields
+	const { data: existing, error: fetchError } = await supabase
+		.from('profiles')
+		.select('id')
+		.eq('id', user.id)
+		.maybeSingle();
 
-	if (error) {
-		console.error('profile upsert failed', error);
+	if (fetchError) {
+		console.error('profile fetch failed', fetchError);
+		return;
+	}
+
+	if (existing) {
+		return;
+	}
+
+	const { error: insertError } = await supabase.from('profiles').insert({
+		id: user.id,
+		display_name: displayFallback,
+		email: user.email ?? null
+	});
+
+	if (insertError) {
+		console.error('profile insert failed', insertError);
 	}
 };
