@@ -89,7 +89,7 @@ const sampleAnimals = [
 		animal_photos: [
 			{
 				image_url:
-					'https://images.unsplash.com/photo-1459183885421-5cc683b8dbba?auto=format&fit=crop&w=900&q=80'
+					'https://images.unsplash.com/photo-1546443046-ed1ce6ffd1ab?auto=format&fit=crop&w=900&q=80'
 			}
 		]
 	},
