@@ -71,7 +71,7 @@
 
 <section class="bg-slate-50">
 	<div class="mx-auto max-w-6xl pb-8">
-		<div class="overflow-hidden rounded-b-2xl border border-slate-200 bg-white shadow-sm">
+		<div class="overflow-hidden rounded-b-2xl bg-white shadow-sm">
 			<div class="grid gap-6 p-6 md:grid-cols-2">
 				<div class="rounded-xl border border-slate-200 bg-slate-50 p-6">
 					<h2 class="text-lg font-semibold text-slate-900">Mission</h2>
