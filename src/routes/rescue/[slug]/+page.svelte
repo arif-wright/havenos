@@ -22,7 +22,7 @@
 	const adoptionSteps = data.rescue.adoption_steps as string[] | null;
 </script>
 
-<section class="border-b border-slate-200 bg-white">
+<section class="border-b border-slate-200 bg-transparent">
 	<div class="relative overflow-hidden">
 		<div class="h-48 w-full overflow-hidden rounded-t-2xl bg-gradient-to-r from-emerald-100 to-slate-100">
 			{#if data.rescue.cover_url}
