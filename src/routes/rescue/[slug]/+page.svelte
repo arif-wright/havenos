@@ -29,8 +29,8 @@
 				<img src={data.rescue.cover_url} alt="" class="h-full w-full object-cover" />
 			{/if}
 		</div>
-		<div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 pb-8 pt-4 sm:flex-row sm:items-end sm:justify-between">
-			<div class="-mt-12 flex items-start gap-4 sm:-mt-10">
+		<div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 pb-10 pt-4 sm:flex-row sm:items-end sm:justify-between">
+			<div class="-mt-10 flex items-start gap-4 sm:-mt-8">
 				<div class="h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-emerald-50 shadow">
 					{#if data.rescue.logo_url}
 						<img src={data.rescue.logo_url} alt="Rescue logo" class="h-full w-full object-cover" />
