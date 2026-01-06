@@ -1,6 +1,4 @@
 import type { PageServerLoad } from './$types';
-import { getServiceSupabase } from '$lib/server/supabaseService';
-
 const PAGE_SIZE = 12;
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -9,23 +7,21 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const hasPets = url.searchParams.get('hasPets') === '1';
 	const page = Math.max(1, Number(url.searchParams.get('page') ?? '1') || 1);
 
-	// Adoptable counts grouped
-	const { data: animalCounts, error: animalError } = await locals.supabase
+	// Adoptable counts grouped (client side)
+	const { data: animalRows, error: animalError } = await locals.supabase
 		.from('animals')
-		.select('rescue_id, count:rescue_id', { head: false })
-		.eq('is_active', true)
-		.in('status', ['available', 'hold'])
-		.group('rescue_id');
+		.select('rescue_id,status,is_active');
 
 	if (animalError) {
 		console.error(animalError);
 	}
 
-	const adoptableCounts: Record<string, number> =
-		animalCounts?.reduce((acc, row: any) => {
-			acc[row.rescue_id] = Number(row.count) || 0;
-			return acc;
-		}, {} as Record<string, number>) ?? {};
+	const adoptableCounts: Record<string, number> = {};
+	(animalRows ?? []).forEach((row) => {
+		if (!row.is_active) return;
+		if (!['available', 'hold'].includes(row.status)) return;
+		adoptableCounts[row.rescue_id] = (adoptableCounts[row.rescue_id] ?? 0) + 1;
+	});
 
 	const idsWithPets = Object.keys(adoptableCounts).filter((id) => adoptableCounts[id] > 0);
 
