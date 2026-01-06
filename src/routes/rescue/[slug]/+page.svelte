@@ -153,7 +153,7 @@
 	</div>
 </section>
 
-<section class="bg-slate-50">
+<section class="bg-transparent">
 	<div class="mx-auto max-w-6xl px-4 pb-12 pt-6">
 		{#if data.animals.length === 0}
 			<div class="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center">
