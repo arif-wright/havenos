@@ -1,8 +1,50 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { supabaseBrowser } from '$lib/supabaseClient';
 	import type { ActionData, PageServerLoad } from './$types';
 
 	export let data: Awaited<ReturnType<PageServerLoad>>;
 	export let form: ActionData;
+
+	let errorMessage = data?.errorMessage;
+	let initializingSession = data?.needsSession ?? false;
+
+	onMount(async () => {
+		const hashParams = new URLSearchParams(window.location.hash.slice(1));
+		const queryParams = new URLSearchParams(window.location.search);
+		const accessToken = hashParams.get('access_token');
+		const refreshToken = hashParams.get('refresh_token');
+		const code = hashParams.get('code') ?? queryParams.get('code');
+
+		if (!accessToken && !refreshToken && !code) {
+			return;
+		}
+
+		initializingSession = true;
+		errorMessage = null;
+
+		if (accessToken && refreshToken) {
+			const { error } = await supabaseBrowser.auth.setSession({
+				access_token: accessToken,
+				refresh_token: refreshToken
+			});
+			if (error) {
+				errorMessage = 'Invalid or expired reset link.';
+				initializingSession = false;
+				return;
+			}
+		} else if (code) {
+			const { error } = await supabaseBrowser.auth.exchangeCodeForSession(code);
+			if (error) {
+				errorMessage = 'Invalid or expired reset link.';
+				initializingSession = false;
+				return;
+			}
+		}
+
+		// Strip tokens from the URL and reload so the server sees the session cookie.
+		window.location.replace(window.location.pathname);
+	});
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-slate-50 px-4">
@@ -13,9 +55,13 @@
 			<p class="mt-1 text-sm text-slate-500">Enter a new password for your account.</p>
 		</div>
 
-		{#if data.errorMessage}
+		{#if errorMessage}
 			<div class="rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-				{data.errorMessage}
+				{errorMessage}
+			</div>
+		{:else if initializingSession}
+			<div class="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+				Verifying your reset link...
 			</div>
 		{:else}
 			{#if form?.serverError}

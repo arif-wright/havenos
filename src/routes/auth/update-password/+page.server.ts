@@ -17,14 +17,16 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 
 	if (code) {
 		const { error } = await locals.supabase.auth.exchangeCodeForSession(code);
-		if (error) {
-			return { errorMessage: 'Invalid or expired reset link.' };
+		if (!error) {
+			// Remove the code from the URL after exchanging so refreshes are clean.
+			throw redirect(303, '/auth/update-password');
 		}
+		return { errorMessage: 'Invalid or expired reset link.' };
 	}
 
 	const user = await locals.getUser();
 	if (!user) {
-		return { errorMessage: 'You need a valid reset link to update your password.' };
+		return { needsSession: true };
 	}
 
 	return {};
