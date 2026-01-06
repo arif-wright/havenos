@@ -4,6 +4,7 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/publi
 import { getServiceSupabase } from '$lib/server/supabaseService';
 import type { Database } from '$lib/supabase/types';
 import type { User } from '@supabase/supabase-js';
+import { upsertProfileForUser } from '$lib/server/profiles';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) {
@@ -59,6 +60,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Preload current rescue context for all requests so downstream loads can rely on locals.
 	const user = await event.locals.getUser();
+	if (user) {
+		// Ensure a profile exists for the authenticated user (best-effort)
+		await upsertProfileForUser(event.locals.supabase, user);
+	}
 
 	if (!user) {
 		event.locals.currentRescue = null;

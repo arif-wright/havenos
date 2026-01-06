@@ -175,3 +175,78 @@ create table if not exists email_logs (
 
 create index if not exists idx_email_logs_rescue on email_logs(rescue_id, created_at desc);
 create index if not exists idx_email_logs_inquiry on email_logs(inquiry_id, created_at desc);
+
+-- Profiles for human-friendly names
+create table if not exists profiles (
+    id uuid primary key references auth.users(id) on delete cascade,
+    display_name text not null,
+    email text,
+    phone text,
+    title text,
+    created_at timestamptz not null default timezone('utc', now()),
+    updated_at timestamptz not null default timezone('utc', now())
+);
+
+create or replace function handle_profiles_updated_at() returns trigger as $$
+begin
+  new.updated_at = timezone('utc', now());
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists profiles_set_updated_at on profiles;
+create trigger profiles_set_updated_at
+before update on profiles
+for each row
+execute procedure handle_profiles_updated_at();
+
+alter table profiles enable row level security;
+
+drop policy if exists "Profiles select own" on profiles;
+create policy "Profiles select own" on profiles for select using (auth.uid() = id);
+drop policy if exists "Profiles insert own" on profiles;
+create policy "Profiles insert own" on profiles for insert with check (auth.uid() = id);
+drop policy if exists "Profiles update own" on profiles;
+create policy "Profiles update own" on profiles for update using (auth.uid() = id) with check (auth.uid() = id);
+
+-- Invitations cancelation support
+alter table rescue_invitations
+    add column if not exists canceled_at timestamptz;
+
+-- Security definer helper to return member directory for a rescue
+create or replace function get_rescue_members(p_rescue_id uuid)
+returns table (
+    rescue_id uuid,
+    user_id uuid,
+    role text,
+    joined_at timestamptz,
+    display_name text,
+    email text
+) security definer set search_path = public as $$
+begin
+    if not exists (
+        select 1 from rescue_members rm where rm.rescue_id = p_rescue_id and rm.user_id = auth.uid()
+    ) then
+        raise exception 'Not authorized for this rescue';
+    end if;
+
+    return query
+    select
+        rm.rescue_id,
+        rm.user_id,
+        rm.role,
+        rm.created_at as joined_at,
+        coalesce(p.display_name, split_part(au.email, '@', 1)) as display_name,
+        au.email
+    from rescue_members rm
+    left join profiles p on p.id = rm.user_id
+    left join auth.users au on au.id = rm.user_id
+    where rm.rescue_id = p_rescue_id;
+end;
+$$ language plpgsql;
+
+create or replace view rescue_pending_invitations as
+select *
+from rescue_invitations
+where accepted_at is null
+  and canceled_at is null;

@@ -6,12 +6,12 @@ import crypto from 'crypto';
 type DbClient = SupabaseClient<Database>;
 
 export const listMembers = async (supabase: DbClient, rescueId: string) => {
-	return supabase.from('rescue_members').select('id, user_id, role, created_at').eq('rescue_id', rescueId);
+	return supabase.rpc('get_rescue_members', { p_rescue_id: rescueId });
 };
 
 export const listInvitations = async (supabase: DbClient, rescueId: string) => {
 	return supabase
-		.from('rescue_invitations')
+		.from('rescue_pending_invitations')
 		.select('*')
 		.eq('rescue_id', rescueId)
 		.order('created_at', { ascending: false });
@@ -71,4 +71,20 @@ export const acceptInvitation = async (token: string, userId: string) => {
 		.eq('id', invite.id);
 
 	return { error: updateError, invite };
+};
+
+export const updateMemberRole = async (supabase: DbClient, rescueId: string, userId: string, role: Tables['rescue_members']['Row']['role']) => {
+	return supabase.from('rescue_members').update({ role }).eq('rescue_id', rescueId).eq('user_id', userId);
+};
+
+export const removeMember = async (supabase: DbClient, rescueId: string, userId: string) => {
+	return supabase.from('rescue_members').delete().eq('rescue_id', rescueId).eq('user_id', userId);
+};
+
+export const resendInvitation = async (supabase: DbClient, inviteId: string) => {
+	return supabase.from('rescue_invitations').select('*').eq('id', inviteId).maybeSingle();
+};
+
+export const cancelInvitation = async (supabase: DbClient, inviteId: string) => {
+	return supabase.from('rescue_invitations').update({ canceled_at: new Date().toISOString() }).eq('id', inviteId);
 };

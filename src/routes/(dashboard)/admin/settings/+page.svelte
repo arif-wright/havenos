@@ -8,9 +8,21 @@
 
 <section class="space-y-2">
 	<h1 class="text-2xl font-semibold text-slate-900">Settings</h1>
-	<p class="text-sm text-slate-600">
-		Manage your public rescue information.
-	</p>
+	<p class="text-sm text-slate-600">Manage your public rescue information.</p>
+	<div class="mt-3 flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
+		<a
+			href="/admin/settings"
+			class="rounded-md px-3 py-1 bg-emerald-50 text-emerald-700"
+			aria-current="page"
+			>Rescue profile</a
+		>
+		<a
+			href="/admin/settings/profile"
+			class="rounded-md px-3 py-1 hover:bg-slate-100"
+		>
+			Your profile
+		</a>
+	</div>
 </section>
 
 <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

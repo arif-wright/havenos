@@ -1,7 +1,15 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { invitationSchema } from '$lib/validation';
-import { createInvitation, listInvitations, listMembers } from '$lib/server/team';
+import {
+	cancelInvitation,
+	createInvitation,
+	listInvitations,
+	listMembers,
+	removeMember,
+	resendInvitation,
+	updateMemberRole
+} from '$lib/server/team';
 import { sendTemplateEmail } from '$lib/email/resend';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -64,6 +72,101 @@ export const actions: Actions = {
 			sendType: 'invite'
 		});
 
+		return { success: true };
+	},
+	updateRole: async ({ request, locals }) => {
+		const rescue = locals.currentRescue;
+		const actorRole = locals.currentMemberRole ?? 'staff';
+		if (!rescue || !['owner', 'admin'].includes(actorRole)) {
+			return fail(403, { serverError: 'Not authorized' });
+		}
+		const form = await request.formData();
+		const userId = String(form.get('userId') ?? '');
+		const role = String(form.get('role') ?? '') as 'owner' | 'admin' | 'staff';
+
+		if (!userId || !role) return fail(400, { serverError: 'Invalid request' });
+		if (role === 'owner') return fail(400, { serverError: 'Owner role cannot be assigned here' });
+
+		// Admins can only manage staff; owners can manage admins/staff
+		if (actorRole === 'admin') {
+			const currentRole = String(form.get('currentRole') ?? '');
+			if (currentRole !== 'staff') {
+				return fail(403, { serverError: 'Admins can only manage staff roles' });
+			}
+		}
+
+		const { error } = await updateMemberRole(locals.supabase, rescue.id, userId, role);
+		if (error) {
+			console.error(error);
+			return fail(500, { serverError: 'Unable to update role' });
+		}
+		return { success: true };
+	},
+	remove: async ({ request, locals }) => {
+		const rescue = locals.currentRescue;
+		const actorRole = locals.currentMemberRole ?? 'staff';
+		if (!rescue || !['owner', 'admin'].includes(actorRole)) {
+			return fail(403, { serverError: 'Not authorized' });
+		}
+		const form = await request.formData();
+		const userId = String(form.get('userId') ?? '');
+		const currentRole = String(form.get('currentRole') ?? '');
+		if (!userId) return fail(400, { serverError: 'Invalid request' });
+		if (currentRole === 'owner') {
+			return fail(400, { serverError: 'Cannot remove an owner via UI' });
+		}
+		if (actorRole === 'admin' && currentRole !== 'staff') {
+			return fail(403, { serverError: 'Admins can only manage staff' });
+		}
+
+		const { error } = await removeMember(locals.supabase, rescue.id, userId);
+		if (error) {
+			console.error(error);
+			return fail(500, { serverError: 'Unable to remove member' });
+		}
+		return { success: true };
+	},
+	resendInvite: async ({ request, locals, url }) => {
+		const rescue = locals.currentRescue;
+		const actorRole = locals.currentMemberRole ?? 'staff';
+		if (!rescue || !['owner', 'admin'].includes(actorRole)) {
+			return fail(403, { serverError: 'Not authorized' });
+		}
+		const form = await request.formData();
+		const inviteId = String(form.get('inviteId') ?? '');
+		if (!inviteId) return fail(400, { serverError: 'Invalid request' });
+
+		const { data: invite, error } = await resendInvitation(locals.supabase, inviteId);
+		if (error || !invite) {
+			console.error(error);
+			return fail(500, { serverError: 'Unable to resend invite' });
+		}
+		const acceptUrl = `${url.origin}/admin/invite/${invite.token}`;
+		await sendTemplateEmail({
+			rescueId: rescue.id,
+			inquiryId: null,
+			to: invite.email,
+			subject: `Reminder: join ${rescue.name} on RescueOS`,
+			body: `You were invited to join ${rescue.name} as ${invite.role}. Click to accept: ${acceptUrl}`,
+			sendType: 'invite'
+		});
+		return { success: true };
+	},
+	cancelInvite: async ({ request, locals }) => {
+		const rescue = locals.currentRescue;
+		const actorRole = locals.currentMemberRole ?? 'staff';
+		if (!rescue || !['owner', 'admin'].includes(actorRole)) {
+			return fail(403, { serverError: 'Not authorized' });
+		}
+		const form = await request.formData();
+		const inviteId = String(form.get('inviteId') ?? '');
+		if (!inviteId) return fail(400, { serverError: 'Invalid request' });
+
+		const { error } = await cancelInvitation(locals.supabase, inviteId);
+		if (error) {
+			console.error(error);
+			return fail(500, { serverError: 'Unable to cancel invite' });
+		}
 		return { success: true };
 	}
 };

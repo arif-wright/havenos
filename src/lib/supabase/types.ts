@@ -197,6 +197,8 @@ export type Database = {
 					message: string | null;
 					status: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
 					first_responded_at: string | null;
+					archived_at: string | null;
+					archived_by: string | null;
 					created_at: string;
 				};
 				Insert: {
@@ -208,6 +210,8 @@ export type Database = {
 					message?: string | null;
 					status?: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
 					first_responded_at?: string | null;
+					archived_at?: string | null;
+					archived_by?: string | null;
 					created_at?: string;
 				};
 				Update: {
@@ -219,6 +223,8 @@ export type Database = {
 					message?: string | null;
 					status?: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
 					first_responded_at?: string | null;
+					archived_at?: string | null;
+					archived_by?: string | null;
 					created_at?: string;
 				};
 				Relationships: [
@@ -364,6 +370,7 @@ export type Database = {
 					created_at: string;
 					expires_at: string;
 					accepted_at: string | null;
+					canceled_at: string | null;
 				};
 				Insert: {
 					id?: string;
@@ -375,6 +382,7 @@ export type Database = {
 					created_at?: string;
 					expires_at?: string;
 					accepted_at?: string | null;
+					canceled_at?: string | null;
 				};
 				Update: {
 					id?: string;
@@ -386,6 +394,7 @@ export type Database = {
 					created_at?: string;
 					expires_at?: string;
 					accepted_at?: string | null;
+					canceled_at?: string | null;
 				};
 				Relationships: [
 					{
@@ -436,12 +445,68 @@ export type Database = {
 					}
 				];
 			};
+			profiles: {
+				Row: {
+					id: string;
+					display_name: string;
+					email: string | null;
+					phone: string | null;
+					title: string | null;
+					created_at: string;
+					updated_at: string;
+				};
+				Insert: {
+					id: string;
+					display_name: string;
+					email?: string | null;
+					phone?: string | null;
+					title?: string | null;
+					created_at?: string;
+					updated_at?: string;
+				};
+				Update: {
+					id?: string;
+					display_name?: string;
+					email?: string | null;
+					phone?: string | null;
+					title?: string | null;
+					created_at?: string;
+					updated_at?: string;
+				};
+				Relationships: [];
+			};
 		};
 		Views: {
-			[_ in never]: never;
+			rescue_pending_invitations: {
+				Row: {
+					id: string | null;
+					rescue_id: string | null;
+					email: string | null;
+					role: 'owner' | 'admin' | 'staff' | null;
+					token: string | null;
+					created_by: string | null;
+					created_at: string | null;
+					expires_at: string | null;
+					accepted_at: string | null;
+					canceled_at: string | null;
+				};
+				Relationships: [];
+			};
 		};
 		Functions: {
-			[_ in never]: never;
+			get_rescue_members: {
+				Args: {
+					p_rescue_id: string;
+				};
+				Returns: {
+					rescue_id: string;
+					user_id: string;
+					role: string;
+					joined_at: string;
+					display_name: string | null;
+					email: string | null;
+				}[];
+			};
 		};
 		Enums: {
 			[_ in never]: never;
