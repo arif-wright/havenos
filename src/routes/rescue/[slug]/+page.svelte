@@ -103,7 +103,7 @@
 </section>
 
 <section class="border-b border-slate-200 bg-slate-50">
-	<div class="mx-auto max-w-6xl px-4 py-6 rounded-b-xl bg-white">
+	<div class="mx-auto max-w-6xl px-4 py-6 rounded-b-xl bg-white shadow-sm">
 		<form method="get" class="grid gap-4 md:grid-cols-3">
 			<label class="text-sm font-medium text-slate-700">
 				<span>Species</span>
