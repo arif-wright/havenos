@@ -108,20 +108,67 @@
 	</div>
 
 	<section class="rounded-3xl bg-white/90 p-8 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
+		<script>
+			let audience: 'adopters' | 'rescues' = 'adopters';
+			const adopterSteps = [
+				{
+					title: 'Browse rescues & pets',
+					body: "Search rescues and see who’s currently available."
+				},
+				{
+					title: 'Send an inquiry',
+					body: 'Message the rescue in one form—no guessing where it went.'
+				},
+				{
+					title: 'Know what happens next',
+					body: 'Each rescue shows response time and adoption steps so you’re not left waiting.'
+				}
+			];
+			const rescueSteps = [
+				{
+					title: 'Publish your rescue',
+					body: 'Set your public page once; it stays in sync with your dashboard.'
+				},
+				{
+					title: 'List animals',
+					body: 'Keep names, photos, and statuses updated.'
+				},
+				{
+					title: 'Respond with clarity',
+					body: 'Track every inquiry with statuses, notes, and templates.'
+				}
+			];
+		</script>
 		<h2 class="text-2xl font-semibold text-slate-900">How it works</h2>
-		<div class="mt-4 grid gap-4 md:grid-cols-3">
-			<div class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
-				<p class="font-semibold text-slate-900">1. Publish your rescue</p>
-				<p class="mt-2">Add your rescue details once; the public page stays in sync with your dashboard.</p>
-			</div>
-			<div class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
-				<p class="font-semibold text-slate-900">2. List animals</p>
-				<p class="mt-2">Keep names, photos, and statuses updated. Inquiry counts and stale flags are automatic.</p>
-			</div>
-			<div class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
-				<p class="font-semibold text-slate-900">3. Respond with clarity</p>
-				<p class="mt-2">Every inquiry is logged with status history, notes, and email activity—no more guessing.</p>
-			</div>
+		<div class="mt-3 flex gap-2 rounded-xl bg-slate-50 p-1" role="tablist" aria-label="How it works audience toggle">
+			{#each ['adopters', 'rescues'] as tab}
+				<button
+					type="button"
+					role="tab"
+					aria-selected={audience === tab}
+					class={`flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition ${
+						audience === tab
+							? 'bg-white shadow-sm text-emerald-700'
+							: 'text-slate-600 hover:text-slate-800'
+					}`}
+					on:click={() => (audience = tab)}
+				>
+					{tab === 'adopters' ? 'For adopters' : 'For rescues'}
+				</button>
+			{/each}
+		</div>
+		<div class="mt-4 grid gap-4 md:grid-cols-3 min-h-[220px]">
+			{#each (audience === 'adopters' ? adopterSteps : rescueSteps) as step, idx}
+				<div class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
+					<div class="flex items-center gap-2">
+						<span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
+							{idx + 1}
+						</span>
+						<p class="font-semibold text-slate-900">{step.title}</p>
+					</div>
+					<p class="mt-2">{step.body}</p>
+				</div>
+			{/each}
 		</div>
 	</section>
 </section>
