@@ -17,7 +17,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	default: async ({ request, locals }) => {
-		const appBaseUrl = (APP_BASE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+		const requestUrl = new URL(request.url);
+		const appBaseUrl = (APP_BASE_URL ?? requestUrl.origin ?? 'http://localhost:5173').replace(/\/$/, '');
 		const form = await request.formData();
 		const payload = {
 			email: String(form.get('email') ?? '').trim()

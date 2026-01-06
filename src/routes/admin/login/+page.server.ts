@@ -23,11 +23,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 export const actions: Actions = {
 	default: async ({ request, locals }) => {
+		const requestUrl = new URL(request.url);
 		const form = await request.formData();
 		const payload = {
 			email: String(form.get('email') ?? '').trim(),
 			password: String(form.get('password') ?? ''),
-			redirectTo: String(form.get('redirectTo') ?? '/admin')
+			redirectTo: String(form.get('redirectTo') ?? '/admin'),
+			requestOrigin: requestUrl.origin
 		};
 
 		const parsed = loginSchema.safeParse({ email: payload.email, password: payload.password });
@@ -60,7 +62,8 @@ export const actions: Actions = {
 			return fail(400, { serverError: 'Google sign-in is not enabled.' });
 		}
 
-		const appBaseUrl = (APP_BASE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+		const requestUrl = new URL(request.url);
+		const appBaseUrl = (APP_BASE_URL ?? requestUrl.origin ?? 'http://localhost:5173').replace(/\/$/, '');
 		const form = await request.formData();
 		const redirectTo = String(form.get('redirectTo') ?? '/admin');
 
