@@ -19,8 +19,9 @@ const sampleRescue = {
 	logo_url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=300&q=80',
 	cover_url:
 		'https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=1600&q=80',
-	profile_image_url: null,
-	header_image_url: null,
+	profile_image_url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=300&q=80',
+	header_image_url:
+		'https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=1600&q=80',
 	is_public: true,
 	verification_status: 'verified_501c3'
 };

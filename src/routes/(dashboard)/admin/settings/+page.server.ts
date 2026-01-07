@@ -9,6 +9,7 @@ const responseTimeLabels: Record<string, string> = {
 };
 
 const BUCKET = 'rescue-media';
+const PROFILE_BUCKET = 'public-assets';
 
 const extractStoragePath = (url: string | null | undefined) => {
 	if (!url) return null;
@@ -20,7 +21,8 @@ const extractStoragePath = (url: string | null | undefined) => {
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const rescue = locals.currentRescue;
-	if (!rescue) {
+	const user = await locals.getUser();
+	if (!rescue || !user) {
 		throw redirect(303, '/onboarding');
 	}
 
@@ -45,9 +47,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 		console.error('settings load verification error', verificationError);
 	}
 
+	const { data: profile } = await locals.supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
+
 	return {
 		currentRescue: freshRescue ?? rescue,
-		verification: verification ?? null
+		verification: verification ?? null,
+		profile: profile ?? null,
+		userEmail: user.email ?? ''
 	};
 };
 
@@ -136,63 +142,7 @@ export const actions: Actions = {
 			return fail(500, { serverError: 'Unable to update rescue profile.' });
 		}
 
-		return { success: true };
-	},
-	uploadLogo: async ({ request, locals }) => {
-		const rescue = locals.currentRescue;
-		if (!rescue) return fail(403, { serverError: 'Missing rescue' });
-		const form = await request.formData();
-		const file = form.get('logo') as File;
-		if (!file || file.size === 0) return fail(400, { serverError: 'No file provided' });
-		const path = `${rescue.id}/logo-${Date.now()}`;
-		const { error: uploadError, data } = await locals.supabase.storage
-			.from(BUCKET)
-			.upload(path, file, { upsert: true, cacheControl: '3600', contentType: file.type || 'image/*' });
-		if (uploadError) {
-			console.error(uploadError);
-			return fail(500, { serverError: 'Upload failed' });
-		}
-		const { data: urlData } = locals.supabase.storage.from(BUCKET).getPublicUrl(data.path);
-		await locals.supabase.from('rescues').update({ logo_url: urlData.publicUrl }).eq('id', rescue.id);
-		return { success: true };
-	},
-	removeLogo: async ({ locals }) => {
-		const rescue = locals.currentRescue;
-		if (!rescue) return fail(403, { serverError: 'Missing rescue' });
-		const path = extractStoragePath(rescue.logo_url);
-		if (path) {
-			await locals.supabase.storage.from(BUCKET).remove([path]);
-		}
-		await locals.supabase.from('rescues').update({ logo_url: null }).eq('id', rescue.id);
-		return { success: true };
-	},
-	uploadCover: async ({ request, locals }) => {
-		const rescue = locals.currentRescue;
-		if (!rescue) return fail(403, { serverError: 'Missing rescue' });
-		const form = await request.formData();
-		const file = form.get('cover') as File;
-		if (!file || file.size === 0) return fail(400, { serverError: 'No file provided' });
-		const path = `${rescue.id}/cover-${Date.now()}`;
-		const { error: uploadError, data } = await locals.supabase.storage
-			.from(BUCKET)
-			.upload(path, file, { upsert: true, cacheControl: '3600', contentType: file.type || 'image/*' });
-		if (uploadError) {
-			console.error(uploadError);
-			return fail(500, { serverError: 'Upload failed' });
-		}
-		const { data: urlData } = locals.supabase.storage.from(BUCKET).getPublicUrl(data.path);
-		await locals.supabase.from('rescues').update({ cover_url: urlData.publicUrl }).eq('id', rescue.id);
-		return { success: true };
-	},
-	removeCover: async ({ locals }) => {
-		const rescue = locals.currentRescue;
-		if (!rescue) return fail(403, { serverError: 'Missing rescue' });
-		const path = extractStoragePath(rescue.cover_url);
-		if (path) {
-			await locals.supabase.storage.from(BUCKET).remove([path]);
-		}
-		await locals.supabase.from('rescues').update({ cover_url: null }).eq('id', rescue.id);
-		return { success: true };
+		return { success: true, action: 'updateRescue' };
 	},
 	uploadProfile: async ({ request, locals }) => {
 		const rescue = locals.currentRescue;
@@ -209,8 +159,11 @@ export const actions: Actions = {
 			return fail(500, { serverError: 'Upload failed' });
 		}
 		const { data: urlData } = locals.supabase.storage.from(BUCKET).getPublicUrl(data.path);
-		await locals.supabase.from('rescues').update({ profile_image_url: urlData.publicUrl }).eq('id', rescue.id);
-		return { success: true };
+		await locals.supabase
+			.from('rescues')
+			.update({ profile_image_url: urlData.publicUrl, logo_url: urlData.publicUrl })
+			.eq('id', rescue.id);
+		return { success: true, action: 'uploadProfile' };
 	},
 	removeProfile: async ({ locals }) => {
 		const rescue = locals.currentRescue;
@@ -219,8 +172,8 @@ export const actions: Actions = {
 		if (path) {
 			await locals.supabase.storage.from(BUCKET).remove([path]);
 		}
-		await locals.supabase.from('rescues').update({ profile_image_url: null }).eq('id', rescue.id);
-		return { success: true };
+		await locals.supabase.from('rescues').update({ profile_image_url: null, logo_url: null }).eq('id', rescue.id);
+		return { success: true, action: 'removeProfile' };
 	},
 	uploadHeader: async ({ request, locals }) => {
 		const rescue = locals.currentRescue;
@@ -237,8 +190,11 @@ export const actions: Actions = {
 			return fail(500, { serverError: 'Upload failed' });
 		}
 		const { data: urlData } = locals.supabase.storage.from(BUCKET).getPublicUrl(data.path);
-		await locals.supabase.from('rescues').update({ header_image_url: urlData.publicUrl }).eq('id', rescue.id);
-		return { success: true };
+		await locals.supabase
+			.from('rescues')
+			.update({ header_image_url: urlData.publicUrl, cover_url: urlData.publicUrl })
+			.eq('id', rescue.id);
+		return { success: true, action: 'uploadHeader' };
 	},
 	removeHeader: async ({ locals }) => {
 		const rescue = locals.currentRescue;
@@ -247,8 +203,8 @@ export const actions: Actions = {
 		if (path) {
 			await locals.supabase.storage.from(BUCKET).remove([path]);
 		}
-		await locals.supabase.from('rescues').update({ header_image_url: null }).eq('id', rescue.id);
-		return { success: true };
+		await locals.supabase.from('rescues').update({ header_image_url: null, cover_url: null }).eq('id', rescue.id);
+		return { success: true, action: 'removeHeader' };
 	},
 	submitVerification: async ({ request, locals }) => {
 		const rescue = locals.currentRescue;
@@ -288,6 +244,109 @@ export const actions: Actions = {
 			.update({ verification_submitted_at: new Date().toISOString() })
 			.eq('id', rescue.id);
 
-		return { success: true, verificationSubmitted: true };
+		return { success: true, verificationSubmitted: true, action: 'submitVerification' };
+	},
+	saveProfile: async ({ request, locals }) => {
+		const user = await locals.getUser();
+		if (!user) return fail(403, { serverError: 'Not authorized' });
+		const form = await request.formData();
+		const display_name = String(form.get('display_name') ?? '').trim();
+		const title = String(form.get('title') ?? '').trim() || null;
+		const phone = String(form.get('phone') ?? '').trim() || null;
+
+		if (!display_name) {
+			return fail(400, { action: 'saveProfile', errors: { display_name: ['Display name is required'] } });
+		}
+
+		const { error } = await locals.supabase
+			.from('profiles')
+			.upsert({ id: user.id, display_name, title, phone, email: user.email ?? null });
+
+		if (error) {
+			console.error('profile save error', error);
+			return fail(500, { serverError: 'Unable to save profile', action: 'saveProfile' });
+		}
+
+		return { success: true, action: 'saveProfile' };
+	},
+	uploadAvatar: async ({ request, locals }) => {
+		const user = await locals.getUser();
+		if (!user) return fail(403, { serverError: 'Not authorized' });
+		const form = await request.formData();
+		const file = form.get('avatar') as File;
+		if (!file || file.size === 0) return fail(400, { serverError: 'No file provided', action: 'uploadAvatar' });
+		const path = `${user.id}/avatar-${Date.now()}`;
+		const { error: uploadError, data } = await locals.supabase.storage
+			.from(PROFILE_BUCKET)
+			.upload(path, file, { upsert: true, cacheControl: '3600', contentType: file.type || 'image/*' });
+		if (uploadError) {
+			console.error(uploadError);
+			return fail(500, { serverError: 'Upload failed', action: 'uploadAvatar' });
+		}
+		const { data: urlData } = locals.supabase.storage.from(PROFILE_BUCKET).getPublicUrl(data.path);
+		const { error: updateError } = await locals.supabase
+			.from('profiles')
+			.upsert({
+				id: user.id,
+				display_name: user.email?.split('@')[0] ?? 'Member',
+				avatar_url: urlData.publicUrl,
+				email: user.email ?? null
+			});
+		if (updateError) {
+			console.error(updateError);
+			return fail(500, { serverError: 'Unable to update avatar', action: 'uploadAvatar' });
+		}
+		return { success: true, action: 'uploadAvatar' };
+	},
+	removeAvatar: async ({ locals }) => {
+		const user = await locals.getUser();
+		if (!user) return fail(403, { serverError: 'Not authorized' });
+		const { data: profile } = await locals.supabase.from('profiles').select('avatar_url').eq('id', user.id).maybeSingle();
+		const path = (() => {
+			if (!profile?.avatar_url) return null;
+			const marker = `/object/public/${PROFILE_BUCKET}/`;
+			const idx = profile.avatar_url.indexOf(marker);
+			if (idx === -1) return null;
+			return profile.avatar_url.slice(idx + marker.length);
+		})();
+		if (path) {
+			await locals.supabase.storage.from(PROFILE_BUCKET).remove([path]);
+		}
+		await locals.supabase.from('profiles').update({ avatar_url: null }).eq('id', user.id);
+		return { success: true, action: 'removeAvatar' };
+	},
+	changePassword: async ({ request, locals }) => {
+		const user = await locals.getUser();
+		if (!user || !user.email) return fail(403, { serverError: 'Not authorized', action: 'changePassword' });
+		const form = await request.formData();
+		const current_password = String(form.get('current_password') ?? '');
+		const new_password = String(form.get('new_password') ?? '');
+		const confirm_password = String(form.get('confirm_password') ?? '');
+
+		if (!current_password || !new_password || !confirm_password) {
+			return fail(400, { serverError: 'All password fields are required.', action: 'changePassword' });
+		}
+		if (new_password !== confirm_password) {
+			return fail(400, { serverError: 'Passwords do not match.', action: 'changePassword' });
+		}
+		if (new_password.length < 8) {
+			return fail(400, { serverError: 'Password must be at least 8 characters.', action: 'changePassword' });
+		}
+
+		const { error: authError } = await locals.supabase.auth.signInWithPassword({
+			email: user.email,
+			password: current_password
+		});
+		if (authError) {
+			return fail(400, { serverError: 'Current password is incorrect.', action: 'changePassword' });
+		}
+
+		const { error: updateError } = await locals.supabase.auth.updateUser({ password: new_password });
+		if (updateError) {
+			console.error(updateError);
+			return fail(500, { serverError: 'Unable to update password.', action: 'changePassword' });
+		}
+
+		return { success: true, action: 'changePassword' };
 	}
 };

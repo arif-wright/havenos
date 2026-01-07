@@ -116,8 +116,8 @@
 							<a class="absolute inset-0" href={`/rescue/${rescue.slug}`} aria-label={`View ${rescue.name}`}></a>
 							<div class="flex items-start gap-3">
 								<div class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full bg-emerald-500/20 ring-1 ring-white/10">
-									{#if rescue.logo_url}
-										<img src={rescue.logo_url} alt="" class="h-full w-full object-cover" loading="lazy" />
+									{#if rescue.profile_image_url ?? rescue.logo_url}
+										<img src={rescue.profile_image_url ?? rescue.logo_url} alt="" class="h-full w-full object-cover" loading="lazy" />
 									{:else}
 										<div class="flex h-full items-center justify-center text-sm font-semibold text-emerald-100">
 											{(rescue.name ?? 'R').slice(0, 2).toUpperCase()}
