@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { ActionData, PageServerLoad } from './$types';
 
-	export let data: Awaited<ReturnType<PageServerLoad>>;
-	export let form: ActionData;
+  export let form: ActionData;
 </script>
 
 <div class="min-h-[60vh] bg-slate-50 flex items-center justify-center px-4">

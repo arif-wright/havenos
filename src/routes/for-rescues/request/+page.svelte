@@ -31,8 +31,9 @@
       {:else}
         <form class="mt-6 space-y-4" on:submit={handleSubmit}>
           <div>
-            <label class="block text-sm font-medium text-slate-800">Rescue name</label>
+            <label class="block text-sm font-medium text-slate-800" for="rescue-name">Rescue name</label>
             <input
+              id="rescue-name"
               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
               bind:value={rescueName}
               required
@@ -41,8 +42,9 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-800">Contact name</label>
+            <label class="block text-sm font-medium text-slate-800" for="contact-name">Contact name</label>
             <input
+              id="contact-name"
               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
               bind:value={contactName}
               required
@@ -51,8 +53,9 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-800">Email</label>
+            <label class="block text-sm font-medium text-slate-800" for="contact-email">Email</label>
             <input
+              id="contact-email"
               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
               bind:value={email}
               required
@@ -61,8 +64,9 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-800">Website (optional)</label>
+            <label class="block text-sm font-medium text-slate-800" for="website">Website (optional)</label>
             <input
+              id="website"
               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
               bind:value={website}
               type="url"
@@ -70,13 +74,14 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-800">Notes (optional)</label>
+            <label class="block text-sm font-medium text-slate-800" for="notes">Notes (optional)</label>
             <textarea
+              id="notes"
               class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
               bind:value={notes}
               rows="3"
               placeholder="Anything else we should know?"
-            />
+            ></textarea>
           </div>
           <div class="flex items-center justify-between">
             <a href="/for-rescues" class="text-sm text-emerald-700 hover:text-emerald-800">Back to rescues</a>

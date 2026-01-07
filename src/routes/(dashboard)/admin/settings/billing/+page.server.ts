@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getStripe } from '$lib/server/stripe';
-import { APP_BASE_URL, STRIPE_PRICE_PRO_ID } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const rescue = locals.currentRescue;
@@ -29,13 +29,16 @@ export const actions: Actions = {
 		if (!rescue || role !== 'owner') return fail(403, { serverError: 'Not authorized' });
 
 		const stripe = getStripe();
-		if (stripe && STRIPE_PRICE_PRO_ID) {
+		const priceId = env.STRIPE_PRICE_PRO_ID;
+		const appUrl = env.APP_BASE_URL ?? 'http://localhost:5173';
+
+		if (stripe && priceId) {
 			try {
 				const session = await stripe.checkout.sessions.create({
 					mode: 'subscription',
-					line_items: [{ price: STRIPE_PRICE_PRO_ID, quantity: 1 }],
-					success_url: `${APP_BASE_URL ?? 'http://localhost:5173'}/admin/settings/billing?success=1`,
-					cancel_url: `${APP_BASE_URL ?? 'http://localhost:5173'}/admin/settings/billing?canceled=1`,
+					line_items: [{ price: priceId, quantity: 1 }],
+					success_url: `${appUrl}/admin/settings/billing?success=1`,
+					cancel_url: `${appUrl}/admin/settings/billing?canceled=1`,
 					customer_email: rescue.contact_email,
 					metadata: {
 						rescue_id: rescue.id,

@@ -1,12 +1,13 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { STRIPE_WEBHOOK_SECRET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { getServiceSupabase } from '$lib/server/supabaseService';
 import { getStripe } from '$lib/server/stripe';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const stripe = getStripe();
-	if (!stripe || !STRIPE_WEBHOOK_SECRET) {
+	const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
+	if (!stripe || !webhookSecret) {
 		return new Response('Webhook not configured', { status: 500 });
 	}
 
@@ -15,7 +16,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	let event: any;
 	try {
-		event = stripe.webhooks.constructEvent(rawBody, signature as string, STRIPE_WEBHOOK_SECRET);
+		event = stripe.webhooks.constructEvent(rawBody, signature as string, webhookSecret);
 	} catch (err) {
 		console.error('Stripe webhook signature verification failed', err);
 		return new Response('Signature verification failed', { status: 400 });

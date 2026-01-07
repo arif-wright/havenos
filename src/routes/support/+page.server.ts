@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getStripe } from '$lib/server/stripe';
-import { APP_BASE_URL, STRIPE_SUPPORT_PRICE_ID } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export const load: PageServerLoad = async () => {
 	return {};
@@ -18,13 +18,16 @@ export const actions: Actions = {
 		}
 
 		const stripe = getStripe();
-		if (stripe && STRIPE_SUPPORT_PRICE_ID) {
+		const priceId = env.STRIPE_SUPPORT_PRICE_ID;
+		const appUrl = env.APP_BASE_URL ?? 'http://localhost:5173';
+
+		if (stripe && priceId) {
 			try {
 				const session = await stripe.checkout.sessions.create({
 					mode: 'payment',
-					line_items: [{ price: STRIPE_SUPPORT_PRICE_ID, quantity: 1 }],
-					success_url: `${APP_BASE_URL ?? 'http://localhost:5173'}/support?success=1`,
-					cancel_url: `${APP_BASE_URL ?? 'http://localhost:5173'}/support?canceled=1`,
+					line_items: [{ price: priceId, quantity: 1 }],
+					success_url: `${appUrl}/support?success=1`,
+					cancel_url: `${appUrl}/support?canceled=1`,
 					customer_email: email ?? undefined,
 					metadata: {
 						email
