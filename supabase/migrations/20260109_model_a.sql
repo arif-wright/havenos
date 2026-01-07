@@ -258,8 +258,7 @@ create policy "Abuse reports public insert" on public.abuse_reports
     for insert with check (true);
 
 create policy "Abuse reports admin access" on public.abuse_reports
-    for select using (auth.role() = 'service_role')
-    with check (auth.role() = 'service_role');
+    for select using (auth.role() = 'service_role');
 
 create policy "Abuse reports admin update" on public.abuse_reports
     for update using (auth.role() = 'service_role')
@@ -284,4 +283,3 @@ create policy "Support payments public insert" on public.support_payments
 
 create policy "Support payments admin read" on public.support_payments
     for select using (auth.role() = 'service_role');
-

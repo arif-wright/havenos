@@ -342,8 +342,7 @@ create policy "Abuse reports public insert" on abuse_reports
 
 drop policy if exists "Abuse reports admin access" on abuse_reports;
 create policy "Abuse reports admin access" on abuse_reports
-    for select using (auth.role() = 'service_role')
-    with check (auth.role() = 'service_role');
+    for select using (auth.role() = 'service_role');
 
 drop policy if exists "Abuse reports admin update" on abuse_reports;
 create policy "Abuse reports admin update" on abuse_reports
