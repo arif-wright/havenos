@@ -17,8 +17,8 @@
 	];
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-[#0b1f29] via-[#0f2c36] to-[#102a3a] text-[var(--text)]">
-	<header class="border-b border-white/10 bg-slate-900/70 backdrop-blur">
+<div class="min-h-screen bg-gradient-to-b from-[#f5f8fa] via-[#eef3f6] to-[#e6edf2] text-[var(--text)]">
+	<header class="border-b border-white/10 bg-slate-900/80 backdrop-blur">
 		<div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between text-white">
 			<div>
 				<p class="text-xs uppercase tracking-widest text-emerald-200">RescueOS</p>
@@ -54,7 +54,7 @@
 			</nav>
 		</div>
 	</header>
-	<main class="admin-shell mx-auto max-w-6xl px-4 py-10 space-y-10">
+	<main class="admin-shell mx-auto max-w-6xl px-4 py-10 space-y-10 text-slate-900">
 		{@render children()}
 	</main>
 	<footer class="mt-6 border-t border-white/10 bg-slate-900/70 px-4 py-6 text-slate-200">

@@ -102,46 +102,75 @@ button {
 	border: 1px solid var(--border);
 }
 
+.admin-shell {
+	color: #0f172a;
+	background: radial-gradient(circle at 5% 0%, rgba(45, 212, 191, 0.06), transparent 30%),
+		radial-gradient(circle at 90% 10%, rgba(56, 189, 248, 0.05), transparent 30%),
+		linear-gradient(180deg, #f4f7f9, #e9eff3);
+}
+
 .admin-shell section,
 .admin-shell .rounded-2xl,
 .admin-shell .rounded-xl,
 .admin-shell .rounded-lg {
-	background: var(--surface) !important;
-	border-color: var(--border) !important;
-	box-shadow: var(--shadow);
-	color: var(--text);
+	background: #ffffff !important;
+	border-color: #e2e8f0 !important;
+	box-shadow: 0 14px 40px -30px rgba(15, 23, 42, 0.45);
+	color: #0f172a;
 }
 
 .admin-shell .bg-white,
 .admin-shell .bg-slate-50,
 .admin-shell .bg-slate-100,
 .admin-shell .bg-slate-200 {
-	background: var(--surface) !important;
+	background: #ffffff !important;
 }
 
 .admin-shell .border-slate-200,
 .admin-shell .border-slate-100,
 .admin-shell .border-slate-300 {
-	border-color: var(--border) !important;
+	border-color: #e2e8f0 !important;
 }
 
 .admin-shell .text-slate-900,
 .admin-shell .text-slate-800,
 .admin-shell .text-slate-700,
-.admin-shell .text-slate-600,
-.admin-shell .text-slate-500,
-.admin-shell .text-slate-400 {
-	color: var(--text) !important;
+.admin-shell .text-slate-600 {
+	color: #0f172a !important;
 }
 
 .admin-shell .text-slate-500,
 .admin-shell .text-slate-400,
 .admin-shell .text-slate-300 {
-	color: var(--muted) !important;
+	color: #4b5563 !important;
 }
 
 .admin-shell a:hover {
-	color: #fff;
+	color: #0f172a;
+}
+
+.admin-shell input,
+.admin-shell textarea,
+.admin-shell select {
+	background: #f8fafc;
+	border-color: #d7e0ea;
+	color: #0f172a;
+}
+
+.admin-shell input::placeholder,
+.admin-shell textarea::placeholder {
+	color: #6b7280;
+}
+
+.admin-shell input:focus,
+.admin-shell textarea:focus,
+.admin-shell select:focus {
+	border-color: var(--accent);
+	box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.3);
+}
+
+.admin-shell table {
+	background: #ffffff;
 }
 
 a {
