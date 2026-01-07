@@ -1,8 +1,8 @@
-import { ADMIN_EMAILS } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export const isAdminEmail = (email: string | null | undefined): boolean => {
 	if (!email) return false;
-	const list = (ADMIN_EMAILS ?? '')
+	const list = (env.ADMIN_EMAILS ?? '')
 		.split(',')
 		.map((e) => e.trim().toLowerCase())
 		.filter(Boolean);
