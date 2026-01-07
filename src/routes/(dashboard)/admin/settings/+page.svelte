@@ -36,7 +36,7 @@
 		<div class="flex items-center justify-between">
 			<div>
 				<h2 class="text-lg font-semibold text-slate-900">Visual identity</h2>
-				<p class="text-sm text-slate-600">Logo and header image for your public page.</p>
+				<p class="text-sm text-slate-600">Logo and header imagery for your public page.</p>
 			</div>
 		</div>
 		<div class="grid gap-4 md:grid-cols-2">
@@ -72,16 +72,16 @@
 						</form>
 					{/if}
 				</div>
-				<p class="text-xs text-slate-500">Square image works best. Stored securely in RescueOS.</p>
+				<p class="text-xs text-slate-500">Square image works best.</p>
 			</div>
 
 			<div class="space-y-3 rounded-xl border border-slate-100 p-4">
-				<p class="text-sm font-semibold text-slate-800">Header image</p>
+				<p class="text-sm font-semibold text-slate-800">Cover image</p>
 				<div class="overflow-hidden rounded-lg border border-slate-100 bg-slate-100">
 					{#if rescue.cover_url}
 						<img src={rescue.cover_url} alt="Header" class="h-32 w-full object-cover" />
 					{:else}
-						<div class="flex h-32 items-center justify-center text-sm text-slate-500">No header image yet</div>
+						<div class="flex h-32 items-center justify-center text-sm text-slate-500">No cover image yet</div>
 					{/if}
 				</div>
 				<div class="flex items-center gap-2">
@@ -105,7 +105,77 @@
 						</form>
 					{/if}
 				</div>
-				<p class="text-xs text-slate-500">Wide image recommended. We’ll scale it to fit.</p>
+				<p class="text-xs text-slate-500">Wide image recommended.</p>
+			</div>
+		</div>
+
+		<div class="grid gap-4 md:grid-cols-2">
+			<div class="space-y-3 rounded-xl border border-slate-100 p-4">
+				<p class="text-sm font-semibold text-slate-800">Profile image</p>
+				<div class="flex items-center gap-4">
+					<div class="h-16 w-16 overflow-hidden rounded-full bg-slate-100">
+						{#if rescue.profile_image_url}
+							<img src={rescue.profile_image_url} alt="Profile" class="h-full w-full object-cover" />
+						{:else}
+							<div class="flex h-full items-center justify-center text-sm font-semibold text-slate-500">
+								{rescue.name?.slice(0, 2).toUpperCase()}
+							</div>
+						{/if}
+					</div>
+					<form method="POST" action="?/uploadProfile" enctype="multipart/form-data" class="flex items-center gap-2">
+						<input type="file" name="profile" accept="image/*" class="text-sm" />
+						<button
+							type="submit"
+							class="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
+						>
+							Upload
+						</button>
+					</form>
+					{#if rescue.profile_image_url}
+						<form method="POST" action="?/removeProfile">
+							<button
+								type="submit"
+								class="text-xs font-semibold text-rose-600 hover:text-rose-700"
+							>
+								Remove
+							</button>
+						</form>
+					{/if}
+				</div>
+				<p class="text-xs text-slate-500">Round avatar shown on directory cards.</p>
+			</div>
+
+			<div class="space-y-3 rounded-xl border border-slate-100 p-4">
+				<p class="text-sm font-semibold text-slate-800">Hero header</p>
+				<div class="overflow-hidden rounded-lg border border-slate-100 bg-slate-100">
+					{#if rescue.header_image_url}
+						<img src={rescue.header_image_url} alt="Header" class="h-32 w-full object-cover" />
+					{:else}
+						<div class="flex h-32 items-center justify-center text-sm text-slate-500">No header image yet</div>
+					{/if}
+				</div>
+				<div class="flex items-center gap-2">
+					<form method="POST" action="?/uploadHeader" enctype="multipart/form-data" class="flex items-center gap-2">
+						<input type="file" name="header" accept="image/*" class="text-sm" />
+						<button
+							type="submit"
+							class="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
+						>
+							Upload
+						</button>
+					</form>
+					{#if rescue.header_image_url}
+						<form method="POST" action="?/removeHeader">
+							<button
+								type="submit"
+								class="text-xs font-semibold text-rose-600 hover:text-rose-700"
+							>
+								Remove
+							</button>
+						</form>
+					{/if}
+				</div>
+				<p class="text-xs text-slate-500">Optional hero image for public page top banner.</p>
 			</div>
 		</div>
 	</section>
@@ -273,10 +343,88 @@
 				Additional adoption details
 				<textarea
 					name="adoption_process"
-					rows="4"
-					class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-				>{rescue.adoption_process ?? ''}</textarea>
+				rows="4"
+				class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+			>{rescue.adoption_process ?? ''}</textarea>
 			</label>
+		</section>
+
+		<section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+			<div class="flex items-center justify-between">
+				<div>
+					<h2 class="text-lg font-semibold text-slate-900">Verification</h2>
+					<p class="text-sm text-slate-600">
+						Verified badge: website/socials match your rescue. Verified 501(c)(3): EIN + legal name.
+					</p>
+				</div>
+				<span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+					Status: {rescue.verification_status}
+				</span>
+			</div>
+			{#if data.verification}
+				<p class="text-sm text-slate-600">
+					Last submission: {new Date(data.verification.created_at).toLocaleString()} · {data.verification.status}
+					{#if data.verification.reviewed_at} · reviewed {new Date(data.verification.reviewed_at).toLocaleString()}{/if}
+				</p>
+			{/if}
+			<form method="POST" action="?/submitVerification" class="space-y-3">
+				<div class="grid gap-3 md:grid-cols-3">
+					<label class="text-sm font-medium text-slate-700">
+						Website URL
+						<input
+							name="website_url"
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							placeholder="https://yourrescue.org"
+						/>
+					</label>
+					<label class="text-sm font-medium text-slate-700">
+						Facebook URL
+						<input
+							name="facebook_url"
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							placeholder="https://facebook.com/yourrescue"
+						/>
+					</label>
+					<label class="text-sm font-medium text-slate-700">
+						Instagram URL
+						<input
+							name="instagram_url"
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							placeholder="https://instagram.com/yourrescue"
+						/>
+					</label>
+				</div>
+				<div class="grid gap-3 md:grid-cols-2">
+					<label class="text-sm font-medium text-slate-700">
+						EIN (optional, required for 501(c)(3))
+						<input
+							name="ein"
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+						/>
+					</label>
+					<label class="text-sm font-medium text-slate-700">
+						Legal name (optional)
+						<input
+							name="legal_name"
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+						/>
+					</label>
+				</div>
+				<label class="text-sm font-medium text-slate-700">
+					Notes for reviewer
+					<textarea
+						name="notes"
+						rows="3"
+						class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					></textarea>
+				</label>
+				<button
+					type="submit"
+					class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+				>
+					Submit verification
+				</button>
+			</form>
 		</section>
 
 		<div class="flex items-center justify-between">

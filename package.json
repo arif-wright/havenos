@@ -28,6 +28,7 @@
 		"@supabase/auth-helpers-sveltekit": "^0.15.0",
 		"@supabase/supabase-js": "^2.89.0",
 		"resend": "^6.6.0",
+		"stripe": "^17.4.0",
 		"zod": "^4.2.1"
 	}
 }

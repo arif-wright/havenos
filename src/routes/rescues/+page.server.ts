@@ -1,4 +1,5 @@
-import type { PageServerLoad } from './$types';
+import { fail } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 const PAGE_SIZE = 12;
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -91,4 +92,33 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		hasPets,
 		counts: adoptableCounts
 	};
+};
+
+export const actions: Actions = {
+	report: async ({ request, locals }) => {
+		const form = await request.formData();
+		const rescue_id = String(form.get('rescue_id') ?? '');
+		const reporter_email = String(form.get('reporter_email') ?? '').trim() || null;
+		const reporter_name = String(form.get('reporter_name') ?? '').trim() || null;
+		const message = String(form.get('message') ?? '').trim();
+
+		if (!rescue_id || !message) {
+			return fail(400, { serverError: 'Report requires a message.', values: { reporter_email, reporter_name, message } });
+		}
+
+		const { error } = await locals.supabase.from('abuse_reports').insert({
+			type: 'rescue',
+			rescue_id,
+			reporter_email,
+			reporter_name,
+			message
+		});
+
+		if (error) {
+			console.error('report insert failed', error);
+			return fail(500, { serverError: 'Unable to submit report.', values: { reporter_email, reporter_name, message } });
+		}
+
+		return { success: true };
+	}
 };

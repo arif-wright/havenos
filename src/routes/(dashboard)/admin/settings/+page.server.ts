@@ -25,13 +25,29 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// Always fetch fresh copy to avoid stale locals and show latest saved values
-	const { data: freshRescue, error } = await locals.supabase.from('rescues').select('*').eq('id', rescue.id).maybeSingle();
+	const { data: freshRescue, error } = await locals.supabase
+		.from('rescues')
+		.select('*')
+		.eq('id', rescue.id)
+		.maybeSingle();
 	if (error) {
 		console.error('settings load rescue refresh error', error);
 	}
 
+	const { data: verification, error: verificationError } = await locals.supabase
+		.from('verification_requests')
+		.select('*')
+		.eq('rescue_id', rescue.id)
+		.order('created_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+	if (verificationError) {
+		console.error('settings load verification error', verificationError);
+	}
+
 	return {
-		currentRescue: freshRescue ?? rescue
+		currentRescue: freshRescue ?? rescue,
+		verification: verification ?? null
 	};
 };
 
@@ -48,6 +64,7 @@ export const actions: Actions = {
 		const adoption_process = String(form.get('adoption_process') ?? '').trim() || null;
 		const tagline = String(form.get('tagline') ?? '').trim() || null;
 		const location_text = String(form.get('location_text') ?? '').trim() || null;
+		const location = location_text || null;
 		const website_url = String(form.get('website_url') ?? '').trim() || null;
 		const facebook_url = String(form.get('facebook_url') ?? '').trim() || null;
 		const instagram_url = String(form.get('instagram_url') ?? '').trim() || null;
@@ -101,6 +118,7 @@ export const actions: Actions = {
 				adoption_process,
 				tagline,
 				location_text,
+				location,
 				website_url,
 				facebook_url,
 				instagram_url,
@@ -175,5 +193,101 @@ export const actions: Actions = {
 		}
 		await locals.supabase.from('rescues').update({ cover_url: null }).eq('id', rescue.id);
 		return { success: true };
+	},
+	uploadProfile: async ({ request, locals }) => {
+		const rescue = locals.currentRescue;
+		if (!rescue) return fail(403, { serverError: 'Missing rescue' });
+		const form = await request.formData();
+		const file = form.get('profile') as File;
+		if (!file || file.size === 0) return fail(400, { serverError: 'No file provided' });
+		const path = `${rescue.id}/profile-${Date.now()}`;
+		const { error: uploadError, data } = await locals.supabase.storage
+			.from(BUCKET)
+			.upload(path, file, { upsert: true, cacheControl: '3600', contentType: file.type || 'image/*' });
+		if (uploadError) {
+			console.error(uploadError);
+			return fail(500, { serverError: 'Upload failed' });
+		}
+		const { data: urlData } = locals.supabase.storage.from(BUCKET).getPublicUrl(data.path);
+		await locals.supabase.from('rescues').update({ profile_image_url: urlData.publicUrl }).eq('id', rescue.id);
+		return { success: true };
+	},
+	removeProfile: async ({ locals }) => {
+		const rescue = locals.currentRescue;
+		if (!rescue) return fail(403, { serverError: 'Missing rescue' });
+		const path = extractStoragePath(rescue.profile_image_url);
+		if (path) {
+			await locals.supabase.storage.from(BUCKET).remove([path]);
+		}
+		await locals.supabase.from('rescues').update({ profile_image_url: null }).eq('id', rescue.id);
+		return { success: true };
+	},
+	uploadHeader: async ({ request, locals }) => {
+		const rescue = locals.currentRescue;
+		if (!rescue) return fail(403, { serverError: 'Missing rescue' });
+		const form = await request.formData();
+		const file = form.get('header') as File;
+		if (!file || file.size === 0) return fail(400, { serverError: 'No file provided' });
+		const path = `${rescue.id}/header-${Date.now()}`;
+		const { error: uploadError, data } = await locals.supabase.storage
+			.from(BUCKET)
+			.upload(path, file, { upsert: true, cacheControl: '3600', contentType: file.type || 'image/*' });
+		if (uploadError) {
+			console.error(uploadError);
+			return fail(500, { serverError: 'Upload failed' });
+		}
+		const { data: urlData } = locals.supabase.storage.from(BUCKET).getPublicUrl(data.path);
+		await locals.supabase.from('rescues').update({ header_image_url: urlData.publicUrl }).eq('id', rescue.id);
+		return { success: true };
+	},
+	removeHeader: async ({ locals }) => {
+		const rescue = locals.currentRescue;
+		if (!rescue) return fail(403, { serverError: 'Missing rescue' });
+		const path = extractStoragePath(rescue.header_image_url);
+		if (path) {
+			await locals.supabase.storage.from(BUCKET).remove([path]);
+		}
+		await locals.supabase.from('rescues').update({ header_image_url: null }).eq('id', rescue.id);
+		return { success: true };
+	},
+	submitVerification: async ({ request, locals }) => {
+		const rescue = locals.currentRescue;
+		const user = await locals.getUser();
+		if (!rescue || !user) return fail(403, { serverError: 'Not authorized' });
+
+		const form = await request.formData();
+		const website_url = String(form.get('website_url') ?? '').trim() || null;
+		const instagram_url = String(form.get('instagram_url') ?? '').trim() || null;
+		const facebook_url = String(form.get('facebook_url') ?? '').trim() || null;
+		const ein = String(form.get('ein') ?? '').trim() || null;
+		const legal_name = String(form.get('legal_name') ?? '').trim() || null;
+		const notes = String(form.get('notes') ?? '').trim() || null;
+
+		if (!website_url && !instagram_url && !facebook_url) {
+			return fail(400, { serverError: 'Provide at least one website or social link.' });
+		}
+
+		const { error } = await locals.supabase.from('verification_requests').insert({
+			rescue_id: rescue.id,
+			submitted_by: user.id,
+			website_url,
+			instagram_url,
+			facebook_url,
+			ein,
+			legal_name,
+			notes
+		});
+
+		if (error) {
+			console.error('verification submit error', error);
+			return fail(500, { serverError: 'Unable to submit verification request.' });
+		}
+
+		await locals.supabase
+			.from('rescues')
+			.update({ verification_submitted_at: new Date().toISOString() })
+			.eq('id', rescue.id);
+
+		return { success: true, verificationSubmitted: true };
 	}
 };

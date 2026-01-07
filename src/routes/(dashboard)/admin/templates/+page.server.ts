@@ -89,5 +89,39 @@ export const actions: Actions = {
 			return fail(500, { serverError: 'Unable to delete template' });
 		}
 		return { success: true };
+	},
+	duplicate: async ({ request, locals }) => {
+		const rescue = locals.currentRescue;
+		const user = await locals.getUser();
+		if (!rescue || !user) {
+			return fail(403, { serverError: 'Not authorized' });
+		}
+		const form = await request.formData();
+		const templateId = String(form.get('templateId') ?? '');
+		if (!templateId) return fail(400, { serverError: 'Invalid request' });
+
+		const { data: existing, error: fetchError } = await locals.supabase
+			.from('saved_reply_templates')
+			.select('*')
+			.eq('id', templateId)
+			.eq('rescue_id', rescue.id)
+			.maybeSingle();
+		if (fetchError || !existing) {
+			console.error(fetchError);
+			return fail(404, { serverError: 'Template not found' });
+		}
+
+		const { error: insertError } = await locals.supabase.from('saved_reply_templates').insert({
+			rescue_id: rescue.id,
+			name: `${existing.name} (copy)`,
+			subject: existing.subject,
+			body: existing.body,
+			created_by: user.id
+		});
+		if (insertError) {
+			console.error(insertError);
+			return fail(500, { serverError: 'Unable to duplicate template' });
+		}
+		return { success: true };
 	}
 };

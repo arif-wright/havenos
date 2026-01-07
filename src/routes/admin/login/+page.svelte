@@ -13,6 +13,12 @@
 			<p class="mt-1 text-sm text-slate-500">Only approved team members can access RescueOS.</p>
 		</div>
 
+		{#if data.disabledNotice}
+			<div class="mb-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+				This rescue has been disabled. Contact RescueOS to regain access.
+			</div>
+		{/if}
+
 		{#if form?.serverError}
 			<div class="mb-4 rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
 				{form.serverError}
@@ -70,6 +76,9 @@
 				</button>
 			</form>
 		{/if}
-		<p class="mt-6 text-center text-xs text-slate-400">Need access? Ask your rescue owner.</p>
+		<div class="mt-6 text-center text-xs text-slate-500 space-y-1">
+			<p>Need an account? <a class="font-semibold text-emerald-700 hover:text-emerald-600" href="/auth/signup">Create one</a>.</p>
+			<p class="text-slate-400">Need access? Ask your rescue owner.</p>
+		</div>
 	</div>
 </div>

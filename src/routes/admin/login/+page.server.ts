@@ -17,7 +17,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	}
 	return {
 		redirectTo: url.searchParams.get('redirectTo') ?? '/admin',
-		googleEnabled: publicEnv.PUBLIC_GOOGLE_AUTH_ENABLED === 'true'
+		googleEnabled: publicEnv.PUBLIC_GOOGLE_AUTH_ENABLED === 'true',
+		disabledNotice: url.searchParams.get('disabled') === '1'
 	};
 };
 

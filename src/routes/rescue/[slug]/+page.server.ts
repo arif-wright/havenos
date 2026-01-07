@@ -1,5 +1,5 @@
-import { error } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import { error, fail } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 import { getPublicRescueBySlug, listPublicAnimals } from '$lib/server/animals';
 import { getServiceSupabase } from '$lib/server/supabaseService';
 
@@ -21,6 +21,10 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 	if (!rescue) {
 		throw error(404, 'Rescue not found');
+	}
+
+	if (rescue.disabled && locals.currentRescue?.id !== rescue.id) {
+		throw error(404, 'Rescue not available');
 	}
 
 	const filters = {
@@ -78,4 +82,35 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		speciesOptions,
 		statusOptions
 	};
+};
+
+export const actions: Actions = {
+	report: async ({ request, locals }) => {
+		const form = await request.formData();
+		const rescue_id = String(form.get('rescue_id') ?? '');
+		const animal_id = String(form.get('animal_id') ?? '') || null;
+		const reporter_email = String(form.get('reporter_email') ?? '').trim() || null;
+		const reporter_name = String(form.get('reporter_name') ?? '').trim() || null;
+		const message = String(form.get('message') ?? '').trim();
+
+		if (!rescue_id || !message) {
+			return fail(400, { serverError: 'Report requires a message.' });
+		}
+
+		const { error } = await locals.supabase.from('abuse_reports').insert({
+			type: animal_id ? 'animal' : 'rescue',
+			rescue_id,
+			animal_id,
+			reporter_email,
+			reporter_name,
+			message
+		});
+
+		if (error) {
+			console.error('report insert failed', error);
+			return fail(500, { serverError: 'Unable to submit report.' });
+		}
+
+		return { success: true };
+	}
 };

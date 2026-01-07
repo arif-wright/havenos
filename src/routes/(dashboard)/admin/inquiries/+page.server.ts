@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const { data, error: inquiryError } = await locals.supabase
 		.from('inquiries')
 		.select(
-			'id, adopter_name, adopter_email, message, status, created_at, first_responded_at, archived_at, archived_by, animals(id, name)'
+			'id, adopter_name, adopter_email, message, status, created_at, first_responded_at, archived, archived_at, archived_by, animals(id, name)'
 		)
 		.eq('rescue_id', rescue.id)
 		.order(isArchived ? 'archived_at' : 'created_at', { ascending: false });
@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			...inq,
 			isStale:
 				['new', 'pending'].includes(inq.status) && new Date(inq.created_at).getTime() <= staleCutoff,
-			isArchived: !!inq.archived_at
+			isArchived: !!inq.archived || !!inq.archived_at
 		})) ?? [];
 
 	let filtered = decorated;
@@ -57,7 +57,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		filtered = filtered.filter((inq) => inq.animals?.id === animalFilter);
 	}
 
-	const newInquiries = decorated.filter((inq) => new Date(inq.created_at).getTime() >= recentCutoff);
+	const newInquiries = decorated.filter((inq) => new Date(inq.created_at).getTime() >= recentCutoff && !inq.isArchived);
 	const noResponse = data?.filter(
 		(inq) => ['new', 'pending'].includes(inq.status) && new Date(inq.created_at).getTime() <= staleCutoff
 	) ?? [];
@@ -160,7 +160,7 @@ export const actions: Actions = {
 
 		const { error: updateError } = await locals.supabase
 			.from('inquiries')
-			.update({ archived_at: new Date().toISOString(), archived_by: user.id })
+			.update({ archived: true, archived_at: new Date().toISOString(), archived_by: user.id })
 			.eq('id', inquiryId);
 
 		if (updateError) {
@@ -183,7 +183,7 @@ export const actions: Actions = {
 
 		const { error: updateError } = await locals.supabase
 			.from('inquiries')
-			.update({ archived_at: null, archived_by: null })
+			.update({ archived: false, archived_at: null, archived_by: null })
 			.eq('id', inquiryId);
 
 		if (updateError) {

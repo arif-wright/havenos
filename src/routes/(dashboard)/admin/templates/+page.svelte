@@ -212,6 +212,15 @@
 							>
 								Save changes
 							</button>
+							<form method="POST" action="?/duplicate">
+								<input type="hidden" name="templateId" value={selectedTemplate()?.id} />
+								<button
+									type="submit"
+									class="rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+								>
+									Duplicate
+								</button>
+							</form>
 							<button
 								type="button"
 								class="rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"

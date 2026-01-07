@@ -69,6 +69,7 @@ export const actions: Actions = {
 				.from('rescues')
 				.insert({
 					name: payload.name,
+					owner_user_id: user.id,
 					slug: slugToUse,
 					contact_email: payload.contact_email
 				})

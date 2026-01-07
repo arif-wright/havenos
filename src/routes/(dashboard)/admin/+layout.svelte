@@ -11,7 +11,9 @@
 		{ href: '/admin/inquiries', label: 'Inquiries' },
 		{ href: '/admin/templates', label: 'Templates' },
 		{ href: '/admin/team', label: 'Team' },
-		{ href: '/admin/settings', label: 'Settings' }
+		{ href: '/admin/settings', label: 'Settings' },
+		{ href: '/admin/settings/billing', label: 'Billing', ownerOnly: true },
+		{ href: '/admin/moderation', label: 'Moderation', adminOnly: true }
 	];
 </script>
 
@@ -25,19 +27,21 @@
 			</div>
 			<nav class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
 				{#each links as link}
-					<a
-						class={`rounded-md px-3 py-1 hover:bg-slate-100 ${
-							$page.url.pathname === link.href || $page.url.pathname.startsWith(`${link.href}/`)
-								? 'bg-emerald-50 text-emerald-700'
-								: ''
-						}`}
-						href={link.href}
-						aria-current={$page.url.pathname === link.href || $page.url.pathname.startsWith(`${link.href}/`)
-							? 'page'
-							: undefined}
-					>
-						{link.label}
-					</a>
+					{#if (!link.ownerOnly || data.currentMemberRole === 'owner') && (!link.adminOnly || data.isAdmin)}
+						<a
+							class={`rounded-md px-3 py-1 hover:bg-slate-100 ${
+								$page.url.pathname === link.href || $page.url.pathname.startsWith(`${link.href}/`)
+									? 'bg-emerald-50 text-emerald-700'
+									: ''
+							}`}
+							href={link.href}
+							aria-current={$page.url.pathname === link.href || $page.url.pathname.startsWith(`${link.href}/`)
+								? 'page'
+								: undefined}
+						>
+							{link.label}
+						</a>
+					{/if}
 				{/each}
 				<form method="POST" action="/admin/logout">
 					<button

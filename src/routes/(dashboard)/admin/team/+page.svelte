@@ -21,6 +21,9 @@
 				<h1 class="text-2xl font-semibold text-slate-900">Team</h1>
 				<p class="text-sm text-slate-600">Invite teammates and manage roles.</p>
 			</div>
+			<a class="text-sm font-semibold text-emerald-700 hover:text-emerald-800" href="/admin/settings/profile">
+				Edit my profile
+			</a>
 		</div>
 		{#if form?.serverError}
 			<p class="mt-3 rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{form.serverError}</p>

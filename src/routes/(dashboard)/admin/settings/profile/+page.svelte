@@ -74,4 +74,39 @@
 			</button>
 		</div>
 	</form>
+
+	<div class="mt-6 space-y-3">
+		<h3 class="text-sm font-semibold text-slate-900">Avatar</h3>
+		<div class="flex items-center gap-4">
+			<div class="h-14 w-14 overflow-hidden rounded-full bg-slate-100">
+				{#if data.profile?.avatar_url}
+					<img src={data.profile.avatar_url} alt="Avatar" class="h-full w-full object-cover" />
+				{:else}
+					<div class="flex h-full items-center justify-center text-sm font-semibold text-slate-500">
+						{(data.profile?.display_name ?? 'Member').slice(0, 2).toUpperCase()}
+					</div>
+				{/if}
+			</div>
+			<form method="POST" action="?/uploadAvatar" enctype="multipart/form-data" class="flex items-center gap-2">
+				<input type="file" name="avatar" accept="image/*" class="text-sm" />
+				<button
+					type="submit"
+					class="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
+				>
+					Upload
+				</button>
+			</form>
+			{#if data.profile?.avatar_url}
+				<form method="POST" action="?/removeAvatar">
+					<button
+						type="submit"
+						class="text-xs font-semibold text-rose-600 hover:text-rose-700"
+					>
+						Remove
+					</button>
+				</form>
+			{/if}
+		</div>
+		<p class="text-xs text-slate-500">Stored in public-assets bucket.</p>
+	</div>
 </section>

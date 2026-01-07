@@ -11,6 +11,10 @@ export const upsertProfileForUser = async (supabase: DbClient, user: User | null
 		(user.user_metadata as Record<string, unknown> | null)?.['full_name']?.toString() ??
 		user.email?.split('@')[0] ??
 		'Member';
+	const fullName =
+		(user.user_metadata as Record<string, unknown> | null)?.['full_name']?.toString() ?? null;
+	const avatarUrl =
+		(user.user_metadata as Record<string, unknown> | null)?.['avatar_url']?.toString() ?? null;
 
 	// Insert only if missing to avoid overwriting user-chosen profile fields
 	const { data: existing, error: fetchError } = await supabase
@@ -31,6 +35,8 @@ export const upsertProfileForUser = async (supabase: DbClient, user: User | null
 	const { error: insertError } = await supabase.from('profiles').insert({
 		id: user.id,
 		display_name: displayFallback,
+		full_name: fullName,
+		avatar_url: avatarUrl,
 		email: user.email ?? null
 	});
 

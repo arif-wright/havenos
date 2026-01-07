@@ -14,7 +14,7 @@
 <div class="mx-auto max-w-2xl px-4 py-16">
 	<h1 class="text-3xl font-semibold text-slate-900">Create your rescue</h1>
 	<p class="mt-2 text-sm text-slate-600">
-		Welcome to HavenOS. We just need a few details about your rescue to finish onboarding. This will create
+		Welcome to RescueOS. We just need a few details about your rescue to finish onboarding. This will create
 		your dashboard and assign this account as the owner.
 	</p>
 

@@ -1,26 +1,41 @@
--- HavenOS core schema for Phase 1
+-- RescueOS core schema (Model A)
 create extension if not exists "pgcrypto";
 
 create table if not exists rescues (
     id uuid primary key default gen_random_uuid(),
+    owner_user_id uuid not null references auth.users(id),
     name text not null,
     slug text not null unique,
     contact_email text not null,
     mission_statement text,
     adoption_process text,
+    response_time text,
     response_time_text text,
     created_at timestamptz not null default timezone('utc', now()),
     tagline text,
     location_text text,
+    location text,
     website_url text,
     facebook_url text,
     instagram_url text,
     donation_url text,
     logo_url text,
     cover_url text,
+    profile_image_url text,
+    header_image_url text,
     response_time_enum text,
     adoption_steps jsonb,
     is_public boolean not null default true,
+    verification_status text not null default 'unverified' check (verification_status in ('unverified','verified','verified_501c3')),
+    verification_submitted_at timestamptz,
+    verified_at timestamptz,
+    stripe_customer_id text,
+    stripe_subscription_id text,
+    plan_tier text not null default 'free' check (plan_tier in ('free','supporter','pro')),
+    subscription_status text,
+    current_period_end timestamptz,
+    disabled boolean not null default false,
+    disabled_at timestamptz,
     updated_at timestamptz not null default timezone('utc', now())
 );
 
@@ -75,6 +90,7 @@ create table if not exists inquiries (
     message text,
     status text not null default 'new' check (status in ('new', 'contacted', 'meet_greet', 'application', 'approved', 'adopted', 'closed')),
     first_responded_at timestamptz,
+    archived boolean not null default false,
     archived_at timestamptz,
     archived_by uuid references auth.users(id) on delete set null,
     created_at timestamptz not null default timezone('utc', now())
@@ -166,7 +182,8 @@ create table if not exists rescue_invitations (
     created_by uuid not null references auth.users(id) on delete cascade,
     created_at timestamptz not null default timezone('utc', now()),
     expires_at timestamptz not null default timezone('utc', now()) + interval '7 days',
-    accepted_at timestamptz
+    accepted_at timestamptz,
+    canceled_at timestamptz
 );
 
 create index if not exists idx_rescue_invitations_rescue on rescue_invitations(rescue_id, created_at desc);
@@ -201,6 +218,63 @@ create table if not exists email_logs (
 create index if not exists idx_email_logs_rescue on email_logs(rescue_id, created_at desc);
 create index if not exists idx_email_logs_inquiry on email_logs(inquiry_id, created_at desc);
 
+-- Verification requests
+create table if not exists verification_requests (
+    id uuid primary key default gen_random_uuid(),
+    rescue_id uuid references rescues(id) on delete cascade,
+    submitted_by uuid references auth.users(id),
+    website_url text,
+    instagram_url text,
+    facebook_url text,
+    ein text,
+    legal_name text,
+    notes text,
+    status text not null default 'pending' check (status in ('pending','approved','rejected')),
+    reviewer_user_id uuid references auth.users(id),
+    reviewed_at timestamptz,
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_verification_requests_rescue on verification_requests(rescue_id, created_at desc);
+create index if not exists idx_verification_requests_status on verification_requests(status, created_at desc);
+
+-- Abuse reports
+create table if not exists abuse_reports (
+    id uuid primary key default gen_random_uuid(),
+    reporter_email text,
+    reporter_name text,
+    type text not null check (type in ('rescue','animal','inquiry')),
+    rescue_id uuid references rescues(id) on delete set null,
+    animal_id uuid references animals(id) on delete set null,
+    inquiry_id uuid references inquiries(id) on delete set null,
+    message text not null,
+    status text not null default 'open' check (status in ('open','triaged','closed')),
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_abuse_reports_type on abuse_reports(type, created_at desc);
+create index if not exists idx_abuse_reports_rescue on abuse_reports(rescue_id, created_at desc);
+
+-- Partner leads
+create table if not exists partner_leads (
+    id uuid primary key default gen_random_uuid(),
+    name text not null,
+    email text not null,
+    org text,
+    message text,
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+-- Support payments (one-time sponsor logging)
+create table if not exists support_payments (
+    id uuid primary key default gen_random_uuid(),
+    email text,
+    amount_cents integer,
+    currency text default 'usd',
+    stripe_payment_intent_id text,
+    created_at timestamptz not null default timezone('utc', now())
+);
+
 -- Public-facing view for rescues
 create or replace view public_rescues as
 select
@@ -211,7 +285,9 @@ select
     location_text,
     mission_statement,
     adoption_process,
+    response_time,
     response_time_enum,
+    response_time_text,
     adoption_steps,
     website_url,
     facebook_url,
@@ -219,6 +295,10 @@ select
     donation_url,
     logo_url,
     cover_url,
+    profile_image_url,
+    header_image_url,
+    verification_status,
+    disabled,
     is_public,
     created_at,
     updated_at
@@ -226,7 +306,7 @@ from rescues;
 
 drop policy if exists "public rescues readable" on rescues;
 create policy "public rescues readable" on rescues
-    for select using (is_public is true and slug is not null);
+    for select using (is_public is true and slug is not null and disabled is false);
 
 -- Storage bucket for rescue media (public read)
 insert into storage.buckets (id, name, public)
@@ -274,9 +354,12 @@ create policy "Members delete rescue-media" on storage.objects
 create table if not exists profiles (
     id uuid primary key references auth.users(id) on delete cascade,
     display_name text not null,
+    full_name text,
     email text,
     phone text,
     title text,
+    avatar_url text,
+    role text,
     created_at timestamptz not null default timezone('utc', now()),
     updated_at timestamptz not null default timezone('utc', now())
 );
@@ -303,10 +386,6 @@ create policy "Profiles insert own" on profiles for insert with check (auth.uid(
 drop policy if exists "Profiles update own" on profiles;
 create policy "Profiles update own" on profiles for update using (auth.uid() = id) with check (auth.uid() = id);
 
--- Invitations cancelation support
-alter table rescue_invitations
-    add column if not exists canceled_at timestamptz;
-
 -- Security definer helper to return member directory for a rescue
 create or replace function get_rescue_members(p_rescue_id uuid)
 returns table (
@@ -330,7 +409,7 @@ begin
         rm.user_id,
         rm.role,
         rm.created_at as joined_at,
-        coalesce(p.display_name, split_part(au.email, '@', 1)) as display_name,
+        coalesce(p.full_name, p.display_name, split_part(au.email, '@', 1)) as display_name,
         au.email
     from rescue_members rm
     left join profiles p on p.id = rm.user_id

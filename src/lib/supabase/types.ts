@@ -12,67 +12,112 @@ export type Database = {
 			rescues: {
 				Row: {
 					id: string;
+					owner_user_id: string;
 					name: string;
 					slug: string;
 					contact_email: string;
 					mission_statement: string | null;
 					adoption_process: string | null;
+					response_time: string | null;
 					response_time_text: string | null;
 					tagline: string | null;
 					location_text: string | null;
+					location: string | null;
 					website_url: string | null;
 					facebook_url: string | null;
 					instagram_url: string | null;
 					donation_url: string | null;
 					logo_url: string | null;
 					cover_url: string | null;
+					profile_image_url: string | null;
+					header_image_url: string | null;
 					response_time_enum: string | null;
 					adoption_steps: Json | null;
 					is_public: boolean;
+					verification_status: 'unverified' | 'verified' | 'verified_501c3';
+					verification_submitted_at: string | null;
+					verified_at: string | null;
+					stripe_customer_id: string | null;
+					stripe_subscription_id: string | null;
+					plan_tier: 'free' | 'supporter' | 'pro';
+					subscription_status: string | null;
+					current_period_end: string | null;
+					disabled: boolean;
+					disabled_at: string | null;
 					updated_at: string;
 					created_at: string;
 				};
 				Insert: {
 					id?: string;
+					owner_user_id: string;
 					name: string;
 					slug: string;
 					contact_email: string;
 					mission_statement?: string | null;
 					adoption_process?: string | null;
+					response_time?: string | null;
 					response_time_text?: string | null;
 					tagline?: string | null;
 					location_text?: string | null;
+					location?: string | null;
 					website_url?: string | null;
 					facebook_url?: string | null;
 					instagram_url?: string | null;
 					donation_url?: string | null;
 					logo_url?: string | null;
 					cover_url?: string | null;
+					profile_image_url?: string | null;
+					header_image_url?: string | null;
 					response_time_enum?: string | null;
 					adoption_steps?: Json | null;
 					is_public?: boolean;
+					verification_status?: 'unverified' | 'verified' | 'verified_501c3';
+					verification_submitted_at?: string | null;
+					verified_at?: string | null;
+					stripe_customer_id?: string | null;
+					stripe_subscription_id?: string | null;
+					plan_tier?: 'free' | 'supporter' | 'pro';
+					subscription_status?: string | null;
+					current_period_end?: string | null;
+					disabled?: boolean;
+					disabled_at?: string | null;
 					updated_at?: string;
 					created_at?: string;
 				};
 				Update: {
 					id?: string;
+					owner_user_id?: string;
 					name?: string;
 					slug?: string;
 					contact_email?: string;
 					mission_statement?: string | null;
 					adoption_process?: string | null;
+					response_time?: string | null;
 					response_time_text?: string | null;
 					tagline?: string | null;
 					location_text?: string | null;
+					location?: string | null;
 					website_url?: string | null;
 					facebook_url?: string | null;
 					instagram_url?: string | null;
 					donation_url?: string | null;
 					logo_url?: string | null;
 					cover_url?: string | null;
+					profile_image_url?: string | null;
+					header_image_url?: string | null;
 					response_time_enum?: string | null;
 					adoption_steps?: Json | null;
 					is_public?: boolean;
+					verification_status?: 'unverified' | 'verified' | 'verified_501c3';
+					verification_submitted_at?: string | null;
+					verified_at?: string | null;
+					stripe_customer_id?: string | null;
+					stripe_subscription_id?: string | null;
+					plan_tier?: 'free' | 'supporter' | 'pro';
+					subscription_status?: string | null;
+					current_period_end?: string | null;
+					disabled?: boolean;
+					disabled_at?: string | null;
 					updated_at?: string;
 					created_at?: string;
 				};
@@ -233,6 +278,7 @@ export type Database = {
 					message: string | null;
 					status: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
 					first_responded_at: string | null;
+					archived: boolean;
 					archived_at: string | null;
 					archived_by: string | null;
 					created_at: string;
@@ -246,6 +292,7 @@ export type Database = {
 					message?: string | null;
 					status?: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
 					first_responded_at?: string | null;
+					archived?: boolean;
 					archived_at?: string | null;
 					archived_by?: string | null;
 					created_at?: string;
@@ -259,6 +306,7 @@ export type Database = {
 					message?: string | null;
 					status?: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
 					first_responded_at?: string | null;
+					archived?: boolean;
 					archived_at?: string | null;
 					archived_by?: string | null;
 					created_at?: string;
@@ -395,6 +443,161 @@ export type Database = {
 					}
 				];
 			};
+			verification_requests: {
+				Row: {
+					id: string;
+					rescue_id: string | null;
+					submitted_by: string | null;
+					website_url: string | null;
+					instagram_url: string | null;
+					facebook_url: string | null;
+					ein: string | null;
+					legal_name: string | null;
+					notes: string | null;
+					status: 'pending' | 'approved' | 'rejected';
+					reviewer_user_id: string | null;
+					reviewed_at: string | null;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					rescue_id?: string | null;
+					submitted_by?: string | null;
+					website_url?: string | null;
+					instagram_url?: string | null;
+					facebook_url?: string | null;
+					ein?: string | null;
+					legal_name?: string | null;
+					notes?: string | null;
+					status?: 'pending' | 'approved' | 'rejected';
+					reviewer_user_id?: string | null;
+					reviewed_at?: string | null;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					rescue_id?: string | null;
+					submitted_by?: string | null;
+					website_url?: string | null;
+					instagram_url?: string | null;
+					facebook_url?: string | null;
+					ein?: string | null;
+					legal_name?: string | null;
+					notes?: string | null;
+					status?: 'pending' | 'approved' | 'rejected';
+					reviewer_user_id?: string | null;
+					reviewed_at?: string | null;
+					created_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'verification_requests_rescue_id_fkey';
+						columns: ['rescue_id'];
+						referencedRelation: 'rescues';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			abuse_reports: {
+				Row: {
+					id: string;
+					reporter_email: string | null;
+					reporter_name: string | null;
+					type: 'rescue' | 'animal' | 'inquiry';
+					rescue_id: string | null;
+					animal_id: string | null;
+					inquiry_id: string | null;
+					message: string;
+					status: 'open' | 'triaged' | 'closed';
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					reporter_email?: string | null;
+					reporter_name?: string | null;
+					type: 'rescue' | 'animal' | 'inquiry';
+					rescue_id?: string | null;
+					animal_id?: string | null;
+					inquiry_id?: string | null;
+					message: string;
+					status?: 'open' | 'triaged' | 'closed';
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					reporter_email?: string | null;
+					reporter_name?: string | null;
+					type?: 'rescue' | 'animal' | 'inquiry';
+					rescue_id?: string | null;
+					animal_id?: string | null;
+					inquiry_id?: string | null;
+					message?: string;
+					status?: 'open' | 'triaged' | 'closed';
+					created_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'abuse_reports_rescue_id_fkey';
+						columns: ['rescue_id'];
+						referencedRelation: 'rescues';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			partner_leads: {
+				Row: {
+					id: string;
+					name: string;
+					email: string;
+					org: string | null;
+					message: string | null;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					name: string;
+					email: string;
+					org?: string | null;
+					message?: string | null;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					name?: string;
+					email?: string;
+					org?: string | null;
+					message?: string | null;
+					created_at?: string;
+				};
+				Relationships: [];
+			};
+			support_payments: {
+				Row: {
+					id: string;
+					email: string | null;
+					amount_cents: number | null;
+					currency: string | null;
+					stripe_payment_intent_id: string | null;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					email?: string | null;
+					amount_cents?: number | null;
+					currency?: string | null;
+					stripe_payment_intent_id?: string | null;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					email?: string | null;
+					amount_cents?: number | null;
+					currency?: string | null;
+					stripe_payment_intent_id?: string | null;
+					created_at?: string;
+				};
+				Relationships: [];
+			};
 			rescue_invitations: {
 				Row: {
 					id: string;
@@ -485,27 +688,36 @@ export type Database = {
 				Row: {
 					id: string;
 					display_name: string;
+					full_name: string | null;
 					email: string | null;
 					phone: string | null;
 					title: string | null;
+					avatar_url: string | null;
+					role: string | null;
 					created_at: string;
 					updated_at: string;
 				};
 				Insert: {
 					id: string;
 					display_name: string;
+					full_name?: string | null;
 					email?: string | null;
 					phone?: string | null;
 					title?: string | null;
+					avatar_url?: string | null;
+					role?: string | null;
 					created_at?: string;
 					updated_at?: string;
 				};
 				Update: {
 					id?: string;
 					display_name?: string;
+					full_name?: string | null;
 					email?: string | null;
 					phone?: string | null;
 					title?: string | null;
+					avatar_url?: string | null;
+					role?: string | null;
 					created_at?: string;
 					updated_at?: string;
 				};
@@ -537,7 +749,9 @@ export type Database = {
 					location_text: string | null;
 					mission_statement: string | null;
 					adoption_process: string | null;
+					response_time: string | null;
 					response_time_enum: string | null;
+					response_time_text: string | null;
 					adoption_steps: Json | null;
 					website_url: string | null;
 					facebook_url: string | null;
@@ -545,6 +759,10 @@ export type Database = {
 					donation_url: string | null;
 					logo_url: string | null;
 					cover_url: string | null;
+					profile_image_url: string | null;
+					header_image_url: string | null;
+					verification_status: 'unverified' | 'verified' | 'verified_501c3' | null;
+					disabled: boolean | null;
 					is_public: boolean | null;
 					created_at: string | null;
 					updated_at: string | null;

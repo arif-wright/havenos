@@ -1,174 +1,135 @@
-<section class="space-y-12">
-	<div class="relative overflow-visible px-4 pt-14 pb-24 sm:px-6 lg:px-8">
-		<div class="pointer-events-none absolute inset-0">
-			<div class="absolute inset-0 bg-gradient-to-br from-[#c1ccd9e6] via-[#d4dce7cc] to-[#e7edf5a0]"></div>
-			<div class="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-slate-900/10"></div>
-			<div class="absolute -left-6 top-6 h-64 w-80 rounded-full bg-slate-400/15 blur-3xl"></div>
-			<div class="absolute left-8 top-10 h-80 w-96 rounded-full bg-[radial-gradient(circle_at_20%_40%,rgba(147,197,183,0.18),transparent_60%)]"></div>
-			<div class="absolute -left-24 -top-32 h-72 w-72 rounded-full bg-emerald-200/15 blur-3xl"></div>
-			<div class="absolute right-16 top-10 h-64 w-64 rounded-full bg-indigo-200/12 blur-3xl"></div>
-			<div class="absolute bottom-6 left-1/3 h-32 w-72 rounded-full bg-slate-900/5 blur-3xl"></div>
-			<div class="absolute inset-x-0 bottom-[-80px] h-40 bg-gradient-to-b from-transparent via-slate-800/6 to-transparent"></div>
-		</div>
-
-		<div class="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.05fr,1fr]">
-			<div class="z-10 space-y-6">
-				<p class="inline-flex items-center rounded-full bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 shadow-sm">
-					Rescue-first platform
-				</p>
-				<h1 class="text-4xl font-bold leading-tight text-slate-900 md:text-5xl">
-					A calm, reliable rescue workspace.
-				</h1>
-				<p class="max-w-3xl text-lg text-slate-700">
-					RescueOS keeps animals, inquiries, and public pages together so teams stay confident and adopters
-					know exactly what happens next.
-				</p>
-				<div class="mt-4 flex flex-wrap gap-3">
-					<a
-						class="rounded-md bg-emerald-800 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-200/60"
-						href="/rescues"
-					>
-						Browse rescues
-					</a>
-					<a
-						class="rounded-md border border-slate-200 bg-white/85 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
-						href="/for-rescues"
-					>
-						For rescues
-					</a>
-				</div>
-			</div>
-
-			<div class="relative">
-				<div class="pointer-events-none absolute -left-10 top-10 h-24 w-24 rounded-full bg-emerald-200/30 blur-2xl"></div>
-				<div class="absolute -right-16 top-2 w-[520px] translate-y-8 rounded-2xl shadow-[0_26px_80px_-46px_rgba(15,23,42,0.6)] lg:-right-20 lg:translate-y-12">
-					<div class="overflow-hidden rounded-2xl shadow-[0_22px_70px_-40px_rgba(15,23,42,0.45)]">
-						<img
-							src="/images/rescueos-animals.svg"
-							alt="RescueOS animals management view"
-							class="w-full"
-							loading="lazy"
-						/>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="flex flex-wrap items-center justify-between gap-4 -mt-4">
-		<div class="flex flex-wrap gap-3 text-sm text-slate-600">
-			<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
-				✔ Inquiry history & notes
-			</span>
-			<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
-				✔ Public pages kept in sync
-			</span>
-			<span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 font-semibold text-emerald-800 shadow-sm">
-				✔ Team-ready roles
-			</span>
-		</div>
-		<div class="flex flex-wrap gap-3">
-			<a
-				class="rounded-md border border-emerald-200 bg-emerald-50/85 px-5 py-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50"
-				href="/rescue/sample"
-			>
-				View sample rescue
-			</a>
-			<a
-				class="rounded-md border border-slate-200 bg-white/85 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-white"
-				href="/pets"
-			>
-				View adoptable pets
-			</a>
-		</div>
-	</div>
-
-	<div class="grid gap-6 md:grid-cols-3 -mt-6">
-		<div class="rounded-2xl bg-white/90 p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
-			<h3 class="text-lg font-semibold text-slate-900">For adopters</h3>
-			<p class="mt-2 text-sm text-slate-600">
-				Find rescues, browse adoptable animals, and send an inquiry that won’t get lost. Every rescue page
-				shows what happens next and how to reach them.
-			</p>
-		</div>
-		<div class="rounded-2xl bg-white/90 p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
-			<h3 class="text-lg font-semibold text-slate-900">For rescues</h3>
-			<p class="mt-2 text-sm text-slate-600">
-				A single dashboard for animals, inquiries, team notes, and email history. Clear guardrails so nothing
-				slips through the cracks.
-			</p>
-		</div>
-		<div class="rounded-2xl bg-white/90 p-6 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
-			<h3 class="text-lg font-semibold text-slate-900">Why it’s different</h3>
-			<p class="mt-2 text-sm text-slate-600">
-				RescueOS is built with rescues first: operational calm, predictable workflows, and public pages that
-				build trust with adopters.
-			</p>
-		</div>
-	</div>
-
-	<section class="rounded-3xl bg-white/90 p-8 shadow-[0_18px_50px_-38px_rgba(15,23,42,0.25)]">
-		<h2 class="text-2xl font-semibold text-slate-900">How it works</h2>
-		<div class="mt-3 flex gap-2 rounded-xl bg-slate-50 p-1" role="tablist" aria-label="How it works audience toggle">
-			{#each ['adopters', 'rescues'] as tab}
-				<button
-					type="button"
-					role="tab"
-					aria-selected={audience === tab}
-					class={`flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition ${
-						audience === tab
-							? 'bg-white shadow-sm text-emerald-700'
-							: 'text-slate-600 hover:text-slate-800'
-					}`}
-					on:click={() => (audience = tab)}
-				>
-					{tab === 'adopters' ? 'For adopters' : 'For rescues'}
-				</button>
-			{/each}
-		</div>
-		<div class="mt-4 grid gap-4 md:grid-cols-3 min-h-[220px]">
-			{#each (audience === 'adopters' ? adopterSteps : rescueSteps) as step, idx}
-				<div class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
-					<div class="flex items-center gap-2">
-						<span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
-							{idx + 1}
-						</span>
-						<p class="font-semibold text-slate-900">{step.title}</p>
-					</div>
-					<p class="mt-2">{step.body}</p>
-				</div>
-			{/each}
-		</div>
-	</section>
-</section>
 <script lang="ts">
-	let audience: 'adopters' | 'rescues' = 'adopters';
+	import AmbientPage from '$lib/components/AmbientPage.svelte';
+
+	const signals = ['Inquiry history & notes', 'Public pages kept in sync', 'Team-ready roles', 'Email + password login'];
+
 	const adopterSteps = [
-		{
-			title: 'Browse rescues & pets',
-			body: "Search rescues and see who’s currently available."
-		},
-		{
-			title: 'Send an inquiry',
-			body: 'Message the rescue in one form—no guessing where it went.'
-		},
-		{
-			title: 'Know what happens next',
-			body: 'Each rescue shows response time and adoption steps so you’re not left waiting.'
-		}
+		{ title: 'Browse rescues & pets', body: "Search trust-forward rescue pages with clear next steps." },
+		{ title: 'Send an inquiry', body: 'One form that reaches the rescue inbox—no lost DMs.' },
+		{ title: 'Know what happens next', body: 'Response time + adoption steps are published.' }
 	];
+
 	const rescueSteps = [
-		{
-			title: 'Publish your rescue',
-			body: 'Set your public page once; it stays in sync with your dashboard.'
-		},
-		{
-			title: 'List animals',
-			body: 'Keep names, photos, and statuses updated.'
-		},
-		{
-			title: 'Respond with clarity',
-			body: 'Track every inquiry with statuses, notes, and templates.'
-		}
+		{ title: 'Publish your rescue', body: 'Set your mission, policies, and donation link once.' },
+		{ title: 'List animals', body: 'Status, photos, and tags stay in sync with public pages.' },
+		{ title: 'Respond with clarity', body: 'Inbox with statuses, notes, templates, and verification badge.' }
 	];
 </script>
+
+<AmbientPage
+	title="A calm, reliable rescue workspace."
+	kicker="RescueOS"
+	subtitle="Model A: public trust, verified badges, reporting, and billing-ready flows for rescues and adopters."
+>
+	<div class="grid gap-8 lg:grid-cols-[1.2fr,1fr]">
+		<div class="space-y-6">
+			<div class="flex flex-wrap gap-3">
+				<a
+					class="rounded-full bg-emerald-500/90 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_40px_-20px_rgba(16,185,129,0.9)] transition hover:-translate-y-0.5 hover:bg-emerald-400/90"
+					href="/rescues"
+				>
+					Browse rescues
+				</a>
+				<a
+					class="rounded-full bg-white/15 px-5 py-3 text-sm font-semibold text-emerald-50 ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20"
+					href="/for-rescues"
+				>
+					For rescues
+				</a>
+				<a
+					class="rounded-full bg-white/10 px-5 py-3 text-sm font-semibold text-emerald-50 ring-1 ring-white/15 transition hover:-translate-y-0.5 hover:bg-white/15"
+					href="/rescue/sample"
+				>
+					View sample rescue
+				</a>
+			</div>
+			<div class="flex flex-wrap gap-2">
+				{#each signals as item}
+					<span class="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-emerald-50 ring-1 ring-white/20">
+						✔ {item}
+					</span>
+				{/each}
+			</div>
+			<div class="rounded-3xl bg-white/10 p-6 shadow-xl ring-1 ring-white/10 backdrop-blur">
+				<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+					<div>
+						<p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-100">Model A</p>
+						<p class="text-lg font-semibold text-white">
+							Self-serve signup, verification badges, reporting, and billing-ready tiers.
+						</p>
+						<p class="text-sm text-slate-200/80">Email + password auth (no magic links).</p>
+					</div>
+					<a
+						class="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5"
+						href="/auth/signup"
+					>
+						Create account
+						<span aria-hidden="true">→</span>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="relative">
+			<div class="absolute inset-0 rounded-3xl bg-white/5 blur-3xl"></div>
+			<div class="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/40 shadow-2xl backdrop-blur">
+				<img src="/images/rescueos-animals.svg" alt="RescueOS workspace" class="w-full" loading="lazy" />
+			</div>
+		</div>
+	</div>
+
+	<div class="grid gap-5 md:grid-cols-3">
+		{#each [
+			{
+				title: 'For adopters',
+				body: 'Find rescues with clear timelines, verified badges, and adoptable pets in one place.'
+			},
+			{
+				title: 'For rescues',
+				body: 'Public pages + inbox + templates. Team roles with email/password login and verification requests.'
+			},
+			{
+				title: 'Trust & safety',
+				body: 'Verification badges (standard + 501(c)(3)), reporting, moderation queue, and policy surfaces.'
+			}
+		] as card}
+			<div class="rounded-2xl bg-white/12 p-5 text-slate-100 shadow-lg ring-1 ring-white/10 backdrop-blur">
+				<h3 class="text-lg font-semibold text-white">{card.title}</h3>
+				<p class="mt-2 text-sm text-slate-200/80">{card.body}</p>
+			</div>
+		{/each}
+	</div>
+
+	<section class="rounded-3xl bg-white/10 p-6 shadow-xl ring-1 ring-white/15 backdrop-blur">
+		<h2 class="text-2xl font-semibold text-white">How it works</h2>
+		<div class="mt-4 grid gap-4 md:grid-cols-2">
+			<div class="space-y-2 rounded-2xl bg-slate-900/40 p-4 ring-1 ring-white/10">
+				<p class="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-100">For adopters</p>
+				{#each adopterSteps as step, idx}
+					<div class="flex gap-3 rounded-xl bg-white/5 p-3">
+						<span class="mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/80 text-xs font-bold text-white">
+							{idx + 1}
+						</span>
+						<div>
+							<p class="font-semibold text-white">{step.title}</p>
+							<p class="text-sm text-slate-200/80">{step.body}</p>
+						</div>
+					</div>
+				{/each}
+			</div>
+			<div class="space-y-2 rounded-2xl bg-slate-900/40 p-4 ring-1 ring-white/10">
+				<p class="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-100">For rescues</p>
+				{#each rescueSteps as step, idx}
+					<div class="flex gap-3 rounded-xl bg-white/5 p-3">
+						<span class="mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/80 text-xs font-bold text-white">
+							{idx + 1}
+						</span>
+						<div>
+							<p class="font-semibold text-white">{step.title}</p>
+							<p class="text-sm text-slate-200/80">{step.body}</p>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
+	</section>
+</AmbientPage>
