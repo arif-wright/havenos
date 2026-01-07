@@ -109,13 +109,13 @@ button {
 		linear-gradient(180deg, #f4f7f9, #e9eff3);
 }
 
-.admin-shell section,
-.admin-shell .rounded-2xl,
-.admin-shell .rounded-xl,
-.admin-shell .rounded-lg {
-	background: #ffffff !important;
-	border-color: #e2e8f0 !important;
-	box-shadow: 0 14px 40px -30px rgba(15, 23, 42, 0.45);
+.admin-shell .card-surface,
+.admin-shell .panel,
+.admin-shell .card {
+	background: #ffffff;
+	border-color: #e2e8f0;
+	box-shadow: 0 14px 36px -28px rgba(15, 23, 42, 0.35);
+	border-radius: 1.1rem;
 	color: #0f172a;
 }
 
@@ -124,6 +124,8 @@ button {
 .admin-shell .bg-slate-100,
 .admin-shell .bg-slate-200 {
 	background: #ffffff !important;
+	border-radius: 1.1rem;
+	box-shadow: 0 14px 36px -28px rgba(15, 23, 42, 0.35);
 }
 
 .admin-shell .border-slate-200,
@@ -171,6 +173,8 @@ button {
 
 .admin-shell table {
 	background: #ffffff;
+	border-radius: 1rem;
+	box-shadow: 0 10px 26px -24px rgba(15, 23, 42, 0.35);
 }
 
 a {
