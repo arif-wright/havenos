@@ -15,7 +15,7 @@
 </svelte:head>
 
 {#if isPublicShell}
-	<div class="min-h-screen bg-gradient-to-br from-[#0b1f29] via-[#0f2c36] to-[#102a3a] text-slate-900">
+	<div class="min-h-screen bg-gradient-to-br from-[#0b1f29] via-[#0f2c36] to-[#102a3a] text-[var(--text)]">
 		<header class="sticky top-0 z-20 border-b border-white/10 bg-slate-900/60 backdrop-blur">
 			<div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 text-white">
 				<a href="/" class="text-lg font-semibold">RescueOS</a>
@@ -47,7 +47,11 @@
 					<a class="hover:text-white" href="/support">Support</a>
 					<a class="hover:text-white" href="/partners">Partners</a>
 				</div>
-				<p class="text-slate-400">RescueOS keeps rescues and adopters aligned.</p>
+				<div class="space-y-1 text-xs text-slate-400 sm:text-right">
+					<p>© {new Date().getFullYear()} RescueOS. All rights reserved.</p>
+					<p>RescueOS is operated by D-Twenty Farms LLC (DBA RescueOS).</p>
+					<p class="text-[11px] text-slate-500">RescueOS is not affiliated with Facebook, Instagram, or LinkedIn.</p>
+				</div>
 			</div>
 		</footer>
 	</div>

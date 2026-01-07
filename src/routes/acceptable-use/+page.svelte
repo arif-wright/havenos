@@ -1,5 +1,6 @@
 <section class="mx-auto max-w-4xl space-y-6 bg-white/5 px-5 py-10 text-white">
 	<h1 class="text-3xl font-bold">Acceptable Use</h1>
+	<p class="text-xs text-slate-300">Draft policy for MVP — consult counsel for final language.</p>
 	<ul class="space-y-3 text-sm text-slate-200/80">
 		<li>No harassment, hate, or fraudulent listings.</li>
 		<li>No spam or mass unsolicited outreach.</li>

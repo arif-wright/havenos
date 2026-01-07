@@ -58,4 +58,5 @@
 			Support RescueOS
 		</button>
 	</form>
+	<p class="text-xs text-slate-300">Draft policy for MVP — consult counsel for final language.</p>
 </section>

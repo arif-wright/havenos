@@ -58,10 +58,7 @@ create policy "Users create rescues as owner" on rescues
 -- rescue_members
 drop policy if exists "Members read rescue_members" on rescue_members;
 create policy "Members read rescue_members" on rescue_members
-    for select using (
-        user_id = auth.uid()
-        or rescue_id in (select rescue_id from rescue_members rm2 where rm2.user_id = auth.uid())
-    );
+    for select using (user_id = auth.uid() or auth.role() = 'service_role');
 
 drop policy if exists "Members insert themselves" on rescue_members;
 create policy "Members insert themselves" on rescue_members

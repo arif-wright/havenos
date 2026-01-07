@@ -17,22 +17,22 @@
 	];
 </script>
 
-<div class="min-h-screen bg-slate-50">
-	<header class="border-b border-slate-200 bg-white">
-		<div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between">
+<div class="min-h-screen bg-gradient-to-br from-[#0b1f29] via-[#0f2c36] to-[#102a3a] text-[var(--text)]">
+	<header class="border-b border-white/10 bg-slate-900/70 backdrop-blur">
+		<div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between text-white">
 			<div>
-				<p class="text-xs uppercase tracking-widest text-emerald-600">RescueOS</p>
-				<h1 class="text-2xl font-semibold text-slate-900">{data.currentRescue?.name}</h1>
-				<p class="text-sm text-slate-500">{data.currentRescue?.contact_email}</p>
+				<p class="text-xs uppercase tracking-widest text-emerald-200">RescueOS</p>
+				<h1 class="text-2xl font-semibold text-white">{data.currentRescue?.name}</h1>
+				<p class="text-sm text-slate-200">{data.currentRescue?.contact_email}</p>
 			</div>
-			<nav class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
+			<nav class="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-200">
 				{#each links as link}
 					{#if (!link.ownerOnly || data.currentMemberRole === 'owner') && (!link.adminOnly || data.isAdmin)}
 						<a
-							class={`rounded-md px-3 py-1 hover:bg-slate-100 ${
+							class={`rounded-full px-3 py-2 transition ${
 								$page.url.pathname === link.href || $page.url.pathname.startsWith(`${link.href}/`)
-									? 'bg-emerald-50 text-emerald-700'
-									: ''
+									? 'bg-white/10 text-white ring-1 ring-emerald-300/50'
+									: 'hover:bg-white/5'
 							}`}
 							href={link.href}
 							aria-current={$page.url.pathname === link.href || $page.url.pathname.startsWith(`${link.href}/`)
@@ -46,7 +46,7 @@
 				<form method="POST" action="/admin/logout">
 					<button
 						type="submit"
-						class="rounded-md border border-slate-300 px-3 py-1 text-slate-600 hover:bg-slate-100"
+						class="rounded-full border border-white/20 px-3 py-2 text-slate-100 hover:bg-white/10"
 					>
 						Log out
 					</button>
@@ -54,7 +54,24 @@
 			</nav>
 		</div>
 	</header>
-	<main class="mx-auto max-w-6xl px-4 py-10">
+	<main class="admin-shell mx-auto max-w-6xl px-4 py-10 space-y-10">
 		{@render children()}
 	</main>
+	<footer class="mt-6 border-t border-white/10 bg-slate-900/70 px-4 py-6 text-slate-200">
+		<div class="mx-auto flex max-w-6xl flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+			<div class="space-x-3">
+				<a class="hover:text-white" href="/privacy">Privacy</a>
+				<a class="hover:text-white" href="/terms">Terms</a>
+				<a class="hover:text-white" href="/acceptable-use">Acceptable Use</a>
+				<a class="hover:text-white" href="/refunds">Refunds</a>
+				<a class="hover:text-white" href="/support">Support</a>
+				<a class="hover:text-white" href="/partners">Partners</a>
+			</div>
+			<div class="space-y-1 text-xs text-slate-400 sm:text-right">
+				<p>© {new Date().getFullYear()} RescueOS. All rights reserved.</p>
+				<p>RescueOS is operated by D-Twenty Farms LLC (DBA RescueOS).</p>
+				<p class="text-[11px] text-slate-500">RescueOS is not affiliated with Facebook, Instagram, or LinkedIn.</p>
+			</div>
+		</div>
+	</footer>
 </div>
