@@ -75,7 +75,7 @@
 			<div class="grid gap-4 md:grid-cols-2">
 				<div class="space-y-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
 					<p class="text-sm font-semibold text-slate-800">Profile image</p>
-					<div class="flex flex-wrap items-center gap-3">
+					<div class="flex items-start gap-4">
 						<div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-slate-100 aspect-square">
 							{#if rescue.profile_image_url || rescue.logo_url}
 								<img src={rescue.profile_image_url ?? rescue.logo_url} alt="Profile" class="h-full w-full object-cover block" />
@@ -85,7 +85,7 @@
 								</div>
 							{/if}
 						</div>
-						<div class="flex items-center gap-2">
+						<div class="flex flex-1 items-center gap-2">
 							<form method="POST" action="?/uploadProfile" enctype="multipart/form-data" class="flex items-center gap-2">
 								<input type="file" name="profile" accept="image/*" class="text-sm" />
 								<button

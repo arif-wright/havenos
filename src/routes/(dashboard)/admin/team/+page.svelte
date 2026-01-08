@@ -21,7 +21,7 @@
 				<h1 class="text-2xl font-semibold text-slate-900">Team</h1>
 				<p class="text-sm text-slate-600">Invite teammates and manage roles.</p>
 			</div>
-			<a class="text-sm font-semibold text-emerald-700 hover:text-emerald-800" href="/admin/settings/profile">
+			<a class="text-sm font-semibold text-emerald-700 hover:text-emerald-800" href="/admin/settings?tab=profile">
 				Edit my profile
 			</a>
 		</div>
