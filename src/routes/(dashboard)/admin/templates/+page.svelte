@@ -238,14 +238,18 @@
 				<div class="mt-4 flex items-center gap-4 border-b border-slate-200 text-sm font-semibold text-slate-600">
 					<button
 						type="button"
-						class={`pb-2 ${activeTab === 'edit' ? 'border-b-2 border-emerald-600 text-emerald-700' : ''}`}
+						class={`relative px-2 pb-2 border-b-2 border-transparent transition ${
+							activeTab === 'edit' ? 'border-emerald-600 text-emerald-700' : 'hover:text-slate-800'
+						}`}
 						on:click={() => (activeTab = 'edit')}
 					>
 						Edit
 					</button>
 					<button
 						type="button"
-						class={`pb-2 ${activeTab === 'preview' ? 'border-b-2 border-emerald-600 text-emerald-700' : ''}`}
+						class={`relative px-2 pb-2 border-b-2 border-transparent transition ${
+							activeTab === 'preview' ? 'border-emerald-600 text-emerald-700' : 'hover:text-slate-800'
+						}`}
 						on:click={() => (activeTab = 'preview')}
 					>
 						Preview
@@ -285,9 +289,19 @@
 						</label>
 					</form>
 				{:else}
-					<div class="mt-4 space-y-2">
-						<p class="text-lg font-semibold text-slate-900">{editSubject || selectedTemplate()?.subject}</p>
-						<p class="whitespace-pre-line text-sm text-slate-700">{editBody || selectedTemplate()?.body}</p>
+					<div class="mt-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4 shadow-inner space-y-3">
+						<div class="flex flex-wrap gap-3 text-xs text-slate-600">
+							<p><span class="font-semibold text-slate-800">From:</span> {data.currentRescue.contact_email ?? 'team@rescueos.app'}</p>
+							<p><span class="font-semibold text-slate-800">To:</span> adopter@example.com</p>
+						</div>
+						<div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+							<p class="text-base font-semibold text-slate-900">
+								{editSubject || selectedTemplate()?.subject || 'Subject'}
+							</p>
+							<div class="whitespace-pre-line text-sm leading-relaxed text-slate-700">
+								{editBody || selectedTemplate()?.body || 'Your email body will appear here.'}
+							</div>
+						</div>
 					</div>
 				{/if}
 			{/if}
