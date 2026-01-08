@@ -291,13 +291,14 @@
 				{:else}
 					<div class="mt-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4 shadow-inner space-y-3">
 						<div class="flex flex-wrap gap-3 text-xs text-slate-600">
-							<p><span class="font-semibold text-slate-800">From:</span> {data.currentRescue.contact_email ?? 'team@rescueos.app'}</p>
+							<p><span class="font-semibold text-slate-800">From:</span> noreply@rescueos.net</p>
 							<p><span class="font-semibold text-slate-800">To:</span> adopter@example.com</p>
+							<p class="w-full sm:w-auto">
+								<span class="font-semibold text-slate-800">Subject:</span>
+								{editSubject || selectedTemplate()?.subject || 'Subject line here'}
+							</p>
 						</div>
 						<div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm space-y-3">
-							<p class="text-base font-semibold text-slate-900">
-								{editSubject || selectedTemplate()?.subject || 'Subject'}
-							</p>
 							<div class="whitespace-pre-line text-sm leading-relaxed text-slate-700">
 								{editBody || selectedTemplate()?.body || 'Your email body will appear here.'}
 							</div>
