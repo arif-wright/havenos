@@ -77,7 +77,7 @@
 			<div class="grid gap-4 md:grid-cols-2">
 				<div class="space-y-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
 					<p class="text-sm font-semibold text-slate-800">Profile image</p>
-					<div class="flex items-center justify-start">
+					<div class="flex h-32 items-center">
 						<div class="aspect-square h-20 w-20 shrink-0 overflow-hidden rounded-full bg-slate-100">
 							{#if rescue.profile_image_url || rescue.logo_url}
 								<img src={rescue.profile_image_url ?? rescue.logo_url} alt="Profile" class="block h-full w-full object-cover" />
