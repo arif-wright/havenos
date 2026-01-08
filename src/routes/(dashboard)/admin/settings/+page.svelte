@@ -88,7 +88,7 @@
 							{/if}
 						</div>
 					</div>
-					<div class="mt-2 flex flex-wrap items-center gap-2">
+					<div class="flex flex-wrap items-center gap-2">
 						<form method="POST" action="?/uploadProfile" enctype="multipart/form-data" class="flex items-center gap-2">
 							<input type="file" name="profile" accept="image/*" class="text-sm" />
 							<button
