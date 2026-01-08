@@ -76,9 +76,9 @@
 				<div class="space-y-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
 					<p class="text-sm font-semibold text-slate-800">Profile image</p>
 					<div class="flex items-center gap-4">
-						<div class="h-16 w-16 overflow-hidden rounded-full bg-slate-100">
+						<div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-slate-100 aspect-square">
 							{#if rescue.profile_image_url || rescue.logo_url}
-								<img src={rescue.profile_image_url ?? rescue.logo_url} alt="Profile" class="h-full w-full object-cover" />
+								<img src={rescue.profile_image_url ?? rescue.logo_url} alt="Profile" class="h-full w-full object-cover block" />
 							{:else}
 								<div class="flex h-full items-center justify-center text-sm font-semibold text-slate-500">
 									{rescue.name?.slice(0, 2).toUpperCase()}
@@ -486,9 +486,9 @@
 				{/if}
 			</div>
 			<div class="flex items-center gap-4">
-				<div class="h-14 w-14 overflow-hidden rounded-full bg-slate-100">
+				<div class="h-14 w-14 shrink-0 overflow-hidden rounded-full bg-slate-100 aspect-square">
 					{#if profile?.avatar_url}
-						<img src={profile.avatar_url} alt="Avatar" class="h-full w-full object-cover" />
+						<img src={profile.avatar_url} alt="Avatar" class="h-full w-full object-cover block" />
 					{:else}
 						<div class="flex h-full items-center justify-center text-sm font-semibold text-slate-500">
 							{(profile?.display_name ?? 'Member').slice(0, 2).toUpperCase()}
