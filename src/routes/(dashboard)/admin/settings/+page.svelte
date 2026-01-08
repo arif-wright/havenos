@@ -16,11 +16,6 @@
 
 	let adoptionSteps: string[] = (rescue.adoption_steps as string[] | null) ?? [];
 	let activeTab: 'rescue' | 'profile' = get(page).url.searchParams.get('tab') === 'profile' ? 'profile' : 'rescue';
-	$: {
-		const tab = $page.url.searchParams.get('tab');
-		if (tab === 'profile' && activeTab !== 'profile') activeTab = 'profile';
-		if (tab === 'rescue' && activeTab !== 'rescue') activeTab = 'rescue';
-	}
 
 	const addStep = () => (adoptionSteps = [...adoptionSteps, '']);
 	const updateStep = (i: number, val: string) => (adoptionSteps = adoptionSteps.map((s, idx) => (idx === i ? val : s)));
@@ -93,7 +88,7 @@
 							{/if}
 						</div>
 					</div>
-					<div class="flex flex-wrap items-center gap-2">
+					<div class="mt-2 flex flex-wrap items-center gap-2">
 						<form method="POST" action="?/uploadProfile" enctype="multipart/form-data" class="flex items-center gap-2">
 							<input type="file" name="profile" accept="image/*" class="text-sm" />
 							<button
