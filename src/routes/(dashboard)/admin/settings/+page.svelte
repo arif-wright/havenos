@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { ActionData, PageData } from './$types';
+	import { page } from '$app/stores';
+	import { get } from 'svelte/store';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -13,7 +15,12 @@
 	];
 
 	let adoptionSteps: string[] = (rescue.adoption_steps as string[] | null) ?? [];
-	let activeTab: 'rescue' | 'profile' = 'rescue';
+	let activeTab: 'rescue' | 'profile' = get(page).url.searchParams.get('tab') === 'profile' ? 'profile' : 'rescue';
+	$: {
+		const tab = $page.url.searchParams.get('tab');
+		if (tab === 'profile' && activeTab !== 'profile') activeTab = 'profile';
+		if (tab === 'rescue' && activeTab !== 'rescue') activeTab = 'rescue';
+	}
 
 	const addStep = () => (adoptionSteps = [...adoptionSteps, '']);
 	const updateStep = (i: number, val: string) => (adoptionSteps = adoptionSteps.map((s, idx) => (idx === i ? val : s)));
@@ -75,32 +82,32 @@
 			<div class="grid gap-4 md:grid-cols-2">
 				<div class="space-y-3 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
 					<p class="text-sm font-semibold text-slate-800">Profile image</p>
-					<div class="flex items-start gap-4">
-						<div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-slate-100 aspect-square">
+					<div class="flex items-center justify-start">
+						<div class="aspect-square h-20 w-20 shrink-0 overflow-hidden rounded-full bg-slate-100">
 							{#if rescue.profile_image_url || rescue.logo_url}
-								<img src={rescue.profile_image_url ?? rescue.logo_url} alt="Profile" class="h-full w-full object-cover block" />
+								<img src={rescue.profile_image_url ?? rescue.logo_url} alt="Profile" class="block h-full w-full object-cover" />
 							{:else}
 								<div class="flex h-full items-center justify-center text-sm font-semibold text-slate-500">
 									{rescue.name?.slice(0, 2).toUpperCase()}
 								</div>
 							{/if}
 						</div>
-						<div class="flex flex-1 items-center gap-2">
-							<form method="POST" action="?/uploadProfile" enctype="multipart/form-data" class="flex items-center gap-2">
-								<input type="file" name="profile" accept="image/*" class="text-sm" />
-								<button
-									type="submit"
-									class="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
-								>
-									Upload
-								</button>
+					</div>
+					<div class="flex flex-wrap items-center gap-2">
+						<form method="POST" action="?/uploadProfile" enctype="multipart/form-data" class="flex items-center gap-2">
+							<input type="file" name="profile" accept="image/*" class="text-sm" />
+							<button
+								type="submit"
+								class="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
+							>
+								Upload
+							</button>
+						</form>
+						{#if rescue.profile_image_url ?? rescue.logo_url}
+							<form method="POST" action="?/removeProfile" class="flex items-center">
+								<button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Remove</button>
 							</form>
-							{#if rescue.profile_image_url ?? rescue.logo_url}
-								<form method="POST" action="?/removeProfile">
-									<button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Remove</button>
-								</form>
-							{/if}
-						</div>
+						{/if}
 					</div>
 					<p class="text-xs text-slate-500">Square image works best. Used in directory + page avatar.</p>
 					{#if form?.success && isAction('uploadProfile')}
