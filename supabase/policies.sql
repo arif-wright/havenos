@@ -13,14 +13,16 @@ alter table email_logs enable row level security;
 alter table rescue_invitations enable row level security;
 alter table profiles enable row level security;
 alter table verification_requests enable row level security;
+alter table verification_audit_log enable row level security;
 alter table abuse_reports enable row level security;
 alter table partner_leads enable row level security;
 alter table support_payments enable row level security;
+alter table moderation_actions enable row level security;
 
 -- rescues
 drop policy if exists "Public rescue read" on rescues;
 create policy "Public rescue read" on rescues
-    for select using (is_public is true and disabled is false and slug is not null);
+    for select using (is_public is true and disabled is false and slug is not null and not public.rescue_is_blocked(rescues.id));
 
 drop policy if exists "Members read their rescue" on rescues;
 create policy "Members read their rescue" on rescues
@@ -91,7 +93,15 @@ create policy "Service role manages rescue_members" on rescue_members
 -- animals
 drop policy if exists "Public animal read" on animals;
 create policy "Public animal read" on animals
-    for select using (is_active and status in ('available','hold') and not exists (select 1 from rescues r where r.id = animals.rescue_id and r.disabled));
+    for select using (
+        is_active
+        and status in ('available','hold')
+        and not exists (
+            select 1 from rescues r
+            where r.id = animals.rescue_id
+              and (r.disabled or public.rescue_is_blocked(r.id))
+        )
+    );
 
 drop policy if exists "Admins manage their animals" on animals;
 create policy "Admins manage their animals" on animals
@@ -123,6 +133,7 @@ create policy "Public photo read" on animal_photos
               and animals.is_active
               and animals.status in ('available','hold')
               and not r.disabled
+              and not public.rescue_is_blocked(r.id)
         )
     );
 
@@ -332,6 +343,16 @@ create policy "Verification admin update" on verification_requests
     for update using (auth.role() = 'service_role')
     with check (auth.role() = 'service_role');
 
+-- verification_audit_log
+drop policy if exists "Verification audit service read" on verification_audit_log;
+create policy "Verification audit service read" on verification_audit_log
+    for select using (auth.role() = 'service_role');
+
+drop policy if exists "Verification audit service manage" on verification_audit_log;
+create policy "Verification audit service manage" on verification_audit_log
+    for all using (auth.role() = 'service_role')
+    with check (auth.role() = 'service_role');
+
 -- abuse_reports
 drop policy if exists "Abuse reports public insert" on abuse_reports;
 create policy "Abuse reports public insert" on abuse_reports
@@ -344,6 +365,23 @@ create policy "Abuse reports admin access" on abuse_reports
 drop policy if exists "Abuse reports admin update" on abuse_reports;
 create policy "Abuse reports admin update" on abuse_reports
     for update using (auth.role() = 'service_role')
+    with check (auth.role() = 'service_role');
+
+-- moderation_actions
+drop policy if exists "Moderation actions rescue read" on moderation_actions;
+create policy "Moderation actions rescue read" on moderation_actions
+    for select using (
+        auth.role() = 'service_role'
+        or exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = moderation_actions.rescue_id
+              and rm.user_id = auth.uid()
+        )
+    );
+
+drop policy if exists "Moderation actions service manage" on moderation_actions;
+create policy "Moderation actions service manage" on moderation_actions
+    for all using (auth.role() = 'service_role')
     with check (auth.role() = 'service_role');
 
 -- partner_leads

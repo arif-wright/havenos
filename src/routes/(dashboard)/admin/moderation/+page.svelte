@@ -57,17 +57,47 @@
 									· {new Date(report.created_at).toLocaleString()}
 								</p>
 								<p class="text-sm text-slate-700 whitespace-pre-line">{report.message}</p>
+								{#if report.outcome}
+									<p class="text-xs text-emerald-700">Outcome: {report.outcome}</p>
+								{/if}
+								{#if report.resolution_notes}
+									<p class="text-xs text-slate-500">Notes: {report.resolution_notes}</p>
+								{/if}
 							</div>
-							<form method="POST" action="?/updateReport" class="flex items-center gap-2 justify-end">
+							<form method="POST" action="?/updateReport" class="flex flex-col gap-2 justify-end md:flex-row md:items-center">
 								<input type="hidden" name="reportId" value={report.id} />
-								<select
-									name="status"
-									class="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-								>
-									{#each ['open', 'triaged', 'closed'] as status}
-										<option value={status} selected={report.status === status}>{status}</option>
-									{/each}
-								</select>
+								<div class="flex flex-wrap gap-2">
+									<select
+										name="status"
+										class="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+									>
+										{#each ['open', 'triaged', 'closed'] as status}
+											<option value={status} selected={report.status === status}>{status}</option>
+										{/each}
+									</select>
+									<select
+										name="outcome"
+										class="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+									>
+										{#each ['pending', 'dismissed', 'warned', 'hidden', 'suspended'] as outcome}
+											<option value={outcome} selected={report.outcome === outcome || (!report.outcome && outcome === 'pending')}>
+												{outcome}
+											</option>
+										{/each}
+									</select>
+									<input
+										name="expiresDays"
+										type="number"
+										min="0"
+										placeholder="Days (hide/suspend)"
+										class="w-32 rounded-md border border-slate-300 bg-white px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+									/>
+								</div>
+								<input
+									name="resolutionNotes"
+									placeholder="Resolution notes"
+									class="min-w-[220px] rounded-md border border-slate-300 bg-white px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+								/>
 								<button
 									type="submit"
 									class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"

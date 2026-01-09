@@ -7,6 +7,10 @@
 		<li>No posting of stolen photos or misleading identities.</li>
 		<li>Respect adopter privacy; inquiries stay within the rescue team.</li>
 		<li>Do not attempt to bypass security, scrape data at scale, or disrupt the service.</li>
+		<li>No pay-to-rank schemes or selling adopter data.</li>
+		<li>Report suspected abuse using the report buttons; moderators keep an audit trail.</li>
 	</ul>
-	<p class="text-sm text-slate-200/80">Violations can result in moderation actions, verification removal, or account disablement.</p>
+	<p class="text-sm text-slate-200/80">
+		Violations can result in warnings, temporary hides/suspensions, verification removal, or account disablement.
+	</p>
 </section>

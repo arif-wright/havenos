@@ -39,13 +39,23 @@
 		}
 	});
 
+	const badgeCopy: Record<string, { label: string; title: string; description: string }> = {
+		verified_501c3: {
+			label: 'Verified 501(c)(3)',
+			title: 'Verified by RescueOS (EIN/501(c)(3) check).',
+			description: 'Nonprofit status verified by RescueOS.'
+		},
+		verified: {
+			label: 'Verified',
+			title: 'Verified by RescueOS (basic presence check).',
+			description: 'Identity and online presence confirmed by RescueOS.'
+		}
+	};
+
 	const badge = (() => {
-		if (data.rescue.verification_status === 'verified_501c3') {
-			return { label: 'Verified 501(c)(3)', title: 'Verified by RescueOS (EIN/501(c)(3) check).' };
-		}
-		if (data.rescue.verification_status === 'verified') {
-			return { label: 'Verified', title: 'Verified by RescueOS (basic presence check).' };
-		}
+		const status = data.rescue.verification_status;
+		if (status === 'verified_501c3') return { key: status, ...badgeCopy.verified_501c3 };
+		if (status === 'verified') return { key: status, ...badgeCopy.verified };
 		return null;
 	})();
 </script>
@@ -68,7 +78,7 @@
 			{/if}
 		</div>
 		<div class="relative p-6 sm:p-8">
-			<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+			<div class="relative flex flex-col gap-4 pl-36 pt-12 sm:flex-row sm:items-center sm:justify-between sm:pl-40 sm:pt-6">
 				<div class="flex items-start">
 					<div class="absolute -top-12 left-6 h-24 w-24 overflow-hidden rounded-3xl border-4 border-white bg-slate-50 shadow-xl ring-1 ring-slate-200">
 						{#if data.rescue.profile_image_url || data.rescue.logo_url}
@@ -84,7 +94,7 @@
 							</div>
 						{/if}
 					</div>
-					<div class="space-y-2 pt-10 sm:pt-6 sm:pl-32">
+					<div class="space-y-2">
 						<div class="flex items-center gap-2">
 							<h1 class="text-3xl font-bold text-slate-900 sm:text-4xl">{data.rescue.name}</h1>
 							{#if badge}
@@ -129,6 +139,33 @@
 							</button>
 						</div>
 					</div>
+				</div>
+			</div>
+			<div class="mt-4 grid gap-3 lg:grid-cols-[1.2fr,1fr]">
+				<div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900 shadow-sm">
+					<p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">Trust &amp; safety</p>
+					{#if badge}
+						<p class="mt-1 text-base font-semibold">{badge.label}</p>
+						<p class="mt-1 text-emerald-800">{badge.description}</p>
+						<p class="mt-2 text-xs text-emerald-800">
+							Verified by RescueOS. <a class="underline" href="/trust-safety">See what badges mean</a>.
+						</p>
+					{:else}
+						<p class="mt-1 font-semibold text-emerald-900">Unverified rescue</p>
+						<p class="text-emerald-800">This rescue is operating on RescueOS but has not completed verification yet.</p>
+						<p class="mt-2 text-xs text-emerald-800">
+							Reports go to the moderation queue. <a class="underline" href="/trust-safety">Learn more</a>.
+						</p>
+					{/if}
+				</div>
+				<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800 shadow-sm">
+					<p class="text-xs font-semibold uppercase tracking-wide text-slate-600">What to expect</p>
+					<p class="mt-1">
+						Inquiries stay in the RescueOS inbox (no DMs). Status updates are shared as the rescue responds.
+					</p>
+					<p class="mt-2 text-xs text-slate-600">
+						See a problem? Use the report button — every report is tracked with an audit trail.
+					</p>
 				</div>
 			</div>
 			<div class="mt-8 grid gap-4 lg:grid-cols-2">

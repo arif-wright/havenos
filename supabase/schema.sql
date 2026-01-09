@@ -34,6 +34,10 @@ create table if not exists rescues (
     plan_tier text not null default 'free' check (plan_tier in ('free','supporter','pro')),
     subscription_status text,
     current_period_end timestamptz,
+    grace_period_ends_at timestamptz,
+    enforcement_state text not null default 'active' check (enforcement_state in ('active','warned','unlisted','suspended')),
+    enforcement_reason text,
+    suspended_until timestamptz,
     disabled boolean not null default false,
     disabled_at timestamptz,
     updated_at timestamptz not null default timezone('utc', now())
@@ -141,6 +145,50 @@ before insert on inquiries
 for each row
 execute procedure set_inquiry_rescue_id();
 
+-- Guard verification state changes to trusted actors only
+create or replace function guard_verification_fields() returns trigger as $$
+begin
+  if (new.verification_status is distinct from old.verification_status
+      or new.verified_at is distinct from old.verified_at)
+      and auth.role() <> 'service_role' then
+    raise exception 'verification fields are managed by RescueOS trust & safety';
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_guard_rescue_verification on rescues;
+create trigger trg_guard_rescue_verification
+before update on rescues
+for each row
+execute procedure guard_verification_fields();
+
+-- Billing guardrails to keep paid tiers tied to a valid subscription window
+create or replace function guard_billing_fields() returns trigger as $$
+begin
+  if new.plan_tier <> 'free' and coalesce(new.subscription_status, '') not in ('active','trialing','past_due') then
+    new.plan_tier := 'free';
+  end if;
+
+  if new.plan_tier <> 'free' and new.subscription_status = 'past_due' and new.grace_period_ends_at is null then
+    new.grace_period_ends_at := timezone('utc', now()) + interval '7 days';
+  end if;
+
+  if new.plan_tier <> 'free' and new.grace_period_ends_at is not null and new.grace_period_ends_at <= timezone('utc', now()) then
+    new.plan_tier := 'free';
+    new.subscription_status := null;
+  end if;
+
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_guard_billing on rescues;
+create trigger trg_guard_billing
+before update on rescues
+for each row
+execute procedure guard_billing_fields();
+
 create index if not exists idx_animals_rescue_id on animals(rescue_id);
 create index if not exists idx_animals_status_active on animals(status, is_active);
 create index if not exists idx_photos_animal on animal_photos(animal_id, sort_order);
@@ -229,7 +277,9 @@ create table if not exists verification_requests (
     ein text,
     legal_name text,
     notes text,
-    status text not null default 'pending' check (status in ('pending','approved','rejected')),
+    requested_level text not null default 'identity' check (requested_level in ('identity','501c3')),
+    decision_notes text,
+    status text not null default 'pending' check (status in ('pending','in_review','needs_info','approved','rejected')),
     reviewer_user_id uuid references auth.users(id),
     reviewed_at timestamptz,
     created_at timestamptz not null default timezone('utc', now())
@@ -237,6 +287,18 @@ create table if not exists verification_requests (
 
 create index if not exists idx_verification_requests_rescue on verification_requests(rescue_id, created_at desc);
 create index if not exists idx_verification_requests_status on verification_requests(status, created_at desc);
+
+create table if not exists verification_audit_log (
+    id uuid primary key default gen_random_uuid(),
+    verification_request_id uuid references verification_requests(id) on delete cascade,
+    from_status text,
+    to_status text not null,
+    changed_by uuid references auth.users(id),
+    notes text,
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_verification_audit_request on verification_audit_log(verification_request_id, created_at desc);
 
 -- Abuse reports
 create table if not exists abuse_reports (
@@ -249,11 +311,53 @@ create table if not exists abuse_reports (
     inquiry_id uuid references inquiries(id) on delete set null,
     message text not null,
     status text not null default 'open' check (status in ('open','triaged','closed')),
+    outcome text check (outcome in ('pending','dismissed','warned','hidden','suspended')),
+    resolved_at timestamptz,
+    resolved_by uuid references auth.users(id),
+    resolution_notes text,
     created_at timestamptz not null default timezone('utc', now())
 );
 
 create index if not exists idx_abuse_reports_type on abuse_reports(type, created_at desc);
 create index if not exists idx_abuse_reports_rescue on abuse_reports(rescue_id, created_at desc);
+
+create table if not exists moderation_actions (
+    id uuid primary key default gen_random_uuid(),
+    rescue_id uuid references rescues(id) on delete cascade,
+    animal_id uuid references animals(id) on delete cascade,
+    inquiry_id uuid references inquiries(id) on delete cascade,
+    report_id uuid references abuse_reports(id) on delete set null,
+    action_type text not null check (action_type in ('warn','hide','unlist','suspend','reinstate','dismiss','note')),
+    reason text,
+    details text,
+    expires_at timestamptz,
+    resolved boolean not null default false,
+    resolved_at timestamptz,
+    resolved_by uuid references auth.users(id),
+    created_by uuid references auth.users(id),
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_moderation_actions_rescue on moderation_actions(rescue_id, created_at desc);
+create index if not exists idx_moderation_actions_active on moderation_actions(rescue_id, action_type, expires_at, resolved) where resolved = false;
+
+-- Helper to check whether a rescue is blocked/unlisted by moderation
+create or replace function rescue_is_blocked(p_rescue_id uuid)
+returns boolean
+security definer
+set search_path = public
+language sql
+stable
+as $$
+    select exists (
+        select 1
+        from moderation_actions ma
+        where ma.rescue_id = p_rescue_id
+          and ma.resolved = false
+          and ma.action_type in ('unlist','suspend','hide')
+          and (ma.expires_at is null or ma.expires_at > timezone('utc', now()))
+    );
+$$;
 
 -- Partner leads
 create table if not exists partner_leads (
@@ -275,7 +379,69 @@ create table if not exists support_payments (
     created_at timestamptz not null default timezone('utc', now())
 );
 
+-- Verification bookkeeping and public badge definitions
+create or replace function mark_rescue_verification_submitted() returns trigger as $$
+begin
+  if new.rescue_id is not null then
+    update rescues
+    set verification_submitted_at = coalesce(verification_submitted_at, new.created_at)
+    where id = new.rescue_id;
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_verification_request_submit on verification_requests;
+create trigger trg_verification_request_submit
+after insert on verification_requests
+for each row
+execute procedure mark_rescue_verification_submitted();
+
+create or replace function log_and_apply_verification() returns trigger as $$
+declare
+  approver uuid;
+  new_status text;
+begin
+  if new.status is distinct from old.status then
+    approver := coalesce(auth.uid(), new.reviewer_user_id, old.reviewer_user_id);
+    insert into verification_audit_log (verification_request_id, from_status, to_status, changed_by, notes)
+    values (new.id, old.status, new.status, approver, new.decision_notes);
+
+    if new.rescue_id is not null then
+      if new.status = 'approved' then
+        new_status := case when new.requested_level = '501c3' then 'verified_501c3' else 'verified' end;
+        update rescues
+        set verification_status = new_status,
+            verified_at = timezone('utc', now()),
+            verification_submitted_at = coalesce(verification_submitted_at, new.created_at)
+        where id = new.rescue_id;
+      elsif new.status = 'rejected' then
+        update rescues
+        set verification_status = 'unverified',
+            verified_at = null
+        where id = new.rescue_id;
+      end if;
+    end if;
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_verification_request_apply on verification_requests;
+create trigger trg_verification_request_apply
+after update on verification_requests
+for each row
+execute procedure log_and_apply_verification();
+
+create or replace view verification_badges as
+select 'unverified'::text as status, 'Unverified'::text as label, 'Rescue has not completed verification yet.'::text as description
+union all
+select 'verified', 'Identity verified', 'Rescue identity and presence confirmed by RescueOS.'
+union all
+select 'verified_501c3', '501(c)(3) verified', 'Nonprofit status verified via EIN/IRS lookup.';
+
 -- Public-facing view for rescues
+drop view if exists public_rescues;
 create or replace view public_rescues as
 select
     id,
@@ -298,6 +464,10 @@ select
     profile_image_url,
     header_image_url,
     verification_status,
+    verification_submitted_at,
+    verified_at,
+    enforcement_state,
+    suspended_until,
     disabled,
     is_public,
     created_at,
@@ -306,7 +476,7 @@ from rescues;
 
 drop policy if exists "public rescues readable" on rescues;
 create policy "public rescues readable" on rescues
-    for select using (is_public is true and slug is not null and disabled is false);
+    for select using (is_public is true and slug is not null and disabled is false and not rescue_is_blocked(rescues.id));
 
 -- Storage bucket for rescue media (public read)
 insert into storage.buckets (id, name, public)
@@ -349,6 +519,37 @@ create policy "Members delete rescue-media" on storage.objects
               and rm.rescue_id = split_part(name, '/', 1)::uuid
         )
     );
+
+-- Verification audit log (service visibility only)
+alter table if exists verification_audit_log enable row level security;
+
+drop policy if exists "Verification audit service read" on verification_audit_log;
+create policy "Verification audit service read" on verification_audit_log
+    for select using (auth.role() = 'service_role');
+
+drop policy if exists "Verification audit service manage" on verification_audit_log;
+create policy "Verification audit service manage" on verification_audit_log
+    for all using (auth.role() = 'service_role')
+    with check (auth.role() = 'service_role');
+
+-- Moderation actions: readable by affected rescues, managed by service role
+alter table if exists moderation_actions enable row level security;
+
+drop policy if exists "Moderation actions rescue read" on moderation_actions;
+create policy "Moderation actions rescue read" on moderation_actions
+    for select using (
+        auth.role() = 'service_role'
+        or exists (
+            select 1 from rescue_members rm
+            where rm.rescue_id = moderation_actions.rescue_id
+              and rm.user_id = auth.uid()
+        )
+    );
+
+drop policy if exists "Moderation actions service manage" on moderation_actions;
+create policy "Moderation actions service manage" on moderation_actions
+    for all using (auth.role() = 'service_role')
+    with check (auth.role() = 'service_role');
 
 -- Profiles for human-friendly names
 create table if not exists profiles (

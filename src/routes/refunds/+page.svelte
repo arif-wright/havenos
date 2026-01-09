@@ -9,6 +9,6 @@
 		<li><span class="font-semibold text-white">Refunds:</span> If something goes wrong, contact support within 7 days of charge; refunds are discretionary based on usage and issue.</li>
 		<li><span class="font-semibold text-white">Currently free:</span> If no paid plan is active, refunds are not applicable; we will post changes before paid tiers launch.</li>
 		<li><span class="font-semibold text-white">Support payments:</span> One-time “Support RescueOS” payments are not tax-deductible.</li>
-		<li><span class="font-semibold text-white">Failed payments:</span> We may pause premium features until payment is resolved.</li>
+		<li><span class="font-semibold text-white">Failed payments:</span> Grace period applies; after that, premium features downgrade to Free until payment is resolved.</li>
 	</ul>
 </section>
