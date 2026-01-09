@@ -69,7 +69,7 @@
 		</div>
 		<div class="relative p-6 sm:p-8">
 			<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<div class="flex items-start gap-4">
+				<div class="flex items-start">
 					<div class="absolute -top-12 left-6 h-24 w-24 overflow-hidden rounded-3xl border-4 border-white bg-slate-50 shadow-xl ring-1 ring-slate-200">
 						{#if data.rescue.profile_image_url || data.rescue.logo_url}
 							<img
@@ -84,7 +84,7 @@
 							</div>
 						{/if}
 					</div>
-					<div class="space-y-2">
+					<div class="space-y-2 pt-10 sm:pt-6 sm:pl-32">
 						<div class="flex items-center gap-2">
 							<h1 class="text-3xl font-bold text-slate-900 sm:text-4xl">{data.rescue.name}</h1>
 							{#if badge}
