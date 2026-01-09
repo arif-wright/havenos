@@ -50,18 +50,18 @@
 		</div>
 	</div>
 
-        <section class="rounded-3xl bg-white/80 p-6 shadow-xl ring-1 ring-slate-200">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Built for clarity</p>
+        <section class="rounded-3xl bg-white/70 p-5 shadow-lg ring-1 ring-slate-100">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Built for clarity</p>
                 <h2 class="mt-2 text-xl font-semibold text-slate-900">Why it works</h2>
-                <div class="mt-4 space-y-3">
+                <div class="mt-3 space-y-2.5">
                         {#each [
                                 'Inbox with statuses, history, and templates so nothing gets lost.',
                                 'Public profiles that stay in sync—no duplicate editing or stale links.',
                                 'Verification badges and reporting guardrails to keep adopters confident.'
                         ] as proof}
-                                <div class="flex items-start gap-3 rounded-2xl bg-white p-4 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200">
-                                        <span class="mt-1 h-6 w-6 rounded-full bg-emerald-50 text-center text-xs font-bold text-emerald-700 ring-1 ring-emerald-100">•</span>
-                                        <p>{proof}</p>
+                                <div class="flex items-start gap-3 rounded-xl bg-white/70 p-3 text-sm text-slate-700 ring-1 ring-slate-100">
+                                        <span class="mt-1 h-5 w-5 rounded-full bg-emerald-50 text-center text-[11px] font-bold text-emerald-700 ring-1 ring-emerald-100">•</span>
+                                        <p class="leading-relaxed">{proof}</p>
                                 </div>
                         {/each}
                 </div>
