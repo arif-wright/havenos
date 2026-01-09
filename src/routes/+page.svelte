@@ -15,72 +15,64 @@
 </script>
 
 <AmbientPage
-	title="A calm, reliable rescue workspace."
-	kicker="RescueOS"
-	subtitle="Public pages, inbox, and verification built for rescues and adopters—no buzzwords, just clear next steps."
+        title="A calm, reliable rescue workspace."
+        kicker="RescueOS"
+        subtitle="Public pages and inbox built for rescues and adopters—clear next steps, no noise."
 >
-	<div class="grid gap-8 lg:grid-cols-[1.2fr,1fr]">
-		<div class="space-y-6">
-			<div class="flex flex-wrap gap-3">
-				<a
-					class="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_40px_-18px_rgba(5,122,85,0.7)] transition hover:-translate-y-0.5 hover:bg-emerald-500"
-					href="/rescues"
-				>
-					Browse rescues
-				</a>
-				<a
-					class="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-[0_10px_30px_-20px_rgba(0,0,0,0.35)] ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-slate-50"
-					href="/for-rescues"
-				>
-					For rescues
-				</a>
-				<a
-					class="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-[0_10px_30px_-20px_rgba(0,0,0,0.35)] ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-slate-50"
-					href="/rescue/sample"
-				>
-					View sample rescue
-				</a>
-			</div>
-			<ul class="grid gap-2 sm:grid-cols-2">
-				<li class="flex items-start gap-3 rounded-2xl bg-white p-4 text-sm text-slate-700 shadow ring-1 ring-slate-200">
-					<span class="mt-1 text-emerald-600">✔</span>
-					<span>Inbox with statuses, history, and templates so no inquiry gets lost.</span>
-				</li>
-				<li class="flex items-start gap-3 rounded-2xl bg-white p-4 text-sm text-slate-700 shadow ring-1 ring-slate-200">
-					<span class="mt-1 text-emerald-600">✔</span>
-					<span>Public profiles that stay in sync—no duplicate editing or stale links.</span>
-				</li>
-				<li class="flex items-start gap-3 rounded-2xl bg-white p-4 text-sm text-slate-700 shadow ring-1 ring-slate-200">
-					<span class="mt-1 text-emerald-600">✔</span>
-					<span>Verified badges and reporting guardrails to keep adopters confident.</span>
-				</li>
-				<li class="flex items-start gap-3 rounded-2xl bg-white p-4 text-sm text-slate-700 shadow ring-1 ring-slate-200">
-					<span class="mt-1 text-emerald-600">✔</span>
-					<span>Email + password login for teams—no mystery "model" needed.</span>
-				</li>
-			</ul>
-			<a
-				class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-4 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-emerald-500 sm:w-auto"
-				href="/auth/signup"
-			>
-				Create an account
-				<span aria-hidden="true">→</span>
-			</a>
-		</div>
-		<div class="relative">
-			<div class="absolute inset-0 rounded-3xl bg-white/40 blur-3xl"></div>
-			<div class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
-				<img src="/images/rescueos-animals.svg" alt="RescueOS workspace" class="w-full" loading="lazy" />
+        <div class="grid gap-8 lg:grid-cols-[1.2fr,1fr]">
+                <div class="space-y-6">
+                        <div class="flex flex-wrap items-center gap-3">
+                                <a
+                                        class="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_40px_-18px_rgba(5,122,85,0.7)] transition hover:-translate-y-0.5 hover:bg-emerald-500"
+                                        href="/auth/signup"
+                                >
+                                        Create an account
+                                </a>
+                                <a
+                                        class="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-[0_10px_30px_-20px_rgba(0,0,0,0.35)] ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-slate-50"
+                                        href="/rescues"
+                                >
+                                        Browse rescues
+                                </a>
+                                <a
+                                        class="text-sm font-semibold text-emerald-700 underline-offset-4 hover:underline"
+                                        href="/rescue/sample"
+                                >
+                                        View sample rescue →
+                                </a>
+                        </div>
+                </div>
+                <div class="relative">
+                        <div class="absolute inset-0 rounded-3xl bg-white/40 blur-3xl"></div>
+                        <div class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+                                <img src="/images/rescueos-animals.svg" alt="RescueOS workspace" class="w-full" loading="lazy" />
 			</div>
 		</div>
 	</div>
 
-	<div class="grid gap-5 md:grid-cols-3">
-		{#each [
-			{
-				title: 'For adopters',
-				body: 'Find rescues with clear timelines, verified badges, and adoptable pets in one place.'
-			},
+        <section class="rounded-3xl bg-white/80 p-6 shadow-xl ring-1 ring-slate-200">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Built for clarity</p>
+                <h2 class="mt-2 text-xl font-semibold text-slate-900">Why it works</h2>
+                <div class="mt-4 space-y-3">
+                        {#each [
+                                'Inbox with statuses, history, and templates so nothing gets lost.',
+                                'Public profiles that stay in sync—no duplicate editing or stale links.',
+                                'Verification badges and reporting guardrails to keep adopters confident.'
+                        ] as proof}
+                                <div class="flex items-start gap-3 rounded-2xl bg-white p-4 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200">
+                                        <span class="mt-1 h-6 w-6 rounded-full bg-emerald-50 text-center text-xs font-bold text-emerald-700 ring-1 ring-emerald-100">•</span>
+                                        <p>{proof}</p>
+                                </div>
+                        {/each}
+                </div>
+        </section>
+
+        <div class="grid gap-5 md:grid-cols-3">
+                {#each [
+                        {
+                                title: 'For adopters',
+                                body: 'Find rescues with clear timelines, verified badges, and adoptable pets in one place.'
+                        },
 			{
 				title: 'For rescues',
 				body: 'Public pages + inbox + templates. Team roles with email/password login and verification requests.'
