@@ -277,7 +277,7 @@ export const actions: Actions = {
 		}
 
 		const nextStatus: 'available' | 'hold' | 'adopted' =
-			toStage === 'adopted' ? 'adopted' : toStage === 'hold' ? 'hold' : (existing.status as any) ?? 'available';
+			toStage === 'adopted' ? 'adopted' : toStage === 'hold' ? 'hold' : 'available';
 
 		const { error: updateError } = await locals.supabase
 			.from('animals')
