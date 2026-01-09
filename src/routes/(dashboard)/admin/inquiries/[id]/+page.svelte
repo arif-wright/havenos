@@ -37,6 +37,9 @@
 	];
 
 	let copied: string | null = null;
+	let sentQuick = false;
+	let sendError = '';
+
 	const copySuggestion = async (text: string, key: string) => {
 		if (navigator?.clipboard) {
 			await navigator.clipboard.writeText(text);
@@ -223,7 +226,16 @@
 						>
 							Copy body
 						</button>
-						<form method="POST" action="?/sendQuickReply" class="flex items-center gap-2">
+						<form
+							method="POST"
+							action="?/sendQuickReply"
+							class="flex items-center gap-2"
+							on:submit={() => {
+								sentQuick = true;
+								sendError = '';
+								setTimeout(() => (sentQuick = false), 3000);
+							}}
+						>
 							<input type="hidden" name="to" value={data.inquiry.adopter_email} />
 							<input type="hidden" name="subject" value={suggestion.subject} />
 							<textarea name="body" class="hidden">{suggestion.body}</textarea>
@@ -237,6 +249,11 @@
 					</div>
 				</div>
 			{/each}
+			{#if sentQuick}
+				<p class="mt-2 text-xs font-semibold text-emerald-700">Email sent.</p>
+			{:else if sendError}
+				<p class="mt-2 text-xs font-semibold text-rose-700">{sendError}</p>
+			{/if}
 		</div>
 	</section>
 
