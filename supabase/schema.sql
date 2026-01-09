@@ -124,6 +124,9 @@ create table if not exists inquiries (
     archived_at timestamptz,
     archived_by uuid references auth.users(id) on delete set null,
     public_token text not null default encode(gen_random_bytes(12), 'hex'),
+    public_token_expires_at timestamptz,
+    public_token_revoked_at timestamptz,
+    closed_at timestamptz,
     created_at timestamptz not null default timezone('utc', now()),
     updated_at timestamptz not null default timezone('utc', now())
 );
@@ -182,6 +185,36 @@ before update on inquiries
 for each row
 execute procedure handle_updated_at();
 
+-- Manage inquiry token expiry window based on lifecycle
+create or replace function handle_inquiry_status_token_expiry() returns trigger as $$
+declare
+    closing boolean;
+    reopening boolean;
+begin
+    closing := (old.status not in ('closed','adopted') and new.status in ('closed','adopted'));
+    reopening := (old.status in ('closed','adopted') and new.status not in ('closed','adopted'));
+
+    if closing then
+        if new.closed_at is null then
+            new.closed_at := timezone('utc', now());
+        end if;
+        if new.public_token_expires_at is null or new.public_token_expires_at < new.closed_at + interval '30 days' then
+            new.public_token_expires_at := new.closed_at + interval '30 days';
+        end if;
+    elsif reopening then
+        -- Keep audit trail of the first closure but re-open public link while inquiry is active again
+        new.public_token_expires_at := null;
+    end if;
+    return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_inquiry_status_token_expiry on inquiries;
+create trigger trg_inquiry_status_token_expiry
+before update of status on inquiries
+for each row
+execute procedure handle_inquiry_status_token_expiry();
+
 -- Guard verification state changes to trusted actors only
 create or replace function guard_verification_fields() returns trigger as $$
 begin
@@ -234,7 +267,19 @@ create index if not exists idx_inquiries_rescue on inquiries(rescue_id, created_
 create index if not exists idx_inquiries_archived on inquiries(rescue_id, archived_at desc);
 create index if not exists idx_inquiries_animal on inquiries(animal_id, created_at desc);
 create index if not exists idx_inquiries_public_token on inquiries(public_token);
+create index if not exists idx_inquiries_public_token_expires on inquiries(public_token, public_token_expires_at);
 create index if not exists idx_inquiries_assigned on inquiries(rescue_id, assigned_to, status);
+do $$
+begin
+    if not exists (
+        select 1 from pg_constraint
+        where conname = 'inquiries_public_token_unique'
+          and conrelid = 'inquiries'::regclass
+    ) then
+        alter table inquiries add constraint inquiries_public_token_unique unique (public_token);
+    end if;
+end;
+$$;
 create index if not exists idx_rescue_members_user on rescue_members(user_id);
 create index if not exists idx_rescue_members_rescue on rescue_members(rescue_id);
 
@@ -446,10 +491,13 @@ create table if not exists shortlists (
     animal_ids uuid[] not null default '{}',
     rescue_ids uuid[] not null default '{}',
     payload jsonb,
-    created_at timestamptz not null default timezone('utc', now())
+    created_at timestamptz not null default timezone('utc', now()),
+    expires_at timestamptz not null default timezone('utc', now()) + interval '90 days',
+    revoked_at timestamptz
 );
 
 create index if not exists idx_shortlists_created on shortlists(created_at desc);
+create index if not exists idx_shortlists_token_expires on shortlists(token, expires_at);
 
 -- Saved search alerts (beta)
 create table if not exists saved_search_alerts (
@@ -472,6 +520,15 @@ alter table if exists saved_search_alerts enable row level security;
 drop policy if exists "Shortlists public insert" on shortlists;
 create policy "Shortlists public insert" on shortlists
     for insert with check (auth.role() in ('anon','authenticated','service_role'));
+
+drop policy if exists "Shortlists public read valid" on shortlists;
+create policy "Shortlists public read valid" on shortlists
+    for select using (
+        auth.role() in ('anon','authenticated')
+        and revoked_at is null
+        and expires_at > timezone('utc', now())
+        and token = coalesce(current_setting('request.headers.x-shortlist-token', true), '')
+    );
 
 drop policy if exists "Shortlists service read" on shortlists;
 create policy "Shortlists service read" on shortlists

@@ -41,12 +41,12 @@ export const POST: RequestHandler = async ({ request, url }) => {
 					snapshot_at: new Date().toISOString()
 				}
 			})
-			.select('token')
+			.select('token, expires_at')
 			.single();
 
 		if (!error && data?.token) {
 			const shareUrl = `${url.origin}/saved/${data.token}`;
-			return json({ token: data.token, shareUrl });
+			return json({ token: data.token, shareUrl, expiresAt: data.expires_at });
 		}
 
 		if (error && error.code !== '23505') {

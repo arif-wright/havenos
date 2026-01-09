@@ -14,6 +14,9 @@
 	const replyHint = canReply
 		? 'Reply to this email and it will go to the rescue.'
 		: `Contact us at ${contactEmail} if you have more to share.`;
+	const publicLink = data.inquiry.public_status_link;
+	const isPublicRevoked = Boolean(data.inquiry.public_token_revoked_at);
+	const linkExpiresOn = data.inquiry.public_token_expires_at ? new Date(data.inquiry.public_token_expires_at) : null;
 
 	const suggestions = [
 		{
@@ -37,6 +40,7 @@
 	];
 
 	let copied: string | null = null;
+	let linkCopied = false;
 	let sentQuick = false;
 	let sendError = '';
 
@@ -46,6 +50,13 @@
 			copied = key;
 			setTimeout(() => (copied = null), 2000);
 		}
+	};
+
+	const copyPublicLink = async () => {
+		if (!publicLink || isPublicRevoked || !navigator?.clipboard) return;
+		await navigator.clipboard.writeText(publicLink);
+		linkCopied = true;
+		setTimeout(() => (linkCopied = false), 2000);
 	};
 </script>
 
@@ -142,29 +153,84 @@
 		</section>
 
 	<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-		<div class="mb-4 flex flex-wrap items-center gap-3">
-			{#if data.inquiry.archived_at}
-				<form method="POST" action="?/restore">
-					<button
-						type="submit"
-						class="rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-					>
-						Restore to active
-					</button>
-				</form>
-			{:else}
-				<form method="POST" action="?/archive">
-					<button
-						type="submit"
-						class="rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-						on:click={(e) => {
-							if (!confirm('Archive this inquiry? You can restore anytime.')) e.preventDefault();
-						}}
-					>
-						Archive
-					</button>
-				</form>
-			{/if}
+		<div class="mb-4 space-y-3">
+			<div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+				<div class="flex flex-wrap items-center justify-between gap-2">
+					<div>
+						<p class="text-xs font-semibold uppercase tracking-wide text-slate-600">Public status link</p>
+						<p class="text-sm text-slate-700">
+							Adopter-friendly view without exposing notes or assignees.
+						</p>
+						{#if linkExpiresOn}
+							<p class="text-[11px] font-semibold text-amber-700">
+								Expires {linkExpiresOn.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} unless reopened.
+							</p>
+						{:else}
+							<p class="text-[11px] font-semibold text-slate-600">
+								Stays active while open; auto-expires 30 days after closure.
+							</p>
+						{/if}
+					</div>
+					{#if publicLink}
+						{#if isPublicRevoked}
+							<span class="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">Revoked</span>
+						{:else}
+							<button
+								type="button"
+								class="rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+								on:click={copyPublicLink}
+							>
+								{linkCopied ? 'Copied' : 'Copy link'}
+							</button>
+						{/if}
+					{/if}
+				</div>
+				<div class="mt-2 flex flex-wrap items-center gap-2">
+					{#if publicLink}
+						<a
+							class="rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+							href={publicLink}
+							target="_blank"
+							rel="noreferrer"
+						>
+							View link
+						</a>
+					{/if}
+					<form method="POST" action="?/revokeLink">
+						<button
+							type="submit"
+							class="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100 disabled:opacity-60"
+							disabled={isPublicRevoked}
+						>
+							{isPublicRevoked ? 'Link revoked' : 'Revoke public link'}
+						</button>
+					</form>
+				</div>
+			</div>
+			<div class="flex flex-wrap items-center gap-3">
+				{#if data.inquiry.archived_at}
+					<form method="POST" action="?/restore">
+						<button
+							type="submit"
+							class="rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+						>
+							Restore to active
+						</button>
+					</form>
+				{:else}
+					<form method="POST" action="?/archive">
+						<button
+							type="submit"
+							class="rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+							on:click={(e) => {
+								if (!confirm('Archive this inquiry? You can restore anytime.')) e.preventDefault();
+							}}
+						>
+							Archive
+						</button>
+					</form>
+				{/if}
+			</div>
 		</div>
 		<h2 class="text-lg font-semibold text-slate-900">Internal notes</h2>
 		<form method="POST" action="?/addNote" class="mt-3 space-y-3">

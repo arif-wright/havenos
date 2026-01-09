@@ -6,7 +6,7 @@ import { listTemplates } from '$lib/server/templates';
 import { sendTemplateEmail } from '$lib/email/resend';
 import { canReplyByEmail } from '$lib/utils/email';
 
-export const load: PageServerLoad = async ({ params, locals }) => {
+export const load: PageServerLoad = async ({ params, locals, url }) => {
 	const user = await locals.getUser();
 	if (!user) {
 		throw redirect(303, '/admin/login');
@@ -44,7 +44,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			...data,
 			isStale:
 				['new', 'pending'].includes(data.status) &&
-				new Date(data.created_at).getTime() <= Date.now() - 48 * 60 * 60 * 1000
+				new Date(data.created_at).getTime() <= Date.now() - 48 * 60 * 60 * 1000,
+			public_status_link: data.public_token ? `${url.origin}/inquiry/${data.public_token}` : null
 		},
 		hasDuplicate: (dupes?.length ?? 0) > 0,
 		templates: templates ?? [],
@@ -256,5 +257,24 @@ export const actions: Actions = {
 		}
 
 		return { success: true };
+	},
+	revokeLink: async ({ locals, params }) => {
+		const user = await locals.getUser();
+		if (!user) {
+			return fail(403, { serverError: 'Not authenticated' });
+		}
+
+		const now = new Date().toISOString();
+		const { error: revokeError } = await locals.supabase
+			.from('inquiries')
+			.update({ public_token_revoked_at: now })
+			.eq('id', params.id);
+
+		if (revokeError) {
+			console.error(revokeError);
+			return fail(500, { serverError: 'Unable to revoke public link.' });
+		}
+
+		return { success: true, revokedAt: now };
 	}
 };

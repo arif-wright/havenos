@@ -460,6 +460,15 @@ drop policy if exists "Shortlists public insert" on shortlists;
 create policy "Shortlists public insert" on shortlists
     for insert with check (auth.role() in ('anon','authenticated','service_role'));
 
+drop policy if exists "Shortlists public read valid" on shortlists;
+create policy "Shortlists public read valid" on shortlists
+    for select using (
+        auth.role() in ('anon','authenticated')
+        and revoked_at is null
+        and expires_at > timezone('utc', now())
+        and token = coalesce(current_setting('request.headers.x-shortlist-token', true), '')
+    );
+
 drop policy if exists "Shortlists service read" on shortlists;
 create policy "Shortlists service read" on shortlists
     for select using (auth.role() = 'service_role');

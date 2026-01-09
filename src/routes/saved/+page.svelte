@@ -25,12 +25,15 @@
 	let preview: { animals: AnimalPreview[]; rescues: RescuePreview[] } = { animals: [], rescues: [] };
 	let loading = false;
 	let error = '';
-	let activeTab: 'pets' | 'rescues' = 'pets';
-	let shareUrl: string | null = null;
-	let shareMessage = '';
-	let shareError = '';
-	let mounted = false;
-	let lastKey = '';
+        let activeTab: 'pets' | 'rescues' = 'pets';
+        let shareUrl: string | null = null;
+        let shareToken: string | null = null;
+        let shareExpiresAt: string | null = null;
+        let shareMessage = '';
+        let shareError = '';
+        let mounted = false;
+        let lastKey = '';
+        let revoking = false;
 
 	const fetchPreview = async () => {
 		if (!mounted) return;
@@ -71,44 +74,76 @@
 		fetchPreview();
 	}
 
-	const shareShortlist = async () => {
-		shareMessage = '';
-		shareError = '';
-		shareUrl = null;
-		if ($favorites.animals.length === 0 && $favorites.rescues.length === 0) {
-			shareError = 'Add pets or rescues to save first.';
-			return;
-		}
-		try {
+        const shareShortlist = async () => {
+                shareMessage = '';
+                shareError = '';
+                shareUrl = null;
+                shareToken = null;
+                shareExpiresAt = null;
+                if ($favorites.animals.length === 0 && $favorites.rescues.length === 0) {
+                        shareError = 'Add pets or rescues to save first.';
+                        return;
+                }
+                try {
 			const response = await fetch('/api/shortlists', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ animals: $favorites.animals, rescues: $favorites.rescues })
 			});
 			const result = await response.json();
-			if (!response.ok || result.error) {
-				shareError = result.error ?? 'Unable to create shortlist.';
-			} else {
-				const origin = typeof window !== 'undefined' ? window.location.origin : '';
-				shareUrl = result.shareUrl ?? (origin ? `${origin}/saved/${result.token}` : `/saved/${result.token}`);
-				shareMessage = 'Shareable link ready.';
-			}
-		} catch (error) {
+                        if (!response.ok || result.error) {
+                                shareError = result.error ?? 'Unable to create shortlist.';
+                        } else {
+                                const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                                shareUrl = result.shareUrl ?? (origin ? `${origin}/saved/${result.token}` : `/saved/${result.token}`);
+                                shareToken = result.token ?? null;
+                                shareExpiresAt = result.expiresAt ?? null;
+                                shareMessage = 'Shareable link ready.';
+                        }
+                } catch (error) {
 			console.error(error);
 			shareError = 'Unable to create shortlist.';
 		}
 	};
 
-	const copyShareLink = async () => {
-		if (!shareUrl || typeof navigator === 'undefined' || !navigator.clipboard) return;
-		try {
-			await navigator.clipboard.writeText(shareUrl);
-			shareMessage = 'Link copied.';
-		} catch (error) {
-			console.error(error);
-			shareError = 'Copy failed—select and copy manually.';
-		}
-	};
+        const copyShareLink = async () => {
+                if (!shareUrl || typeof navigator === 'undefined' || !navigator.clipboard) return;
+                try {
+                        await navigator.clipboard.writeText(shareUrl);
+                        shareMessage = 'Link copied.';
+                } catch (error) {
+                        console.error(error);
+                        shareError = 'Copy failed—select and copy manually.';
+                }
+        };
+
+        const revokeShortlist = async () => {
+                if (!shareToken) return;
+                revoking = true;
+                shareMessage = '';
+                shareError = '';
+                try {
+                        const response = await fetch('/api/shortlists/revoke', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ token: shareToken })
+                        });
+                        const result = await response.json();
+                        if (!response.ok || result.error) {
+                                shareError = result.error ?? 'Unable to revoke link.';
+                        } else {
+                                shareMessage = 'Link revoked. Create a new one anytime.';
+                                shareUrl = null;
+                                shareToken = null;
+                                shareExpiresAt = null;
+                        }
+                } catch (error) {
+                        console.error(error);
+                        shareError = 'Unable to revoke link.';
+                } finally {
+                        revoking = false;
+                }
+        };
 </script>
 
 <AmbientPage
@@ -145,19 +180,34 @@
 					class="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-emerald-500 disabled:opacity-50"
 					on:click={shareShortlist}
 					disabled={$favorites.animals.length === 0 && $favorites.rescues.length === 0}
-				>
-					Share shortlist
-				</button>
-				{#if shareUrl}
-					<div class="flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1 text-xs text-slate-700 ring-1 ring-slate-200">
-						<span class="truncate max-w-xs">{shareUrl}</span>
-						<button class="font-semibold text-emerald-700" type="button" on:click={copyShareLink}>Copy</button>
-					</div>
-				{/if}
-				{#if shareMessage}
-					<p class="text-xs font-semibold text-emerald-700">{shareMessage}</p>
-				{:else if shareError}
-					<p class="text-xs font-semibold text-rose-700">{shareError}</p>
+                                >
+                                        Share shortlist
+                                </button>
+                                {#if shareUrl}
+                                        <div class="flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1 text-xs text-slate-700 ring-1 ring-slate-200">
+                                                <span class="truncate max-w-xs">{shareUrl}</span>
+                                                <button class="font-semibold text-emerald-700" type="button" on:click={copyShareLink}>Copy</button>
+                                        </div>
+                                        <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
+                                                {#if shareExpiresAt}
+                                                        <span class="font-semibold text-slate-700">
+                                                                Expires {new Date(shareExpiresAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        </span>
+                                                {/if}
+                                                <button
+                                                        type="button"
+                                                        class="rounded-full border border-slate-200 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                                                        on:click={revokeShortlist}
+                                                        disabled={!shareToken || revoking}
+                                                >
+                                                        {revoking ? 'Revoking…' : 'Revoke link'}
+                                                </button>
+                                        </div>
+                                {/if}
+                                {#if shareMessage}
+                                        <p class="text-xs font-semibold text-emerald-700">{shareMessage}</p>
+                                {:else if shareError}
+                                        <p class="text-xs font-semibold text-rose-700">{shareError}</p>
 				{/if}
 			</div>
 		</div>

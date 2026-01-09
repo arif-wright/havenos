@@ -48,6 +48,8 @@
 			hour: '2-digit',
 			minute: '2-digit'
 		});
+
+	const expiresOn = data.expires_at ? new Date(data.expires_at) : null;
 </script>
 
 <AmbientPage
@@ -157,7 +159,12 @@
 				<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
 					<p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">Reference</p>
 					<p class="mt-1 text-base font-semibold text-slate-900">Token: {data.token}</p>
-					<p class="text-xs text-slate-600">Share this page to follow along.</p>
+					<p class="text-xs text-slate-600">Share this page to follow along. Links can be revoked anytime.</p>
+					{#if expiresOn}
+						<p class="text-[11px] font-semibold text-amber-700">
+							Expires {expiresOn.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} unless reopened.
+						</p>
+					{/if}
 				</div>
 			</div>
 		</section>

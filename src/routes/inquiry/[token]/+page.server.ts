@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { getServiceSupabase } from '$lib/server/supabaseService';
 
@@ -8,6 +9,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		.from('inquiries')
 		.select(
 			`id, status, created_at, updated_at, animal_id, rescue_id,
+             public_token_expires_at, public_token_revoked_at,
              animals(name, animal_photos(image_url, sort_order)),
              rescues(name, slug, location_text, website_url, instagram_url, facebook_url, contact_email, response_time_text, response_time_enum)`
 		)
@@ -19,8 +21,12 @@ export const load: PageServerLoad = async ({ params }) => {
 		throw error(500, 'Unable to load inquiry status');
 	}
 
-	if (!data) {
-		throw error(404, 'Inquiry not found');
+	const expired =
+		data?.public_token_expires_at && new Date(data.public_token_expires_at).getTime() <= Date.now();
+	const revoked = Boolean(data?.public_token_revoked_at);
+
+	if (!data || expired || revoked) {
+		throw error(404, 'This link has expired or was revoked.');
 	}
 
 	const { data: history } = await service
@@ -37,6 +43,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		status: data.status,
 		created_at: data.created_at,
 		updated_at: lastStatusChange ?? data.updated_at ?? data.created_at,
+		expires_at: data.public_token_expires_at,
 		animal: {
 			id: data.animal_id,
 			name: data.animals?.name ?? 'Pet',

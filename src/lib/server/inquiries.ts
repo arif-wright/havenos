@@ -16,7 +16,7 @@ export const getInquiryDetail = async (supabase: DbClient, inquiryId: string) =>
 	return supabase
 		.from('inquiries')
 		.select(
-			`id, adopter_name, adopter_email, message, status, assigned_to, created_at, first_responded_at, archived_at, archived_by, animal_id, rescue_id, animals(name, species),
+			`id, adopter_name, adopter_email, message, status, assigned_to, created_at, first_responded_at, archived_at, archived_by, animal_id, rescue_id, public_token, public_token_expires_at, public_token_revoked_at, closed_at, animals(name, species),
              inquiry_status_history(id, from_status, to_status, created_at, changed_by),
              inquiry_notes(id, body, created_at, user_id, author_user_id),
              email_logs(id, to_email, subject, status, error_message, created_at),

@@ -6,7 +6,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const service = getServiceSupabase();
 	const { data: shortlist, error: shortlistError } = await service
 		.from('shortlists')
-		.select('animal_ids, rescue_ids, created_at')
+		.select('animal_ids, rescue_ids, created_at, expires_at, revoked_at')
 		.eq('token', params.token)
 		.maybeSingle();
 
@@ -15,8 +15,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		throw error(500, 'Unable to load shortlist');
 	}
 
-	if (!shortlist) {
-		throw error(404, 'Shortlist not found');
+	const expired = shortlist?.expires_at ? new Date(shortlist.expires_at).getTime() <= Date.now() : true;
+	const revoked = Boolean(shortlist?.revoked_at);
+
+	if (!shortlist || expired || revoked) {
+		throw error(404, 'This link has expired or was revoked.');
 	}
 
 	const animalIds = Array.isArray(shortlist.animal_ids) ? shortlist.animal_ids : [];
@@ -54,6 +57,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	return {
 		token: params.token,
 		created_at: shortlist.created_at,
+		expires_at: shortlist.expires_at,
 		animals:
 			animalResult.data?.map((row) => ({
 				id: row.id,

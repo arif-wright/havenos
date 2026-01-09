@@ -360,6 +360,9 @@ export type Database = {
 					archived_by: string | null;
 					created_at: string;
 					public_token: string;
+					public_token_expires_at: string | null;
+					public_token_revoked_at: string | null;
+					closed_at: string | null;
 					updated_at: string;
 				};
 				Insert: {
@@ -377,6 +380,9 @@ export type Database = {
 					archived_by?: string | null;
 					created_at?: string;
 					public_token?: string;
+					public_token_expires_at?: string | null;
+					public_token_revoked_at?: string | null;
+					closed_at?: string | null;
 					updated_at?: string;
 				};
 				Update: {
@@ -394,6 +400,9 @@ export type Database = {
 					archived_by?: string | null;
 					created_at?: string;
 					public_token?: string;
+					public_token_expires_at?: string | null;
+					public_token_revoked_at?: string | null;
+					closed_at?: string | null;
 					updated_at?: string;
 				};
 				Relationships: [
@@ -740,6 +749,8 @@ export type Database = {
 					rescue_ids: string[];
 					payload: Json | null;
 					created_at: string;
+					expires_at: string;
+					revoked_at: string | null;
 				};
 				Insert: {
 					id?: string;
@@ -748,6 +759,8 @@ export type Database = {
 					rescue_ids?: string[];
 					payload?: Json | null;
 					created_at?: string;
+					expires_at?: string;
+					revoked_at?: string | null;
 				};
 				Update: {
 					id?: string;
@@ -756,6 +769,8 @@ export type Database = {
 					rescue_ids?: string[];
 					payload?: Json | null;
 					created_at?: string;
+					expires_at?: string;
+					revoked_at?: string | null;
 				};
 				Relationships: [];
 			};

@@ -9,6 +9,8 @@
 	const missingNote =
 		(data.counts?.requestedAnimals ?? 0) > data.animals.length ||
 		(data.counts?.requestedRescues ?? 0) > data.rescues.length;
+
+	const expiresOn = data.expires_at ? new Date(data.expires_at) : null;
 </script>
 
 <AmbientPage
@@ -23,7 +25,15 @@
 				<p class="text-sm font-semibold text-slate-900">{data.token}</p>
 				<p class="text-xs text-slate-600">
 					Created {new Date(data.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+					{#if expiresOn}
+						• Expires {expiresOn.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+					{/if}
 				</p>
+				{#if expiresOn}
+					<p class="text-[11px] font-semibold text-amber-700">
+						Links auto-expire and can be revoked by the sharer for safety.
+					</p>
+				{/if}
 			</div>
 			<div class="flex gap-2">
 				<button

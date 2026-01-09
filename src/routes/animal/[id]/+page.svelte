@@ -194,16 +194,18 @@ export let form: ActionData;
 					<p>
 						We delivered your note to {data.animal.rescues?.name}. Check your email for confirmation and follow the status link below anytime.
 					</p>
-					{#if statusLink}
-						<a
-							class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:bg-emerald-500"
-							href={statusLink}
-						>
-							View status page
-							<span aria-hidden="true">→</span>
-						</a>
-						<p class="text-[11px] text-emerald-900">Bookmark this link to follow updates.</p>
-					{/if}
+                                        {#if statusLink}
+                                                <a
+                                                        class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:bg-emerald-500"
+                                                        href={statusLink}
+                                                >
+                                                        View status page
+                                                        <span aria-hidden="true">→</span>
+                                                </a>
+                                                <p class="text-[11px] text-emerald-900">
+                                                        Bookmark this link to follow updates. It can be revoked or will expire after the inquiry closes.
+                                                </p>
+                                        {/if}
 					<p class="text-xs text-emerald-900">
 						{data.animal.rescues?.adoption_process ||
 							'The rescue will review and reply with next steps. Feel free to share extra details if needed.'}
