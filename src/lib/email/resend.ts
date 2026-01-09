@@ -3,9 +3,14 @@ import { APP_BASE_URL, RESEND_API_KEY, RESEND_FROM_EMAIL } from '$env/static/pri
 import { buildAdopterInquiryTemplate, buildRescueNotificationTemplate } from './templates';
 import { replyToForRescue } from '$lib/utils/email';
 
-export const buildReplyToHeader = (contactEmail?: string | null) => ({
-	reply_to: replyToForRescue(contactEmail)
-});
+export const buildReplyToHeader = (contactEmail?: string | null) => {
+	const reply = replyToForRescue(contactEmail);
+	// Set both fields to satisfy different Resend SDK/transport expectations.
+	return {
+		reply_to: reply,
+		replyTo: reply
+	};
+};
 
 type InquiryEmailPayload = {
 	inquiryId: string;
