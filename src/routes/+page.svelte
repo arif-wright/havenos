@@ -25,19 +25,19 @@
 		<div class="space-y-6">
 			<div class="flex flex-wrap gap-3">
 				<a
-					class="rounded-full bg-emerald-500/90 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_40px_-20px_rgba(16,185,129,0.9)] transition hover:-translate-y-0.5 hover:bg-emerald-400/90"
+					class="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_40px_-18px_rgba(5,122,85,0.7)] transition hover:-translate-y-0.5 hover:bg-emerald-500"
 					href="/rescues"
 				>
 					Browse rescues
 				</a>
 				<a
-					class="rounded-full bg-white/15 px-5 py-3 text-sm font-semibold text-emerald-50 ring-1 ring-white/20 transition hover:-translate-y-0.5 hover:bg-white/20"
+					class="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-[0_10px_30px_-20px_rgba(0,0,0,0.35)] ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-slate-50"
 					href="/for-rescues"
 				>
 					For rescues
 				</a>
 				<a
-					class="rounded-full bg-white/10 px-5 py-3 text-sm font-semibold text-emerald-50 ring-1 ring-white/15 transition hover:-translate-y-0.5 hover:bg-white/15"
+					class="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-[0_10px_30px_-20px_rgba(0,0,0,0.35)] ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-slate-50"
 					href="/rescue/sample"
 				>
 					View sample rescue
@@ -45,22 +45,22 @@
 			</div>
 			<div class="flex flex-wrap gap-2">
 				{#each signals as item}
-					<span class="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-emerald-50 ring-1 ring-white/20">
+					<span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100 shadow-sm">
 						✔ {item}
 					</span>
 				{/each}
 			</div>
-			<div class="rounded-3xl bg-white/10 p-6 shadow-xl ring-1 ring-white/10 backdrop-blur">
+			<div class="rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
 				<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 					<div>
-						<p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-100">Model A</p>
-						<p class="text-lg font-semibold text-white">
+						<p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">Model A</p>
+						<p class="text-lg font-semibold text-slate-900">
 							Self-serve signup, verification badges, reporting, and billing-ready tiers.
 						</p>
-						<p class="text-sm text-slate-200/80">Email + password auth (no magic links).</p>
+						<p class="text-sm text-slate-600">Email + password auth (no magic links).</p>
 					</div>
 					<a
-						class="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5"
+						class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-emerald-500"
 						href="/auth/signup"
 					>
 						Create account
@@ -70,8 +70,8 @@
 			</div>
 		</div>
 		<div class="relative">
-			<div class="absolute inset-0 rounded-3xl bg-white/5 blur-3xl"></div>
-			<div class="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/40 shadow-2xl backdrop-blur">
+			<div class="absolute inset-0 rounded-3xl bg-white/40 blur-3xl"></div>
+			<div class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
 				<img src="/images/rescueos-animals.svg" alt="RescueOS workspace" class="w-full" loading="lazy" />
 			</div>
 		</div>
@@ -92,40 +92,40 @@
 				body: 'Verification badges (standard + 501(c)(3)), reporting, moderation queue, and policy surfaces.'
 			}
 		] as card}
-			<div class="rounded-2xl bg-white/12 p-5 text-slate-100 shadow-lg ring-1 ring-white/10 backdrop-blur">
-				<h3 class="text-lg font-semibold text-white">{card.title}</h3>
-				<p class="mt-2 text-sm text-slate-200/80">{card.body}</p>
+			<div class="rounded-2xl bg-white p-5 text-slate-800 shadow-lg ring-1 ring-slate-200">
+				<h3 class="text-lg font-semibold text-slate-900">{card.title}</h3>
+				<p class="mt-2 text-sm text-slate-600">{card.body}</p>
 			</div>
 		{/each}
 	</div>
 
-	<section class="rounded-3xl bg-white/10 p-6 shadow-xl ring-1 ring-white/15 backdrop-blur">
-		<h2 class="text-2xl font-semibold text-white">How it works</h2>
+	<section class="rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
+		<h2 class="text-2xl font-semibold text-slate-900">How it works</h2>
 		<div class="mt-4 grid gap-4 md:grid-cols-2">
-			<div class="space-y-2 rounded-2xl bg-slate-900/40 p-4 ring-1 ring-white/10">
-				<p class="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-100">For adopters</p>
+			<div class="space-y-2 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+				<p class="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-700">For adopters</p>
 				{#each adopterSteps as step, idx}
-					<div class="flex gap-3 rounded-xl bg-white/5 p-3">
-						<span class="mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/80 text-xs font-bold text-white">
+					<div class="flex gap-3 rounded-xl bg-white p-3 ring-1 ring-slate-200 shadow-sm">
+						<span class="mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">
 							{idx + 1}
 						</span>
 						<div>
-							<p class="font-semibold text-white">{step.title}</p>
-							<p class="text-sm text-slate-200/80">{step.body}</p>
+							<p class="font-semibold text-slate-900">{step.title}</p>
+							<p class="text-sm text-slate-600">{step.body}</p>
 						</div>
 					</div>
 				{/each}
 			</div>
-			<div class="space-y-2 rounded-2xl bg-slate-900/40 p-4 ring-1 ring-white/10">
-				<p class="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-100">For rescues</p>
+			<div class="space-y-2 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+				<p class="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-700">For rescues</p>
 				{#each rescueSteps as step, idx}
-					<div class="flex gap-3 rounded-xl bg-white/5 p-3">
-						<span class="mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/80 text-xs font-bold text-white">
+					<div class="flex gap-3 rounded-xl bg-white p-3 ring-1 ring-slate-200 shadow-sm">
+						<span class="mt-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">
 							{idx + 1}
 						</span>
 						<div>
-							<p class="font-semibold text-white">{step.title}</p>
-							<p class="text-sm text-slate-200/80">{step.body}</p>
+							<p class="font-semibold text-slate-900">{step.title}</p>
+							<p class="text-sm text-slate-600">{step.body}</p>
 						</div>
 					</div>
 				{/each}
