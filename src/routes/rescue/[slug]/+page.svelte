@@ -67,10 +67,10 @@
 				/>
 			{/if}
 		</div>
-		<div class="p-6 sm:p-8">
+		<div class="relative p-6 sm:p-8">
 			<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div class="flex items-start gap-4">
-					<div class="-mt-16 h-24 w-24 overflow-hidden rounded-3xl border-4 border-white bg-slate-50 shadow-xl ring-1 ring-slate-200">
+					<div class="absolute -top-12 left-6 h-24 w-24 overflow-hidden rounded-3xl border-4 border-white bg-slate-50 shadow-xl ring-1 ring-slate-200">
 						{#if data.rescue.profile_image_url || data.rescue.logo_url}
 							<img
 								src={data.rescue.profile_image_url ?? data.rescue.logo_url}
