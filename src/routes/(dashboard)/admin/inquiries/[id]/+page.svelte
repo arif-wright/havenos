@@ -9,13 +9,18 @@
 	const responseTime = data.rescue?.response_time_text ?? '1-2 days';
 	const animalName = data.inquiry.animals?.name ?? 'this pet';
 	const adopterName = data.inquiry.adopter_name.split(' ')[0] || data.inquiry.adopter_name;
+	const canReply = data.canReplyByEmail;
+	const contactEmail = data.rescue?.contact_email || 'support@rescueos.net';
+	const replyHint = canReply
+		? 'Reply to this email and it will go to the rescue.'
+		: `Contact us at ${contactEmail} if you have more to share.`;
 
 	const suggestions = [
 		{
 			key: 'confirm',
 			title: 'Confirm receipt',
 			subject: `Thanks for your inquiry about ${animalName}`,
-			body: `Hi ${adopterName},\n\nThanks for reaching out about ${animalName}. We got your note and will reply within ${responseTime}. If there's anything else you'd like us to know, just hit reply here.\n\n-${data.rescue?.name ?? 'Our rescue'} team`
+			body: `Hi ${adopterName},\n\nThanks for reaching out about ${animalName}. We got your note and will reply within ${responseTime}. ${replyHint}\n\n-${data.rescue?.name ?? 'Our rescue'} team`
 		},
 		{
 			key: 'more_info',

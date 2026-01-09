@@ -4,6 +4,7 @@ import { inquiryNoteSchema, inquiryStatusSchema } from '$lib/validation';
 import { addInquiryNote, getInquiryDetail, logInquiryStatusChange } from '$lib/server/inquiries';
 import { listTemplates } from '$lib/server/templates';
 import { sendTemplateEmail } from '$lib/email/resend';
+import { canReplyByEmail } from '$lib/utils/email';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const user = await locals.getUser();
@@ -49,8 +50,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		templates: templates ?? [],
 		rescue: {
 			name: rescue.name,
-			response_time_text: rescue.response_time_text
+			response_time_text: rescue.response_time_text,
+			contact_email: rescue.contact_email
 		},
+		canReplyByEmail: canReplyByEmail(rescue.contact_email),
 		statusOptions: [
 			{ value: 'new', label: 'New' },
 			{ value: 'contacted', label: 'Contacted' },
@@ -196,7 +199,8 @@ export const actions: Actions = {
 			to,
 			subject,
 			body,
-			sendType: 'other'
+			sendType: 'other',
+			rescueEmail: rescue.contact_email
 		});
 
 		if (result.errors.length) {
@@ -243,7 +247,8 @@ export const actions: Actions = {
 			subject: template.subject,
 			body: template.body,
 			templateId: template.id,
-			sendType
+			sendType,
+			rescueEmail: rescue.contact_email
 		});
 
 		if (result.errors.length) {

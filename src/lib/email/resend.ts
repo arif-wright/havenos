@@ -1,6 +1,11 @@
 import { Resend } from 'resend';
 import { APP_BASE_URL, RESEND_API_KEY, RESEND_FROM_EMAIL } from '$env/static/private';
 import { buildAdopterInquiryTemplate, buildRescueNotificationTemplate } from './templates';
+import { replyToForRescue } from '$lib/utils/email';
+
+export const buildReplyToHeader = (contactEmail?: string | null) => ({
+	reply_to: replyToForRescue(contactEmail)
+});
 
 type InquiryEmailPayload = {
 	inquiryId: string;
@@ -79,6 +84,7 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 	}
 
 	const { animalUrl, dashboardUrl } = buildUrls(payload.animalId, payload.inquiryId);
+	const replyToHeader = buildReplyToHeader(payload.rescueEmail);
 	const adopterTemplate = buildAdopterInquiryTemplate({
 		animalName: payload.animalName,
 		rescueName: payload.rescueName,
@@ -108,7 +114,8 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 			to: payload.adopterEmail,
 			subject: adopterTemplate.subject,
 			html: adopterTemplate.html,
-			text: adopterTemplate.text
+			text: adopterTemplate.text,
+			...replyToHeader
 		});
 		adopterEmailId = result.data?.id;
 		if (result.error) {
@@ -156,7 +163,8 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 				to: payload.rescueEmail,
 				subject: rescueTemplate.subject,
 				html: rescueTemplate.html,
-				text: rescueTemplate.text
+				text: rescueTemplate.text,
+				...replyToHeader
 			});
 			rescueEmailId = result.data?.id;
 			if (result.error) {
@@ -207,6 +215,7 @@ type TemplateSendPayload = {
 	body: string;
 	templateId?: string | null;
 	sendType?: 'template' | 'follow_up' | 'invite' | 'other';
+	rescueEmail?: string | null;
 };
 
 export const sendTemplateEmail = async ({
@@ -216,7 +225,8 @@ export const sendTemplateEmail = async ({
 	subject,
 	body,
 	templateId = null,
-	sendType = 'template'
+	sendType = 'template',
+	rescueEmail = null
 }: TemplateSendPayload) => {
 	if (!resendClient || !RESEND_FROM_EMAIL) {
 		console.warn('Resend credentials missing, skipping transactional emails');
@@ -224,6 +234,7 @@ export const sendTemplateEmail = async ({
 	}
 
 	const errors: string[] = [];
+	const replyToHeader = buildReplyToHeader(rescueEmail);
 
 	try {
 		const result = await resendClient.emails.send({
@@ -231,7 +242,8 @@ export const sendTemplateEmail = async ({
 			to,
 			subject,
 			html: body,
-			text: body
+			text: body,
+			...replyToHeader
 		});
 		if (result.error) {
 			errors.push(result.error.message);
