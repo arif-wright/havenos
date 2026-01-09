@@ -1,5 +1,4 @@
 import { error } from '@sveltejs/kit';
-import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { getServiceSupabase } from '$lib/server/supabaseService';
 

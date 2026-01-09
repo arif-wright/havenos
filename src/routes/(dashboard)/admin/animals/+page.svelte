@@ -431,14 +431,15 @@
 		{:else}
 			<div class="grid gap-4 lg:grid-cols-5 md:grid-cols-3">
 				{#each boardColumns as column}
-					<div
-						class="min-h-[200px] rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
-						on:dragover|preventDefault
-						on:drop={(event) => {
-							event.preventDefault();
-							if (draggingId) moveCard(draggingId, column.value);
-						}}
-					>
+                                        <div
+                                                class="min-h-[200px] rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
+                                                role="list"
+                                                on:dragover|preventDefault
+                                                on:drop={(event) => {
+                                                        event.preventDefault();
+                                                        if (draggingId) moveCard(draggingId, column.value);
+                                                }}
+                                        >
 						<div class="mb-2 flex items-center justify-between">
 							<p class="text-sm font-semibold text-slate-800">{column.label}</p>
 							<span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
@@ -450,11 +451,12 @@
 								<p class="text-xs text-slate-400">Drop a pet here</p>
 							{:else}
 								{#each column.animals as animal}
-									<div
-										class="rounded-xl border border-slate-200 bg-slate-50 p-3 shadow-sm transition hover:border-emerald-200"
-										draggable="true"
-										on:dragstart={() => (draggingId = animal.id)}
-									>
+                                                                        <div
+                                                                                class="rounded-xl border border-slate-200 bg-slate-50 p-3 shadow-sm transition hover:border-emerald-200"
+                                                                                role="listitem"
+                                                                                draggable="true"
+                                                                                on:dragstart={() => (draggingId = animal.id)}
+                                                                        >
 										<div class="flex items-center justify-between gap-2">
 											<p class="text-sm font-semibold text-slate-900">{animal.name}</p>
 											<span
