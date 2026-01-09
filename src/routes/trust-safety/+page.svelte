@@ -6,11 +6,11 @@
 	</div>
 
 	<div class="space-y-3 rounded-2xl bg-slate-900/30 p-5 ring-1 ring-white/10">
-		<h2 class="text-xl font-semibold">Verification badges</h2>
+		<h2 class="text-xl font-semibold">Verification badges (neutral)</h2>
 		<ul class="space-y-2 text-sm text-slate-200/80">
 			<li><span class="font-semibold text-white">Not yet verified:</span> Rescue is active on RescueOS; verification is pending or in progress.</li>
-			<li><span class="font-semibold text-white">Verified:</span> Rescue identity and public presence confirmed by RescueOS.</li>
-			<li><span class="font-semibold text-white">501(c)(3) verified:</span> Nonprofit status validated via EIN/IRS check.</li>
+			<li><span class="font-semibold text-white">Verified:</span> Rescue identity and public web presence confirmed by RescueOS. This is not a government endorsement.</li>
+			<li><span class="font-semibold text-white">501(c)(3) verified:</span> Nonprofit status validated via EIN/IRS check. Still not a legal/government endorsement.</li>
 		</ul>
 		<p class="text-xs text-emerald-200">Badges are granted by trust &amp; safety; rescues cannot self-assign.</p>
 	</div>
@@ -19,10 +19,11 @@
 		<div class="rounded-2xl bg-slate-900/30 p-5 ring-1 ring-white/10">
 			<h3 class="text-lg font-semibold">Reporting</h3>
 			<ul class="mt-2 space-y-2 text-sm text-slate-200/80">
-				<li>Report buttons on rescues and animals feed a centralized queue.</li>
+				<li>Report buttons on rescues and animals feed a centralized queue with timestamps.</li>
 				<li>Moderators can triage, dismiss, warn, hide listings, or suspend a rescue.</li>
 				<li>Every action carries an audit trail (who, when, outcome, notes).</li>
 				<li>Temporary hides/suspensions can expire automatically.</li>
+				<li>We alert the rescue when moderation is taken so they know what happened next.</li>
 			</ul>
 		</div>
 		<div class="rounded-2xl bg-slate-900/30 p-5 ring-1 ring-white/10">
@@ -52,7 +53,19 @@
 				<li>Clear process: browse → inquire → track status updates.</li>
 				<li>No DMs or algorithmic feeds — conversations stay scoped to rescues.</li>
 				<li>Response time badges come from the rescue’s stated commitments.</li>
+				<li>Activity signals show when a rescue last updated their page or pets.</li>
 			</ul>
 		</div>
+	</div>
+
+	<div class="rounded-2xl bg-slate-900/30 p-5 ring-1 ring-white/10">
+		<h3 class="text-lg font-semibold">What happens after a report</h3>
+		<ol class="mt-3 space-y-2 text-sm text-slate-200/80 list-decimal list-inside">
+			<li>We confirm the report was received and place it in the moderation queue.</li>
+			<li>A moderator reviews context (rescue profile, pets, prior actions, report details).</li>
+			<li>Actions can include dismissing, requesting info, warning, hiding a listing, or temporary suspension.</li>
+			<li>Outcomes are logged; rescues see actions applied to them, and hides/suspensions are reflected publicly.</li>
+		</ol>
+		<p class="mt-2 text-xs text-emerald-200">We do not publish reporter info. Verified ≠ government endorsement; it is a signal that basic identity checks passed.</p>
 	</div>
 </section>

@@ -22,6 +22,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 		activeAnimals: animalRows?.filter((row) => row.is_active).length ?? 0,
 		adopted: animalRows?.filter((row) => row.status === 'adopted').length ?? 0
 	};
+	const latestAnimalUpdated =
+		animalRows?.reduce((max, row) => {
+			const t = row.updated_at ? new Date(row.updated_at).getTime() : 0;
+			return t > max ? t : max;
+		}, 0) ?? 0;
+	const lastUpdatedAt = new Date(
+		Math.max(new Date(rescue.updated_at ?? rescue.created_at ?? Date.now()).getTime(), latestAnimalUpdated || 0)
+	).toISOString();
+	const needsListingRefresh = Date.now() - new Date(lastUpdatedAt).getTime() > 30 * 24 * 60 * 60 * 1000;
 
 	const { data: inquiries, error: inquiryError } = await locals.supabase
 		.from('inquiries')
@@ -112,7 +121,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 			staleCount
 		},
 		attentionTotals,
-		hasAttention: Object.values(attentionTotals).some((count) => count > 0)
+		hasAttention: Object.values(attentionTotals).some((count) => count > 0),
+		lastUpdatedAt,
+		needsListingRefresh
 	};
 };
 

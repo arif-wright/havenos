@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ActionData, PageData } from './$types';
+	import { buildPetStory } from '$lib/utils/story';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -11,7 +12,18 @@
 		age: form?.values?.age ?? data.animal.age ?? '',
 		sex: form?.values?.sex ?? data.animal.sex ?? '',
 		description: form?.values?.description ?? data.animal.description ?? '',
+		personality_traits:
+			(form?.values?.personality_traits as string)?.toString() ??
+			data.animal.personality_traits?.join(', ') ??
+			'',
+		energy_level: form?.values?.energy_level ?? data.animal.energy_level ?? '',
+		good_with:
+			(form?.values?.good_with as string)?.toString() ?? data.animal.good_with?.join(', ') ?? '',
+		training: form?.values?.training ?? data.animal.training ?? '',
+		medical_needs: form?.values?.medical_needs ?? data.animal.medical_needs ?? '',
+		ideal_home: form?.values?.ideal_home ?? data.animal.ideal_home ?? '',
 		status: form?.values?.status ?? data.animal.status,
+		pipeline_stage: form?.values?.pipeline_stage ?? data.animal.pipeline_stage ?? 'available',
 		tags: form?.values?.tags ?? data.animal.tags?.join(', ') ?? '',
 		is_active: form?.values?.is_active ?? data.animal.is_active
 	};
@@ -24,11 +36,41 @@
 		{ label: 'Adopted', value: 'adopted' }
 	];
 
+	const pipelineStageOptions = [
+		{ value: 'intake', label: 'Intake (new arrival)' },
+		{ value: 'foster', label: 'In foster' },
+		{ value: 'available', label: 'Ready for adopters' },
+		{ value: 'hold', label: 'On hold' },
+		{ value: 'adopted', label: 'Adopted' }
+	];
+
 	const inquiryStatuses = [
 		{ value: 'new', label: 'New' },
 		{ value: 'responded', label: 'Responded' },
 		{ value: 'closed', label: 'Closed' }
 	];
+
+	const buildStory = () => {
+		const story = buildPetStory({
+			name: formValues.name,
+			species: formValues.species,
+			breed: formValues.breed,
+			age: formValues.age,
+			energyLevel: formValues.energy_level,
+			personalityTraits: formValues.personality_traits
+				.split(',')
+				.map((p) => p.trim())
+				.filter(Boolean),
+			goodWith: formValues.good_with
+				.split(',')
+				.map((p) => p.trim())
+				.filter(Boolean),
+			training: formValues.training,
+			medicalNeeds: formValues.medical_needs,
+			idealHome: formValues.ideal_home
+		});
+		formValues = { ...formValues, description: story };
+	};
 </script>
 
 <div class="space-y-10">
@@ -107,6 +149,20 @@
 					{/each}
 				</select>
 			</label>
+			<label class="text-sm font-medium text-slate-700">
+				Pipeline stage
+				<select
+					name="pipeline_stage"
+					class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+				>
+					{#each pipelineStageOptions as option}
+						<option value={option.value} selected={formValues.pipeline_stage === option.value}>
+							{option.label}
+						</option>
+					{/each}
+				</select>
+				<p class="mt-1 text-xs text-slate-500">Keeps Kanban and status aligned.</p>
+			</label>
 			<label class="text-sm font-medium text-slate-700 md:col-span-2">
 				Tags (comma separated)
 				<input
@@ -115,8 +171,98 @@
 					class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
 				/>
 			</label>
+
+			<div class="md:col-span-2 grid gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+				<div class="grid gap-4 md:grid-cols-2">
+					<label class="text-sm font-medium text-slate-700">
+						Personality traits
+						<input
+							name="personality_traits"
+							value={formValues.personality_traits}
+							placeholder="gentle, goofy, loves fetch"
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+						/>
+						{#if fieldErrors.personality_traits}
+							<span class="mt-1 block text-xs text-rose-600">{fieldErrors.personality_traits[0]}</span>
+						{/if}
+					</label>
+					<label class="text-sm font-medium text-slate-700">
+						Energy level
+						<input
+							name="energy_level"
+							value={formValues.energy_level}
+							placeholder="Couch companion, Daily jogger"
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+						/>
+						{#if fieldErrors.energy_level}
+							<span class="mt-1 block text-xs text-rose-600">{fieldErrors.energy_level[0]}</span>
+						{/if}
+					</label>
+					<label class="text-sm font-medium text-slate-700">
+						Good with
+						<input
+							name="good_with"
+							value={formValues.good_with}
+							placeholder="dogs, cats, kids"
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+						/>
+						{#if fieldErrors.good_with}
+							<span class="mt-1 block text-xs text-rose-600">{fieldErrors.good_with[0]}</span>
+						{/if}
+					</label>
+					<label class="text-sm font-medium text-slate-700">
+						Training
+						<input
+							name="training"
+							value={formValues.training}
+							placeholder="House-trained, crate trained, knows sit/stay"
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+						/>
+						{#if fieldErrors.training}
+							<span class="mt-1 block text-xs text-rose-600">{fieldErrors.training[0]}</span>
+						{/if}
+					</label>
+				</div>
+				<div class="grid gap-4 md:grid-cols-2">
+					<label class="text-sm font-medium text-slate-700">
+						Medical needs
+						<textarea
+							name="medical_needs"
+							rows="3"
+							placeholder="Allergies, meds, mobility notes"
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+						>{formValues.medical_needs}</textarea>
+						{#if fieldErrors.medical_needs}
+							<span class="mt-1 block text-xs text-rose-600">{fieldErrors.medical_needs[0]}</span>
+						{/if}
+					</label>
+					<label class="text-sm font-medium text-slate-700">
+						Ideal home
+						<textarea
+							name="ideal_home"
+							rows="3"
+							placeholder="Best with fenced yard, calm household, hiking buddy..."
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+						>{formValues.ideal_home}</textarea>
+						{#if fieldErrors.ideal_home}
+							<span class="mt-1 block text-xs text-rose-600">{fieldErrors.ideal_home[0]}</span>
+						{/if}
+					</label>
+				</div>
+			</div>
+
 			<label class="text-sm font-medium text-slate-700 md:col-span-2">
 				Description
+				<div class="mt-1 flex flex-wrap items-center gap-2">
+					<button
+						type="button"
+						class="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100"
+						on:click={buildStory}
+					>
+						Generate story
+					</button>
+					<span class="text-xs text-slate-500">Uses the fields above (deterministic template, no AI).</span>
+				</div>
 				<textarea
 					name="description"
 					rows="4"
@@ -124,7 +270,13 @@
 				>{formValues.description}</textarea>
 			</label>
 			<label class="flex items-center gap-2 text-sm font-medium text-slate-700">
-				<input type="checkbox" name="is_active" value="true" checked={formValues.is_active} class="size-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+				<input
+					type="checkbox"
+					name="is_active"
+					value="true"
+					checked={formValues.is_active}
+					class="size-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+				/>
 				Active listing
 			</label>
 			<div class="md:col-span-2">

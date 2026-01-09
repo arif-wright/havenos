@@ -24,7 +24,30 @@ export const animalFormSchema = z.object({
 		.max(5000)
 		.optional()
 		.transform((value) => value?.trim() || null),
+	personality_traits: z.array(z.string().min(1)).optional().default([]),
+	energy_level: z
+		.string()
+		.max(120)
+		.optional()
+		.transform((value) => value?.trim() || null),
+	good_with: z.array(z.string().min(1)).optional().default([]),
+	training: z
+		.string()
+		.max(500)
+		.optional()
+		.transform((value) => value?.trim() || null),
+	medical_needs: z
+		.string()
+		.max(1000)
+		.optional()
+		.transform((value) => value?.trim() || null),
+	ideal_home: z
+		.string()
+		.max(1000)
+		.optional()
+		.transform((value) => value?.trim() || null),
 	status: z.enum(['available', 'hold', 'adopted']),
+	pipeline_stage: z.enum(['intake', 'foster', 'available', 'hold', 'adopted']).optional(),
 	tags: z.array(z.string().min(1)).optional().default([]),
 	is_active: z.boolean().default(true)
 });

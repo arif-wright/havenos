@@ -13,8 +13,25 @@
 		archived: 'Archived'
 	};
 
+	const stageLabels: Record<string, string> = {
+		intake: 'Intake',
+		foster: 'In foster',
+		available: 'Available',
+		hold: 'On hold',
+		adopted: 'Adopted'
+	};
+
+	const stageOrder = [
+		{ value: 'intake', label: 'Intake' },
+		{ value: 'foster', label: 'In foster' },
+		{ value: 'available', label: 'Available' },
+		{ value: 'hold', label: 'On hold' },
+		{ value: 'adopted', label: 'Adopted' }
+	];
+
 	let selected = new Set<string>();
 	let showCreate = false;
+	let draggingId: string | null = null;
 
 	const toggleSelect = (id: string) => {
 		const next = new Set(selected);
@@ -26,6 +43,9 @@
 	const bulkIds = () => Array.from(selected).join(',');
 
 	const applyFilters = (params: URLSearchParams) => {
+		if (data.view === 'board') {
+			params.set('view', 'board');
+		}
 		return `${$page.url.pathname}?${params.toString()}`;
 	};
 
@@ -40,6 +60,13 @@
 		age: form?.action === 'create' ? form?.values?.age ?? '' : '',
 		sex: form?.action === 'create' ? form?.values?.sex ?? '' : '',
 		description: form?.action === 'create' ? form?.values?.description ?? '' : '',
+		personality_traits: form?.action === 'create' ? form?.values?.personality_traits ?? '' : '',
+		energy_level: form?.action === 'create' ? form?.values?.energy_level ?? '' : '',
+		good_with: form?.action === 'create' ? form?.values?.good_with ?? '' : '',
+		training: form?.action === 'create' ? form?.values?.training ?? '' : '',
+		medical_needs: form?.action === 'create' ? form?.values?.medical_needs ?? '' : '',
+		ideal_home: form?.action === 'create' ? form?.values?.ideal_home ?? '' : '',
+		pipeline_stage: form?.action === 'create' ? form?.values?.pipeline_stage ?? 'available' : 'available',
 		status: form?.action === 'create' ? form?.values?.status ?? 'available' : 'available',
 		tags: form?.action === 'create' ? form?.values?.tags ?? '' : ''
 	};
@@ -49,6 +76,20 @@
 	$: if (form?.action === 'create' && form?.serverError) {
 		showCreate = true;
 	}
+
+	const boardColumns = stageOrder.map((col) => ({
+		...col,
+		animals: data.animals.filter((a) => (a.pipeline_stage ?? 'available') === col.value)
+	}));
+
+	const moveCard = async (animalId: string, toStage: string) => {
+		const formData = new FormData();
+		formData.append('animalId', animalId);
+		formData.append('toStage', toStage);
+		await fetch('?/moveStage', { method: 'POST', body: formData });
+		draggingId = null;
+		location.reload();
+	};
 </script>
 
 <section class="flex flex-wrap items-center justify-between gap-3">
@@ -56,17 +97,38 @@
 		<h1 class="text-2xl font-semibold text-slate-900">Animals</h1>
 		<p class="text-sm text-slate-600">Compact list for fast management.</p>
 	</div>
-	<button
-		class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
-		type="button"
-		on:click={() => (showCreate = true)}
-	>
-		Add animal
-	</button>
+	<div class="flex items-center gap-2">
+		<a
+			class={`rounded-full px-3 py-1 text-sm font-semibold ${
+				data.view === 'board' ? 'border border-slate-300 text-slate-600' : 'bg-emerald-100 text-emerald-800'
+			}`}
+			href="/admin/animals"
+		>
+			List
+		</a>
+		<a
+			class={`rounded-full px-3 py-1 text-sm font-semibold ${
+				data.view === 'board' ? 'bg-emerald-100 text-emerald-800' : 'border border-slate-300 text-slate-600'
+			}`}
+			href="/admin/animals?view=board"
+		>
+			Board
+		</a>
+		<button
+			class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+			type="button"
+			on:click={() => (showCreate = true)}
+		>
+			Add animal
+		</button>
+	</div>
 </section>
 
 <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
 	<form method="get" class="grid gap-3 md:grid-cols-4">
+		{#if data.view === 'board'}
+			<input type="hidden" name="view" value="board" />
+		{/if}
 		<label class="text-sm font-medium text-slate-700">
 			Search
 			<input
@@ -109,18 +171,20 @@
 				<option value="none" selected={data.filters.inquiries === 'none'}>No inquiries</option>
 			</select>
 		</label>
-		<label class="text-sm font-medium text-slate-700">
-			Sort
-			<select
-				name="sort"
-				class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-			>
-				<option value="newest" selected={data.filters.sort === 'newest'}>Newest first</option>
-				<option value="oldest" selected={data.filters.sort === 'oldest'}>Oldest first</option>
-				<option value="most_inquiries" selected={data.filters.sort === 'most_inquiries'}>Most inquiries</option>
-				<option value="longest_listed" selected={data.filters.sort === 'longest_listed'}>Longest listed</option>
-			</select>
-		</label>
+		{#if data.view !== 'board'}
+			<label class="text-sm font-medium text-slate-700">
+				Sort
+				<select
+					name="sort"
+					class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+				>
+					<option value="newest" selected={data.filters.sort === 'newest'}>Newest first</option>
+					<option value="oldest" selected={data.filters.sort === 'oldest'}>Oldest first</option>
+					<option value="most_inquiries" selected={data.filters.sort === 'most_inquiries'}>Most inquiries</option>
+					<option value="longest_listed" selected={data.filters.sort === 'longest_listed'}>Longest listed</option>
+				</select>
+			</label>
+		{/if}
 		<div class="md:col-span-3 flex items-end gap-3">
 			<button
 				type="submit"
@@ -129,7 +193,7 @@
 				Apply
 			</button>
 			<a
-				href="/admin/animals"
+				href={data.view === 'board' ? '/admin/animals?view=board' : '/admin/animals'}
 				class="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
 			>
 				Reset
@@ -138,7 +202,7 @@
 	</form>
 </section>
 
-{#if selected.size > 0}
+{#if data.view !== 'board' && selected.size > 0}
 	<section class="mt-4 rounded-2xl border border-slate-300 bg-slate-100 p-4 text-sm text-slate-800">
 		<div class="flex flex-wrap items-center gap-3">
 			<p class="font-semibold">{selected.size} selected</p>
@@ -174,7 +238,7 @@
 
 {#if showCreate}
 	<div class="fixed inset-0 z-20 flex items-center justify-center bg-slate-900/40 px-4">
-		<div class="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+		<div class="w-full max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
 			<div class="flex items-start justify-between gap-3">
 				<div>
 					<h2 class="text-xl font-semibold text-slate-900">Add animal</h2>
@@ -253,6 +317,19 @@
 						<option value="adopted" selected={createValues.status === 'adopted'}>Adopted</option>
 					</select>
 				</label>
+				<label class="text-sm font-medium text-slate-700">
+					Pipeline stage
+					<select
+						name="pipeline_stage"
+						class="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+					>
+						{#each stageOrder as option}
+							<option value={option.value} selected={createValues.pipeline_stage === option.value}>
+								{option.label}
+							</option>
+						{/each}
+					</select>
+				</label>
 				<label class="text-sm font-medium text-slate-700 md:col-span-2">
 					Tags (comma separated)
 					<input
@@ -261,6 +338,64 @@
 						class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
 					/>
 				</label>
+				<div class="md:col-span-2 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+					<div class="grid gap-3 md:grid-cols-2">
+						<label class="text-sm font-medium text-slate-700">
+							Personality traits
+							<input
+								name="personality_traits"
+								value={createValues.personality_traits}
+								placeholder="gentle, goofy, curious"
+								class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							/>
+						</label>
+						<label class="text-sm font-medium text-slate-700">
+							Energy level
+							<input
+								name="energy_level"
+								value={createValues.energy_level}
+								placeholder="Weekend warrior, couch buddy"
+								class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							/>
+						</label>
+						<label class="text-sm font-medium text-slate-700">
+							Good with
+							<input
+								name="good_with"
+								value={createValues.good_with}
+								placeholder="dogs, cats, kids"
+								class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							/>
+						</label>
+						<label class="text-sm font-medium text-slate-700">
+							Training
+							<input
+								name="training"
+								value={createValues.training}
+								placeholder="House-trained, knows sit/stay"
+								class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							/>
+						</label>
+					</div>
+					<div class="grid gap-3 md:grid-cols-2">
+						<label class="text-sm font-medium text-slate-700">
+							Medical needs
+							<textarea
+								name="medical_needs"
+								rows="3"
+								class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							>{createValues.medical_needs}</textarea>
+						</label>
+						<label class="text-sm font-medium text-slate-700">
+							Ideal home
+							<textarea
+								name="ideal_home"
+								rows="3"
+								class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							>{createValues.ideal_home}</textarea>
+						</label>
+					</div>
+				</div>
 				<label class="text-sm font-medium text-slate-700 md:col-span-2">
 					Description
 					<textarea
@@ -289,129 +424,221 @@
 	</div>
 {/if}
 
-<section class="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-	{#if data.animals.length === 0}
-		<p class="text-sm text-slate-500">No animals match these filters.</p>
-	{:else}
-		<div class="grid grid-cols-[auto,1fr] items-center gap-2 px-2 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-			<span></span>
-			<div class="grid grid-cols-[80px,1fr,120px,80px,80px,120px,140px] items-center gap-3">
-				<span>Photo</span>
-				<span>Name</span>
-				<span>Status</span>
-				<span>Inquiries</span>
-				<span>Species</span>
-				<span>Listed</span>
-				<span></span>
+{#if data.view === 'board'}
+	<section class="mt-6">
+		{#if data.animals.length === 0}
+			<p class="text-sm text-slate-500">No animals match these filters.</p>
+		{:else}
+			<div class="grid gap-4 lg:grid-cols-5 md:grid-cols-3">
+				{#each boardColumns as column}
+					<div
+						class="min-h-[200px] rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
+						on:dragover|preventDefault
+						on:drop={(event) => {
+							event.preventDefault();
+							if (draggingId) moveCard(draggingId, column.value);
+						}}
+					>
+						<div class="mb-2 flex items-center justify-between">
+							<p class="text-sm font-semibold text-slate-800">{column.label}</p>
+							<span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+								{column.animals.length}
+							</span>
+						</div>
+						<div class="space-y-3">
+							{#if column.animals.length === 0}
+								<p class="text-xs text-slate-400">Drop a pet here</p>
+							{:else}
+								{#each column.animals as animal}
+									<div
+										class="rounded-xl border border-slate-200 bg-slate-50 p-3 shadow-sm transition hover:border-emerald-200"
+										draggable="true"
+										on:dragstart={() => (draggingId = animal.id)}
+									>
+										<div class="flex items-center justify-between gap-2">
+											<p class="text-sm font-semibold text-slate-900">{animal.name}</p>
+											<span
+												class={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+													animal.status === 'available'
+														? 'bg-emerald-100 text-emerald-800'
+														: animal.status === 'hold'
+															? 'bg-amber-100 text-amber-800'
+															: 'bg-slate-200 text-slate-700'
+												}`}
+											>
+												{statusLabels[animal.status] ?? animal.status}
+											</span>
+										</div>
+										<p class="text-xs text-slate-500">
+											Stage: {stageLabels[animal.pipeline_stage] ?? animal.pipeline_stage}
+										</p>
+										{#if animal.tags?.length}
+											<div class="mt-2 flex flex-wrap gap-1">
+												{#each animal.tags.slice(0, 3) as tag}
+													<span class="rounded-full bg-white px-2 py-0.5 text-[11px] text-slate-600">{tag}</span>
+												{/each}
+											</div>
+										{/if}
+										<div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+											<span>{animal.inquiryCount} inquiries</span>
+											<span>•</span>
+											<span>{animal.species}</span>
+										</div>
+										<div class="mt-2 flex flex-wrap gap-2">
+											<a
+												class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+												href={`/admin/animals/${animal.id}`}
+											>
+												Open
+											</a>
+											<a
+												class="rounded-md border border-emerald-600 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
+												href={`/animal/${animal.id}`}
+												target="_blank"
+												rel="noreferrer"
+											>
+												Public
+											</a>
+										</div>
+									</div>
+								{/each}
+							{/if}
+						</div>
+					</div>
+				{/each}
 			</div>
-		</div>
-		<div class="divide-y divide-slate-100">
-			{#each data.animals as animal}
-				<div
-					class="group grid grid-cols-[auto,1fr] items-center gap-2 py-3 px-2 hover:bg-slate-50"
-				>
-					<div class="opacity-0 transition group-hover:opacity-100 sm:opacity-100">
-						<input
-							type="checkbox"
-							class="size-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-							checked={selected.has(animal.id)}
-							on:change={() => toggleSelect(animal.id)}
-						/>
-					</div>
-					<div class="grid grid-cols-[80px,1fr,120px,80px,80px,120px,140px] items-center gap-3">
-						<div class="h-12 w-16 overflow-hidden rounded-md bg-slate-100">
-							{#if animal.thumb}
-								<img src={animal.thumb} alt={animal.name} class="h-full w-full object-cover" loading="lazy" />
-							{:else}
-								<div class="flex h-full items-center justify-center text-[10px] text-slate-400">No photo</div>
-							{/if}
-						</div>
-						<div class="space-y-1">
-							<p class="text-sm font-semibold text-slate-900">{animal.name}</p>
-							{#if animal.isStale}
-								<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">Listed 30d+</span>
-							{/if}
-						</div>
-						<span
-							class={`inline-flex w-fit rounded-full px-2 py-1 text-[11px] font-semibold ${
-								animal.isArchived
-									? 'bg-slate-200 text-slate-700'
-									: animal.status === 'available'
-										? 'bg-emerald-100 text-emerald-700'
-										: animal.status === 'hold'
-											? 'bg-amber-100 text-amber-700'
-											: 'bg-slate-200 text-slate-700'
-							}`}
-						>
-							{animal.isArchived ? 'Archived' : statusLabels[animal.status] ?? animal.status}
-						</span>
-						<span class="text-sm font-semibold text-slate-800">{animal.inquiryCount}</span>
-						<span class="text-sm text-slate-700">{animal.species}</span>
-						<span class="text-sm text-slate-700">{new Date(animal.created_at).toLocaleDateString()}</span>
-						<div class="flex flex-wrap gap-2 text-sm font-semibold">
-							<a
-								class="rounded-md border border-slate-200 px-3 py-1 text-slate-700 hover:bg-slate-50"
-								href={`/animal/${animal.id}`}
-								target="_blank"
-								rel="noreferrer"
-							>
-								View public
-							</a>
-							<a
-								class="rounded-md border border-emerald-600 px-3 py-1 text-emerald-700 hover:bg-emerald-50"
-								href={`/admin/animals/${animal.id}`}
-							>
-								Manage
-							</a>
-							{#if animal.isArchived}
-								<form method="POST" action="?/bulkActivate">
-									<input type="hidden" name="ids" value={animal.id} />
-									<button
-										type="submit"
-										class="rounded-md border border-slate-300 px-3 py-1 text-slate-700 hover:bg-slate-100"
-									>
-										Activate
-									</button>
-								</form>
-							{:else}
-								<form method="POST" action="?/bulkArchive">
-									<input type="hidden" name="ids" value={animal.id} />
-									<button
-										type="submit"
-										class="rounded-md border border-slate-300 px-3 py-1 text-slate-700 hover:bg-slate-100"
-									>
-										Archive
-									</button>
-								</form>
-							{/if}
-						</div>
-					</div>
+		{/if}
+	</section>
+{:else}
+	<section class="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+		{#if data.animals.length === 0}
+			<p class="text-sm text-slate-500">No animals match these filters.</p>
+		{:else}
+			<div class="grid grid-cols-[auto,1fr] items-center gap-2 px-2 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+				<span></span>
+				<div class="grid grid-cols-[80px,1fr,120px,80px,80px,120px,140px] items-center gap-3">
+					<span>Photo</span>
+					<span>Name</span>
+					<span>Status</span>
+					<span>Inquiries</span>
+					<span>Species</span>
+					<span>Listed</span>
+					<span></span>
 				</div>
-			{/each}
-		</div>
-	{/if}
-</section>
+			</div>
+			<div class="divide-y divide-slate-100">
+				{#each data.animals as animal}
+					<div
+						class="group grid grid-cols-[auto,1fr] items-center gap-2 py-3 px-2 hover:bg-slate-50"
+					>
+						<div class="opacity-0 transition group-hover:opacity-100 sm:opacity-100">
+							<input
+								type="checkbox"
+								class="size-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+								checked={selected.has(animal.id)}
+								on:change={() => toggleSelect(animal.id)}
+							/>
+						</div>
+						<div class="grid grid-cols-[80px,1fr,120px,80px,80px,120px,140px] items-center gap-3">
+							<div class="h-12 w-16 overflow-hidden rounded-md bg-slate-100">
+								{#if animal.thumb}
+									<img src={animal.thumb} alt={animal.name} class="h-full w-full object-cover" loading="lazy" />
+								{:else}
+									<div class="flex h-full items-center justify-center text-[10px] text-slate-400">No photo</div>
+								{/if}
+							</div>
+							<div class="space-y-1">
+								<p class="text-sm font-semibold text-slate-900">{animal.name}</p>
+								{#if animal.isStale}
+									<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">Listed 30d+</span>
+								{/if}
+							</div>
+							<div class="space-y-1">
+								<span
+									class={`inline-flex w-fit rounded-full px-2 py-1 text-[11px] font-semibold ${
+										animal.isArchived
+											? 'bg-slate-200 text-slate-700'
+											: animal.status === 'available'
+												? 'bg-emerald-100 text-emerald-700'
+												: animal.status === 'hold'
+													? 'bg-amber-100 text-amber-700'
+													: 'bg-slate-200 text-slate-700'
+									}`}
+								>
+									{animal.isArchived ? 'Archived' : statusLabels[animal.status] ?? animal.status}
+								</span>
+								<p class="text-[11px] text-slate-500">
+									Stage: {stageLabels[animal.pipeline_stage] ?? animal.pipeline_stage}
+								</p>
+							</div>
+							<span class="text-sm font-semibold text-slate-800">{animal.inquiryCount}</span>
+							<span class="text-sm text-slate-700">{animal.species}</span>
+							<span class="text-sm text-slate-700">{new Date(animal.created_at).toLocaleDateString()}</span>
+							<div class="flex flex-wrap gap-2 text-sm font-semibold">
+								<a
+									class="rounded-md border border-slate-200 px-3 py-1 text-slate-700 hover:bg-slate-50"
+									href={`/animal/${animal.id}`}
+									target="_blank"
+									rel="noreferrer"
+								>
+									View public
+								</a>
+								<a
+									class="rounded-md border border-emerald-600 px-3 py-1 text-emerald-700 hover:bg-emerald-50"
+									href={`/admin/animals/${animal.id}`}
+								>
+									Manage
+								</a>
+								{#if animal.isArchived}
+									<form method="POST" action="?/bulkActivate">
+										<input type="hidden" name="ids" value={animal.id} />
+										<button
+											type="submit"
+											class="rounded-md border border-slate-300 px-3 py-1 text-slate-700 hover:bg-slate-100"
+										>
+											Activate
+										</button>
+									</form>
+								{:else}
+									<form method="POST" action="?/bulkArchive">
+										<input type="hidden" name="ids" value={animal.id} />
+										<button
+											type="submit"
+											class="rounded-md border border-slate-300 px-3 py-1 text-slate-700 hover:bg-slate-100"
+										>
+											Archive
+										</button>
+									</form>
+								{/if}
+							</div>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
+	</section>
 
-{#if data.filters.totalPages > 1}
-	<nav class="mt-4 flex items-center gap-2 text-sm text-slate-700">
-		{#if data.filters.page > 1}
-			<a
-				class="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50"
-				href={applyFilters(new URLSearchParams({ ...Object.fromEntries($page.url.searchParams), page: String(data.filters.page - 1) }))}
-			>
-				Previous
-			</a>
-		{/if}
-		<span class="text-xs text-slate-500">
-			Page {data.filters.page} of {data.filters.totalPages}
-		</span>
-		{#if data.filters.page < data.filters.totalPages}
-			<a
-				class="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50"
-				href={applyFilters(new URLSearchParams({ ...Object.fromEntries($page.url.searchParams), page: String(data.filters.page + 1) }))}
-			>
-				Next
-			</a>
-		{/if}
-	</nav>
+	{#if data.filters.totalPages > 1}
+		<nav class="mt-4 flex items-center gap-2 text-sm text-slate-700">
+			{#if data.filters.page > 1}
+				<a
+					class="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50"
+					href={applyFilters(new URLSearchParams({ ...Object.fromEntries($page.url.searchParams), page: String(data.filters.page - 1) }))}
+				>
+					Previous
+				</a>
+			{/if}
+			<span class="text-xs text-slate-500">
+				Page {data.filters.page} of {data.filters.totalPages}
+			</span>
+			{#if data.filters.page < data.filters.totalPages}
+				<a
+					class="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50"
+					href={applyFilters(new URLSearchParams({ ...Object.fromEntries($page.url.searchParams), page: String(data.filters.page + 1) }))}
+				>
+					Next
+				</a>
+			{/if}
+		</nav>
+	{/if}
 {/if}

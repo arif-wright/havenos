@@ -25,6 +25,13 @@ create table if not exists rescues (
     header_image_url text,
     response_time_enum text,
     adoption_steps jsonb,
+    application_required boolean not null default false,
+    home_visit boolean not null default false,
+    fenced_yard_required boolean not null default false,
+    cats_ok boolean not null default false,
+    dogs_ok boolean not null default false,
+    kids_ok boolean not null default false,
+    adoption_fee_range text,
     is_public boolean not null default true,
     verification_status text not null default 'unverified' check (verification_status in ('unverified','verified','verified_501c3')),
     verification_submitted_at timestamptz,
@@ -70,7 +77,14 @@ create table if not exists animals (
     age text,
     sex text,
     description text,
+    personality_traits text[] not null default '{}',
+    energy_level text,
+    good_with text[] not null default '{}',
+    training text,
+    medical_needs text,
+    ideal_home text,
     status text not null default 'available' check (status in ('available', 'hold', 'adopted')),
+    pipeline_stage text not null default 'available' check (pipeline_stage in ('intake','foster','available','hold','adopted')),
     tags text[] not null default '{}',
     is_active boolean not null default true,
     created_at timestamptz not null default timezone('utc', now()),
@@ -85,6 +99,17 @@ create table if not exists animal_photos (
     unique (animal_id, sort_order)
 );
 
+create table if not exists animal_stage_events (
+    id uuid primary key default gen_random_uuid(),
+    animal_id uuid not null references animals(id) on delete cascade,
+    from_stage text,
+    to_stage text not null,
+    changed_by uuid references auth.users(id) on delete set null,
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_animal_stage_events_animal on animal_stage_events(animal_id, created_at desc);
+
 create table if not exists inquiries (
     id uuid primary key default gen_random_uuid(),
     animal_id uuid not null references animals(id) on delete restrict,
@@ -93,11 +118,14 @@ create table if not exists inquiries (
     adopter_email text not null,
     message text,
     status text not null default 'new' check (status in ('new', 'contacted', 'meet_greet', 'application', 'approved', 'adopted', 'closed')),
+    assigned_to uuid references auth.users(id),
     first_responded_at timestamptz,
     archived boolean not null default false,
     archived_at timestamptz,
     archived_by uuid references auth.users(id) on delete set null,
-    created_at timestamptz not null default timezone('utc', now())
+    public_token text not null default encode(gen_random_bytes(12), 'hex'),
+    created_at timestamptz not null default timezone('utc', now()),
+    updated_at timestamptz not null default timezone('utc', now())
 );
 
 create or replace function handle_updated_at() returns trigger as $$
@@ -135,6 +163,9 @@ begin
         raise exception 'Animal not found for inquiry';
     end if;
     new.rescue_id = animal_record.rescue_id;
+    if new.public_token is null then
+        new.public_token = encode(gen_random_bytes(12), 'hex');
+    end if;
     return new;
 end;
 $$ language plpgsql;
@@ -144,6 +175,12 @@ create trigger inquiries_set_rescue_id
 before insert on inquiries
 for each row
 execute procedure set_inquiry_rescue_id();
+
+drop trigger if exists inquiries_set_updated_at on inquiries;
+create trigger inquiries_set_updated_at
+before update on inquiries
+for each row
+execute procedure handle_updated_at();
 
 -- Guard verification state changes to trusted actors only
 create or replace function guard_verification_fields() returns trigger as $$
@@ -191,10 +228,13 @@ execute procedure guard_billing_fields();
 
 create index if not exists idx_animals_rescue_id on animals(rescue_id);
 create index if not exists idx_animals_status_active on animals(status, is_active);
+create index if not exists idx_animals_pipeline_stage on animals(rescue_id, pipeline_stage, status);
 create index if not exists idx_photos_animal on animal_photos(animal_id, sort_order);
 create index if not exists idx_inquiries_rescue on inquiries(rescue_id, created_at desc);
 create index if not exists idx_inquiries_archived on inquiries(rescue_id, archived_at desc);
 create index if not exists idx_inquiries_animal on inquiries(animal_id, created_at desc);
+create index if not exists idx_inquiries_public_token on inquiries(public_token);
+create index if not exists idx_inquiries_assigned on inquiries(rescue_id, assigned_to, status);
 create index if not exists idx_rescue_members_user on rescue_members(user_id);
 create index if not exists idx_rescue_members_rescue on rescue_members(rescue_id);
 
@@ -214,11 +254,28 @@ create table if not exists inquiry_notes (
     id uuid primary key default gen_random_uuid(),
     inquiry_id uuid not null references inquiries(id) on delete cascade,
     user_id uuid not null references auth.users(id) on delete cascade,
+    author_user_id uuid not null references auth.users(id) on delete cascade,
     body text not null,
     created_at timestamptz not null default timezone('utc', now())
 );
 
 create index if not exists idx_inquiry_notes_inquiry on inquiry_notes(inquiry_id, created_at desc);
+
+-- Inquiry events for timeline (status/assignment/notes)
+create table if not exists inquiry_events (
+    id uuid primary key default gen_random_uuid(),
+    inquiry_id uuid not null references inquiries(id) on delete cascade,
+    event_type text not null check (event_type in ('status_change','assignment_change','note','system')),
+    from_status text,
+    to_status text,
+    from_assigned_to uuid references auth.users(id),
+    to_assigned_to uuid references auth.users(id),
+    note_body text,
+    created_by uuid references auth.users(id),
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_inquiry_events_inquiry on inquiry_events(inquiry_id, created_at desc);
 
 -- Phase 4: invitations and saved reply templates
 create table if not exists rescue_invitations (
@@ -382,6 +439,62 @@ create table if not exists support_payments (
     created_at timestamptz not null default timezone('utc', now())
 );
 
+-- Shortlists for shared saved items
+create table if not exists shortlists (
+    id uuid primary key default gen_random_uuid(),
+    token text not null unique,
+    animal_ids uuid[] not null default '{}',
+    rescue_ids uuid[] not null default '{}',
+    payload jsonb,
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_shortlists_created on shortlists(created_at desc);
+
+-- Saved search alerts (beta)
+create table if not exists saved_search_alerts (
+    id uuid primary key default gen_random_uuid(),
+    kind text not null check (kind in ('rescue_directory','rescue_animals')),
+    rescue_id uuid references rescues(id) on delete cascade,
+    email text not null,
+    frequency text not null check (frequency in ('daily','weekly')),
+    query_params jsonb not null,
+    last_notified_at timestamptz,
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists idx_saved_search_alerts_kind on saved_search_alerts(kind, created_at desc);
+create index if not exists idx_saved_search_alerts_rescue on saved_search_alerts(rescue_id);
+
+alter table if exists shortlists enable row level security;
+alter table if exists saved_search_alerts enable row level security;
+
+drop policy if exists "Shortlists public insert" on shortlists;
+create policy "Shortlists public insert" on shortlists
+    for insert with check (auth.role() in ('anon','authenticated','service_role'));
+
+drop policy if exists "Shortlists service read" on shortlists;
+create policy "Shortlists service read" on shortlists
+    for select using (auth.role() = 'service_role');
+
+drop policy if exists "Shortlists service manage" on shortlists;
+create policy "Shortlists service manage" on shortlists
+    for update using (auth.role() = 'service_role')
+    with check (auth.role() = 'service_role');
+
+drop policy if exists "Saved search public insert" on saved_search_alerts;
+create policy "Saved search public insert" on saved_search_alerts
+    for insert with check (auth.role() in ('anon','authenticated','service_role'));
+
+drop policy if exists "Saved search service read" on saved_search_alerts;
+create policy "Saved search service read" on saved_search_alerts
+    for select using (auth.role() = 'service_role');
+
+drop policy if exists "Saved search service manage" on saved_search_alerts;
+create policy "Saved search service manage" on saved_search_alerts
+    for update using (auth.role() = 'service_role')
+    with check (auth.role() = 'service_role');
+
 -- Verification bookkeeping and public badge definitions
 create or replace function mark_rescue_verification_submitted() returns trigger as $$
 begin
@@ -470,7 +583,14 @@ select
     disabled,
     is_public,
     created_at,
-    updated_at
+    updated_at,
+    application_required,
+    home_visit,
+    fenced_yard_required,
+    cats_ok,
+    dogs_ok,
+    kids_ok,
+    adoption_fee_range
 from rescues;
 
 drop policy if exists "public rescues readable" on rescues;

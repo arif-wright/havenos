@@ -32,6 +32,11 @@
 			You’re up to date — nothing urgent right now.
 		{/if}
 	</p>
+	{#if data.needsListingRefresh}
+		<p class="mt-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-800">
+			Listings look quiet. Last public update was {new Date(data.lastUpdatedAt).toLocaleDateString()}. A quick refresh can reassure adopters.
+		</p>
+	{/if}
 </section>
 
 <section class="mt-6 space-y-4">

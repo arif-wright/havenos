@@ -1,10 +1,11 @@
 <script lang="ts">
-	import AmbientPage from '$lib/components/AmbientPage.svelte';
-	import type { ActionData, PageData } from './$types';
-	import { onMount } from 'svelte';
+import AmbientPage from '$lib/components/AmbientPage.svelte';
+import type { ActionData, PageData } from './$types';
+import { onMount } from 'svelte';
+import { favorites, isFavorite, toggleFavorite } from '$lib/utils/favorites';
 
-	export let data: PageData;
-	export let form: ActionData;
+export let data: PageData;
+export let form: ActionData;
 
 	const statusLabels: Record<string, string> = {
 		available: 'Available',
@@ -31,6 +32,11 @@
 
 	let showReport = false;
 	let reportAnimalId: string | null = null;
+	let alertEmail = '';
+	let alertFrequency: 'daily' | 'weekly' = 'weekly';
+	let alertMessage = '';
+	let alertError = '';
+	let alertSubmitting = false;
 
 	onMount(() => {
 		if (form?.success) {
@@ -58,6 +64,43 @@
 		if (status === 'verified') return { key: status, ...badgeCopy.verified };
 		return null;
 	})();
+
+	$: savedRescue = isFavorite($favorites, 'rescue', data.rescue.id ?? '');
+
+	const handleSaveSearch = async () => {
+		alertSubmitting = true;
+		alertMessage = '';
+		alertError = '';
+		try {
+			const response = await fetch('/api/saved-search', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					kind: 'rescue_animals',
+					rescueId: data.rescue.id,
+					email: alertEmail,
+					frequency: alertFrequency,
+					query: {
+						species: data.filters.species,
+						status: data.filters.status,
+						rescue_slug: data.rescue.slug
+					}
+				})
+			});
+			const result = await response.json();
+			if (!response.ok || result.error) {
+				alertError = result.error ?? 'Unable to save alert right now.';
+			} else {
+				alertMessage = 'Search saved. We will email you when new pets match.';
+				alertEmail = '';
+			}
+		} catch (error) {
+			console.error(error);
+			alertError = 'Unable to save alert.';
+		} finally {
+			alertSubmitting = false;
+		}
+	};
 </script>
 
 <AmbientPage
@@ -90,7 +133,7 @@
 							/>
 						{:else}
 							<div class="flex h-full items-center justify-center text-xl font-semibold text-emerald-700">
-								{data.rescue.name.slice(0, 2).toUpperCase()}
+								{(data.rescue.name ?? 'R').slice(0, 2).toUpperCase()}
 							</div>
 						{/if}
 					</div>
@@ -109,12 +152,31 @@
 						{#if data.rescue.location_text}
 							<p class="text-sm text-slate-600">Based in {data.rescue.location_text}</p>
 						{/if}
-						{#if data.rescue.response_time || data.rescue.response_time_enum}
-							<p class="text-xs text-slate-500">
-								Response time: {responseLabels[data.rescue.response_time_enum] ?? data.rescue.response_time ?? data.rescue.response_time_text}
-							</p>
-						{/if}
+						<div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+							{#if data.rescue.response_time || data.rescue.response_time_enum}
+								<span class="rounded-full bg-slate-100 px-2 py-1 font-semibold text-slate-700 ring-1 ring-slate-200">
+									Typical response: {responseLabels[data.rescue.response_time_enum ?? ''] ?? data.rescue.response_time ?? data.rescue.response_time_text}
+								</span>
+							{/if}
+							<span class="rounded-full bg-slate-100 px-2 py-1 font-semibold text-slate-700 ring-1 ring-slate-200">
+								Last updated {new Date(data.lastUpdatedAt).toLocaleDateString()}
+							</span>
+						</div>
 						<div class="flex flex-wrap gap-2 text-xs font-semibold text-slate-700">
+							<button
+								type="button"
+								class={`rounded-full border px-3 py-1 transition ${
+									savedRescue
+										? 'border-rose-200 bg-rose-50 text-rose-700'
+										: 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50'
+								}`}
+								on:click={() => {
+									if (!data.rescue.id) return;
+									toggleFavorite('rescue', data.rescue.id);
+								}}
+							>
+								❤ {savedRescue ? 'Saved' : 'Save rescue'}
+							</button>
 							{#if data.rescue.website_url}
 								<a class="rounded-full border border-slate-200 px-3 py-1 hover:bg-slate-100" href={data.rescue.website_url} target="_blank" rel="noreferrer">Website</a>
 							{/if}
@@ -146,15 +208,15 @@
 					<p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">Trust &amp; safety</p>
 					{#if badge}
 						<p class="mt-1 text-base font-semibold">{badge.label}</p>
-						<p class="mt-1 text-emerald-800">{badge.description}</p>
+						<p class="mt-1 text-emerald-800">{badge.description} This is a neutral identity signal, not a government endorsement.</p>
 						<p class="mt-2 text-xs text-emerald-800">
-							Verified by RescueOS. <a class="underline" href="/trust-safety">See badge meaning</a>.
+							Verified by RescueOS. <a class="underline" href="/trust-safety">See how reporting and moderation work</a>.
 						</p>
 					{:else}
 						<p class="mt-1 font-semibold text-emerald-900">Not yet verified</p>
 						<p class="text-emerald-800">This rescue is active on RescueOS; verification is pending or in progress.</p>
 						<p class="mt-2 text-xs text-emerald-800">
-							Reports go to the moderation queue. <a class="underline" href="/trust-safety">Learn more</a>.
+							Reports go to the moderation queue with audit trails. <a class="underline" href="/trust-safety">Learn more</a>.
 						</p>
 					{/if}
 				</div>
@@ -177,23 +239,56 @@
 				</div>
 				<div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-slate-800 shadow-lg space-y-3">
 					<h2 class="text-lg font-semibold text-slate-900">How adoption works</h2>
-					{#if adoptionSteps?.length}
-						<ol class="space-y-2 text-sm text-slate-700 list-decimal list-inside">
-							{#each adoptionSteps as step}
-								<li>{step}</li>
-							{/each}
-						</ol>
-					{:else}
-						<p class="text-sm text-slate-600">Adoption steps will be shared during your conversation.</p>
-					{/if}
-					{#if data.rescue.response_time_enum || data.rescue.response_time}
-						<p class="text-xs text-slate-600">
-							Typical response: {responseLabels[data.rescue.response_time_enum] ?? data.rescue.response_time ?? data.rescue.response_time_text}
-						</p>
-					{/if}
-					{#if data.rescue.adoption_process}
-						<p class="text-sm whitespace-pre-line text-slate-700">{data.rescue.adoption_process}</p>
-					{/if}
+					<div class="grid gap-3 md:grid-cols-2">
+						<div class="space-y-2 rounded-xl bg-white p-4 ring-1 ring-slate-200">
+							<p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-600">Checklist</p>
+							<ul class="space-y-2 text-sm text-slate-700">
+								{#each [
+									{ label: 'Application required', value: data.rescue.application_required },
+									{ label: 'Home visit', value: data.rescue.home_visit },
+									{ label: 'Fenced yard required', value: data.rescue.fenced_yard_required },
+									{ label: 'Cats welcome', value: data.rescue.cats_ok },
+									{ label: 'Dogs welcome', value: data.rescue.dogs_ok },
+									{ label: 'Kids welcome', value: data.rescue.kids_ok }
+								] as item}
+									<li class="flex items-center gap-2">
+										<span
+											class={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
+												item.value
+													? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200'
+													: 'bg-slate-100 text-slate-500 ring-1 ring-slate-200'
+											}`}
+											aria-hidden="true"
+										>
+											{item.value ? '✔' : '–'}
+										</span>
+										<span>{item.label}</span>
+									</li>
+								{/each}
+								{#if data.rescue.adoption_fee_range}
+									<li class="flex items-center gap-2">
+										<span class="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200">Fee</span>
+										<span>{data.rescue.adoption_fee_range}</span>
+									</li>
+								{/if}
+							</ul>
+						</div>
+						<div class="space-y-3 rounded-xl bg-white p-4 ring-1 ring-slate-200">
+							<p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-600">Steps</p>
+							{#if adoptionSteps?.length}
+								<ol class="space-y-2 text-sm text-slate-700 list-decimal list-inside">
+									{#each adoptionSteps as step}
+										<li>{step}</li>
+									{/each}
+								</ol>
+							{:else}
+								<p class="text-sm text-slate-600">Adoption steps will be shared during your conversation.</p>
+							{/if}
+							{#if data.rescue.adoption_process}
+								<p class="text-sm whitespace-pre-line text-slate-700">{data.rescue.adoption_process}</p>
+							{/if}
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -249,16 +344,57 @@
 				</div>
 			</form>
 		</div>
-
-		<div class="mt-6">
-			{#if data.animals.length === 0}
-				<div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-800">
-					<p class="text-lg font-medium">No animals match those filters yet.</p>
-					<p class="mt-2 text-sm text-slate-600">
-						Check back soon or reach out directly to {data.rescue.contact_email}.
+		<div class="mt-4 rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm ring-1 ring-slate-100">
+			<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+				<div>
+					<p class="text-sm font-semibold text-slate-900 flex items-center gap-2">
+						Save this search
+						<span class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-800 ring-1 ring-amber-200">Beta</span>
+					</p>
+					<p class="text-xs text-slate-600">
+						Get an email when {data.rescue.name} posts new pets that match these filters.
 					</p>
 				</div>
-			{:else}
+				<form class="grid gap-2 md:grid-cols-[1fr,auto,auto]" on:submit|preventDefault={handleSaveSearch}>
+					<input
+						type="email"
+						placeholder="you@example.com"
+						class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+						required
+						bind:value={alertEmail}
+					/>
+					<select
+						class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+						bind:value={alertFrequency}
+					>
+						<option value="daily">Daily</option>
+						<option value="weekly">Weekly</option>
+					</select>
+					<button
+						type="submit"
+						class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-emerald-500 disabled:opacity-50"
+						disabled={alertSubmitting}
+					>
+						{alertSubmitting ? 'Saving...' : 'Save search'}
+					</button>
+				</form>
+			</div>
+			{#if alertMessage}
+				<p class="mt-2 text-xs font-semibold text-emerald-700">{alertMessage}</p>
+			{:else if alertError}
+				<p class="mt-2 text-xs font-semibold text-rose-700">{alertError}</p>
+			{/if}
+		</div>
+
+		<div class="mt-6">
+					{#if data.animals.length === 0}
+						<div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-800">
+							<p class="text-lg font-medium">No animals match those filters yet.</p>
+							<p class="mt-2 text-sm text-slate-600">
+								Check back soon or reach out directly to the rescue team.
+							</p>
+						</div>
+					{:else}
 				<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 					{#each data.animals as animal}
 						<div class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl">
@@ -296,18 +432,35 @@
 										{/each}
 									</div>
 								{/if}
-								<button
-									type="button"
-									class="relative w-fit text-xs font-semibold text-rose-700 hover:text-rose-600"
-									on:click={(e) => {
-										e.stopPropagation();
-										e.preventDefault();
-										reportAnimalId = animal.id;
-										showReport = true;
-									}}
-								>
-									Report
-								</button>
+								<div class="mt-auto flex items-center justify-between gap-3">
+									<button
+										type="button"
+										class={`relative rounded-full border px-3 py-1 text-xs font-semibold transition ${
+											isFavorite($favorites, 'animal', animal.id)
+												? 'border-rose-200 bg-rose-50 text-rose-700'
+												: 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50'
+										}`}
+										on:click={(e) => {
+											e.stopPropagation();
+											e.preventDefault();
+											toggleFavorite('animal', animal.id);
+										}}
+									>
+										❤ {isFavorite($favorites, 'animal', animal.id) ? 'Saved' : 'Save'}
+									</button>
+									<button
+										type="button"
+										class="relative w-fit text-xs font-semibold text-rose-700 hover:text-rose-600"
+										on:click={(e) => {
+											e.stopPropagation();
+											e.preventDefault();
+											reportAnimalId = animal.id;
+											showReport = true;
+										}}
+									>
+										Report
+									</button>
+								</div>
 							</div>
 						</div>
 					{/each}

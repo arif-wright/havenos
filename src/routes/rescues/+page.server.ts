@@ -75,7 +75,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	let rescuesWithCounts =
 		rescues?.map((r) => ({
 			...r,
-			adoptable_count: adoptableCounts[r.id] ?? 0
+			adoptable_count: adoptableCounts[r.id ?? ''] ?? 0
 		})) ?? [];
 
 	if (sort === 'adoptable') {

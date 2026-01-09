@@ -268,6 +268,35 @@
 						{/each}
 					</select>
 				</label>
+				<div class="grid gap-3 md:grid-cols-2">
+					<div class="space-y-2 rounded-xl border border-slate-200 bg-white/70 p-3">
+						<p class="text-xs font-semibold uppercase tracking-wide text-slate-600">Checklist</p>
+						<div class="grid gap-2 sm:grid-cols-2">
+							{#each [
+								{ name: 'application_required', label: 'Application required', value: rescue.application_required },
+								{ name: 'home_visit', label: 'Home visit', value: rescue.home_visit },
+								{ name: 'fenced_yard_required', label: 'Fenced yard required', value: rescue.fenced_yard_required },
+								{ name: 'cats_ok', label: 'Cats welcome', value: rescue.cats_ok },
+								{ name: 'dogs_ok', label: 'Dogs welcome', value: rescue.dogs_ok },
+								{ name: 'kids_ok', label: 'Kids welcome', value: rescue.kids_ok }
+							] as item}
+								<label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+									<input type="checkbox" name={item.name} checked={item.value} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+									{item.label}
+								</label>
+							{/each}
+						</div>
+					</div>
+					<label class="block text-sm font-medium text-slate-700">
+						Adoption fee range (optional)
+						<input
+							name="adoption_fee_range"
+							value={rescue.adoption_fee_range ?? ''}
+							class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+							placeholder="$100–$300 or sliding scale"
+						/>
+					</label>
+				</div>
 				<div class="space-y-3">
 					<div class="flex items-center justify-between">
 						<p class="text-sm font-medium text-slate-700">Adoption steps</p>

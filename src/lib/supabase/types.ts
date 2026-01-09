@@ -33,6 +33,13 @@ export type Database = {
 					header_image_url: string | null;
 					response_time_enum: string | null;
 					adoption_steps: Json | null;
+					application_required: boolean;
+					home_visit: boolean;
+					fenced_yard_required: boolean;
+					cats_ok: boolean;
+					dogs_ok: boolean;
+					kids_ok: boolean;
+					adoption_fee_range: string | null;
 					is_public: boolean;
 					verification_status: 'unverified' | 'verified' | 'verified_501c3';
 					verification_submitted_at: string | null;
@@ -70,6 +77,13 @@ export type Database = {
 					header_image_url?: string | null;
 					response_time_enum?: string | null;
 					adoption_steps?: Json | null;
+					application_required?: boolean;
+					home_visit?: boolean;
+					fenced_yard_required?: boolean;
+					cats_ok?: boolean;
+					dogs_ok?: boolean;
+					kids_ok?: boolean;
+					adoption_fee_range?: string | null;
 					is_public?: boolean;
 					verification_status?: 'unverified' | 'verified' | 'verified_501c3';
 					verification_submitted_at?: string | null;
@@ -107,6 +121,13 @@ export type Database = {
 					header_image_url?: string | null;
 					response_time_enum?: string | null;
 					adoption_steps?: Json | null;
+					application_required?: boolean;
+					home_visit?: boolean;
+					fenced_yard_required?: boolean;
+					cats_ok?: boolean;
+					dogs_ok?: boolean;
+					kids_ok?: boolean;
+					adoption_fee_range?: string | null;
 					is_public?: boolean;
 					verification_status?: 'unverified' | 'verified' | 'verified_501c3';
 					verification_submitted_at?: string | null;
@@ -191,46 +212,67 @@ export type Database = {
 					rescue_id: string;
 					name: string;
 					species: string;
-					breed: string | null;
-					age: string | null;
-					sex: string | null;
-					description: string | null;
-					status: 'available' | 'hold' | 'adopted';
-					tags: string[];
-					is_active: boolean;
-					created_at: string;
-					updated_at: string;
-				};
+                                        breed: string | null;
+                                        age: string | null;
+                                        sex: string | null;
+                                        description: string | null;
+                                        personality_traits: string[];
+                                        energy_level: string | null;
+                                        good_with: string[];
+                                        training: string | null;
+                                        medical_needs: string | null;
+                                        ideal_home: string | null;
+                                        status: 'available' | 'hold' | 'adopted';
+                                        pipeline_stage: 'intake' | 'foster' | 'available' | 'hold' | 'adopted';
+                                        tags: string[];
+                                        is_active: boolean;
+                                        created_at: string;
+                                        updated_at: string;
+                                };
 				Insert: {
 					id?: string;
 					rescue_id: string;
 					name: string;
 					species: string;
-					breed?: string | null;
-					age?: string | null;
-					sex?: string | null;
-					description?: string | null;
-					status?: 'available' | 'hold' | 'adopted';
-					tags?: string[];
-					is_active?: boolean;
-					created_at?: string;
-					updated_at?: string;
-				};
+                                        breed?: string | null;
+                                        age?: string | null;
+                                        sex?: string | null;
+                                        description?: string | null;
+                                        personality_traits?: string[];
+                                        energy_level?: string | null;
+                                        good_with?: string[];
+                                        training?: string | null;
+                                        medical_needs?: string | null;
+                                        ideal_home?: string | null;
+                                        status?: 'available' | 'hold' | 'adopted';
+                                        pipeline_stage?: 'intake' | 'foster' | 'available' | 'hold' | 'adopted';
+                                        tags?: string[];
+                                        is_active?: boolean;
+                                        created_at?: string;
+                                        updated_at?: string;
+                                };
 				Update: {
 					id?: string;
 					rescue_id?: string;
 					name?: string;
 					species?: string;
-					breed?: string | null;
-					age?: string | null;
-					sex?: string | null;
-					description?: string | null;
-					status?: 'available' | 'hold' | 'adopted';
-					tags?: string[];
-					is_active?: boolean;
-					created_at?: string;
-					updated_at?: string;
-				};
+                                        breed?: string | null;
+                                        age?: string | null;
+                                        sex?: string | null;
+                                        description?: string | null;
+                                        personality_traits?: string[];
+                                        energy_level?: string | null;
+                                        good_with?: string[];
+                                        training?: string | null;
+                                        medical_needs?: string | null;
+                                        ideal_home?: string | null;
+                                        status?: 'available' | 'hold' | 'adopted';
+                                        pipeline_stage?: 'intake' | 'foster' | 'available' | 'hold' | 'adopted';
+                                        tags?: string[];
+                                        is_active?: boolean;
+                                        created_at?: string;
+                                        updated_at?: string;
+                                };
 				Relationships: [
 					{
 						foreignKeyName: 'animals_rescue_id_fkey';
@@ -259,29 +301,66 @@ export type Database = {
 					image_url?: string;
 					sort_order?: number;
 				};
-				Relationships: [
-					{
-						foreignKeyName: 'animal_photos_animal_id_fkey';
-						columns: ['animal_id'];
-						referencedRelation: 'animals';
-						referencedColumns: ['id'];
-					}
-				];
-			};
-			inquiries: {
-				Row: {
-					id: string;
-					animal_id: string;
-					rescue_id: string;
+                                Relationships: [
+                                        {
+                                                foreignKeyName: 'animal_photos_animal_id_fkey';
+                                                columns: ['animal_id'];
+                                                referencedRelation: 'animals';
+                                                referencedColumns: ['id'];
+                                        }
+                                ];
+                        };
+                        animal_stage_events: {
+                                Row: {
+                                        id: string;
+                                        animal_id: string;
+                                        from_stage: string | null;
+                                        to_stage: string;
+                                        changed_by: string | null;
+                                        created_at: string;
+                                };
+                                Insert: {
+                                        id?: string;
+                                        animal_id: string;
+                                        from_stage?: string | null;
+                                        to_stage: string;
+                                        changed_by?: string | null;
+                                        created_at?: string;
+                                };
+                                Update: {
+                                        id?: string;
+                                        animal_id?: string;
+                                        from_stage?: string | null;
+                                        to_stage?: string;
+                                        changed_by?: string | null;
+                                        created_at?: string;
+                                };
+                                Relationships: [
+                                        {
+                                                foreignKeyName: 'animal_stage_events_animal_id_fkey';
+                                                columns: ['animal_id'];
+                                                referencedRelation: 'animals';
+                                                referencedColumns: ['id'];
+                                        }
+                                ];
+                        };
+                        inquiries: {
+                                Row: {
+                                        id: string;
+                                        animal_id: string;
+                                        rescue_id: string;
 					adopter_name: string;
 					adopter_email: string;
 					message: string | null;
 					status: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
+					assigned_to: string | null;
 					first_responded_at: string | null;
 					archived: boolean;
 					archived_at: string | null;
 					archived_by: string | null;
 					created_at: string;
+					public_token: string;
+					updated_at: string;
 				};
 				Insert: {
 					id?: string;
@@ -291,11 +370,14 @@ export type Database = {
 					adopter_email: string;
 					message?: string | null;
 					status?: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
+					assigned_to?: string | null;
 					first_responded_at?: string | null;
 					archived?: boolean;
 					archived_at?: string | null;
 					archived_by?: string | null;
 					created_at?: string;
+					public_token?: string;
+					updated_at?: string;
 				};
 				Update: {
 					id?: string;
@@ -305,11 +387,14 @@ export type Database = {
 					adopter_email?: string;
 					message?: string | null;
 					status?: 'new' | 'contacted' | 'meet_greet' | 'application' | 'approved' | 'adopted' | 'closed';
+					assigned_to?: string | null;
 					first_responded_at?: string | null;
 					archived?: boolean;
 					archived_at?: string | null;
 					archived_by?: string | null;
 					created_at?: string;
+					public_token?: string;
+					updated_at?: string;
 				};
 				Relationships: [
 					{
@@ -365,6 +450,7 @@ export type Database = {
 					id: string;
 					inquiry_id: string;
 					user_id: string;
+					author_user_id: string;
 					body: string;
 					created_at: string;
 				};
@@ -372,6 +458,7 @@ export type Database = {
 					id?: string;
 					inquiry_id: string;
 					user_id: string;
+					author_user_id: string;
 					body: string;
 					created_at?: string;
 				};
@@ -379,6 +466,7 @@ export type Database = {
 					id?: string;
 					inquiry_id?: string;
 					user_id?: string;
+					author_user_id?: string;
 					body?: string;
 					created_at?: string;
 				};
@@ -598,6 +686,119 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			inquiry_events: {
+				Row: {
+					id: string;
+					inquiry_id: string;
+					event_type: 'status_change' | 'assignment_change' | 'note' | 'system';
+					from_status: string | null;
+					to_status: string | null;
+					from_assigned_to: string | null;
+					to_assigned_to: string | null;
+					note_body: string | null;
+					created_by: string | null;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					inquiry_id: string;
+					event_type: 'status_change' | 'assignment_change' | 'note' | 'system';
+					from_status?: string | null;
+					to_status?: string | null;
+					from_assigned_to?: string | null;
+					to_assigned_to?: string | null;
+					note_body?: string | null;
+					created_by?: string | null;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					inquiry_id?: string;
+					event_type?: 'status_change' | 'assignment_change' | 'note' | 'system';
+					from_status?: string | null;
+					to_status?: string | null;
+					from_assigned_to?: string | null;
+					to_assigned_to?: string | null;
+					note_body?: string | null;
+					created_by?: string | null;
+					created_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'inquiry_events_inquiry_id_fkey';
+						columns: ['inquiry_id'];
+						referencedRelation: 'inquiries';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			shortlists: {
+				Row: {
+					id: string;
+					token: string;
+					animal_ids: string[];
+					rescue_ids: string[];
+					payload: Json | null;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					token: string;
+					animal_ids?: string[];
+					rescue_ids?: string[];
+					payload?: Json | null;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					token?: string;
+					animal_ids?: string[];
+					rescue_ids?: string[];
+					payload?: Json | null;
+					created_at?: string;
+				};
+				Relationships: [];
+			};
+			saved_search_alerts: {
+				Row: {
+					id: string;
+					kind: 'rescue_directory' | 'rescue_animals';
+					rescue_id: string | null;
+					email: string;
+					frequency: 'daily' | 'weekly';
+					query_params: Json;
+					last_notified_at: string | null;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					kind: 'rescue_directory' | 'rescue_animals';
+					rescue_id?: string | null;
+					email: string;
+					frequency: 'daily' | 'weekly';
+					query_params: Json;
+					last_notified_at?: string | null;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					kind?: 'rescue_directory' | 'rescue_animals';
+					rescue_id?: string | null;
+					email?: string;
+					frequency?: 'daily' | 'weekly';
+					query_params?: Json;
+					last_notified_at?: string | null;
+					created_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'saved_search_alerts_rescue_id_fkey';
+						columns: ['rescue_id'];
+						referencedRelation: 'rescues';
+						referencedColumns: ['id'];
+					}
+				];
+			};
 			rescue_invitations: {
 				Row: {
 					id: string;
@@ -766,6 +967,13 @@ export type Database = {
 					is_public: boolean | null;
 					created_at: string | null;
 					updated_at: string | null;
+					application_required: boolean | null;
+					home_visit: boolean | null;
+					fenced_yard_required: boolean | null;
+					cats_ok: boolean | null;
+					dogs_ok: boolean | null;
+					kids_ok: boolean | null;
+					adoption_fee_range: string | null;
 				};
 				Relationships: [];
 			};

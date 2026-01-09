@@ -6,6 +6,7 @@ alter table rescue_admins enable row level security;
 alter table rescue_members enable row level security;
 alter table animals enable row level security;
 alter table animal_photos enable row level security;
+alter table animal_stage_events enable row level security;
 alter table inquiries enable row level security;
 alter table inquiry_status_history enable row level security;
 alter table inquiry_notes enable row level security;
@@ -17,6 +18,9 @@ alter table verification_audit_log enable row level security;
 alter table abuse_reports enable row level security;
 alter table partner_leads enable row level security;
 alter table support_payments enable row level security;
+alter table shortlists enable row level security;
+alter table saved_search_alerts enable row level security;
+alter table inquiry_events enable row level security;
 alter table moderation_actions enable row level security;
 
 -- rescues
@@ -122,6 +126,32 @@ create policy "Admins manage their animals" on animals
         )
     );
 
+-- animal_stage_events
+drop policy if exists "Members read animal_stage_events" on animal_stage_events;
+create policy "Members read animal_stage_events" on animal_stage_events
+    for select using (
+        exists (
+            select 1 from animals
+            join rescue_members rm on rm.rescue_id = animals.rescue_id
+            where animals.id = animal_stage_events.animal_id
+              and rm.user_id = auth.uid()
+        )
+        or auth.role() = 'service_role'
+    );
+
+drop policy if exists "Admins log animal_stage_events" on animal_stage_events;
+create policy "Admins log animal_stage_events" on animal_stage_events
+    for insert with check (
+        exists (
+            select 1 from animals
+            join rescue_members rm on rm.rescue_id = animals.rescue_id
+            where animals.id = animal_stage_events.animal_id
+              and rm.user_id = auth.uid()
+              and rm.role in ('owner','admin')
+        )
+        or auth.role() = 'service_role'
+    );
+
 -- animal photos
 drop policy if exists "Public photo read" on animal_photos;
 create policy "Public photo read" on animal_photos
@@ -196,6 +226,29 @@ create policy "Admins update their inquiries" on inquiries
               and rm.user_id = auth.uid()
               and rm.role in ('owner','admin')
         )
+    );
+
+-- inquiry_events
+drop policy if exists "Inquiry events rescue read" on inquiry_events;
+create policy "Inquiry events rescue read" on inquiry_events
+    for select using (
+        exists (
+            select 1 from inquiries i
+            where i.id = inquiry_events.inquiry_id
+              and i.rescue_id in (select rescue_id from rescue_members where user_id = auth.uid())
+        )
+        or auth.role() = 'service_role'
+    );
+
+drop policy if exists "Inquiry events insert rescue" on inquiry_events;
+create policy "Inquiry events insert rescue" on inquiry_events
+    for insert with check (
+        exists (
+            select 1 from inquiries i
+            where i.id = inquiry_events.inquiry_id
+              and i.rescue_id in (select rescue_id from rescue_members where user_id = auth.uid())
+        )
+        or auth.role() = 'service_role'
     );
 
 -- inquiry_status_history
@@ -401,6 +454,34 @@ create policy "Support payments public insert" on support_payments
 drop policy if exists "Support payments admin read" on support_payments;
 create policy "Support payments admin read" on support_payments
     for select using (auth.role() = 'service_role');
+
+-- shortlists
+drop policy if exists "Shortlists public insert" on shortlists;
+create policy "Shortlists public insert" on shortlists
+    for insert with check (auth.role() in ('anon','authenticated','service_role'));
+
+drop policy if exists "Shortlists service read" on shortlists;
+create policy "Shortlists service read" on shortlists
+    for select using (auth.role() = 'service_role');
+
+drop policy if exists "Shortlists service manage" on shortlists;
+create policy "Shortlists service manage" on shortlists
+    for update using (auth.role() = 'service_role')
+    with check (auth.role() = 'service_role');
+
+-- saved_search_alerts
+drop policy if exists "Saved search public insert" on saved_search_alerts;
+create policy "Saved search public insert" on saved_search_alerts
+    for insert with check (auth.role() in ('anon','authenticated','service_role'));
+
+drop policy if exists "Saved search service read" on saved_search_alerts;
+create policy "Saved search service read" on saved_search_alerts
+    for select using (auth.role() = 'service_role');
+
+drop policy if exists "Saved search service manage" on saved_search_alerts;
+create policy "Saved search service manage" on saved_search_alerts
+    for update using (auth.role() = 'service_role')
+    with check (auth.role() = 'service_role');
 
 -- Storage: rescue-media (rescue-scoped) and public-assets (user-scoped)
 drop policy if exists "Public read rescue-media" on storage.objects;

@@ -6,6 +6,39 @@
 
 	const statusOptions = data.statusOptions;
 	const templateErrors = (form?.errors ?? {}) as Record<string, string[]>;
+	const responseTime = data.rescue?.response_time_text ?? '1-2 days';
+	const animalName = data.inquiry.animals?.name ?? 'this pet';
+	const adopterName = data.inquiry.adopter_name.split(' ')[0] || data.inquiry.adopter_name;
+
+	const suggestions = [
+		{
+			key: 'confirm',
+			title: 'Confirm receipt',
+			subject: `Thanks for your inquiry about ${animalName}`,
+			body: `Hi ${adopterName},\n\nThanks for reaching out about ${animalName}. We got your note and will reply within ${responseTime}. If there's anything else you'd like us to know, just hit reply here.\n\n-${data.rescue?.name ?? 'Our rescue'} team`
+		},
+		{
+			key: 'more_info',
+			title: 'Request more info',
+			subject: `A few quick questions about ${animalName}`,
+			body: `Hi ${adopterName},\n\nWe want to make sure ${animalName} is a great fit. Could you share a bit more about your home (yard/apartment), other pets, and your weekly schedule? Feel free to add anything else that would help us get to know you.\n\nThank you!\n-${data.rescue?.name ?? 'Our rescue'}`
+		},
+		{
+			key: 'next_steps',
+			title: 'Next steps / meet & greet',
+			subject: `Next steps for ${animalName}`,
+			body: `Hi ${adopterName},\n\nWe'd love to keep things moving for ${animalName}. Next up: let us know your availability for a quick meet & greet, and we'll share the adoption form. We try to respond within ${responseTime} so we can keep momentum going.\n\nLooking forward to it,\n-${data.rescue?.name ?? 'Our rescue'}`
+		}
+	];
+
+	let copied: string | null = null;
+	const copySuggestion = async (text: string, key: string) => {
+		if (navigator?.clipboard) {
+			await navigator.clipboard.writeText(text);
+			copied = key;
+			setTimeout(() => (copied = null), 2000);
+		}
+	};
 </script>
 
 <div class="space-y-8">
@@ -158,6 +191,49 @@
 			</div>
 		</section>
 	</div>
+
+	<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+		<div class="flex flex-wrap items-center justify-between gap-2">
+			<h2 class="text-lg font-semibold text-slate-900">Suggested replies</h2>
+			<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Template-driven, no AI</p>
+		</div>
+		<div class="mt-4 grid gap-4">
+			{#each suggestions as suggestion}
+				<div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm">
+					<div class="flex flex-wrap items-center justify-between gap-2">
+						<div>
+							<p class="text-sm font-semibold text-slate-900">{suggestion.title}</p>
+							<p class="text-xs text-slate-500">Subject: {suggestion.subject}</p>
+						</div>
+						{#if copied === suggestion.key}
+							<span class="rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-800">Copied</span>
+						{/if}
+					</div>
+					<p class="mt-2 whitespace-pre-line text-sm text-slate-700">{suggestion.body}</p>
+					<div class="mt-3 flex flex-wrap gap-2">
+						<button
+							type="button"
+							class="rounded-md border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+							on:click={() => copySuggestion(suggestion.body, suggestion.key)}
+						>
+							Copy body
+						</button>
+						<form method="POST" action="?/sendQuickReply" class="flex items-center gap-2">
+							<input type="hidden" name="to" value={data.inquiry.adopter_email} />
+							<input type="hidden" name="subject" value={suggestion.subject} />
+							<textarea name="body" class="hidden">{suggestion.body}</textarea>
+							<button
+								type="submit"
+								class="rounded-md bg-emerald-600 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-500"
+							>
+								Send now
+							</button>
+						</form>
+					</div>
+				</div>
+			{/each}
+		</div>
+	</section>
 
 	<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 		<h2 class="text-lg font-semibold text-slate-900">Email activity</h2>

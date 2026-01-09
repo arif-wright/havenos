@@ -78,6 +78,13 @@ export const actions: Actions = {
 		const slugInput = String(form.get('slug') ?? '').trim().toLowerCase();
 		const response_time_enum = String(form.get('response_time_enum') ?? '').trim() || null;
 		const is_public = form.get('is_public') === 'on';
+		const application_required = form.get('application_required') === 'on';
+		const home_visit = form.get('home_visit') === 'on';
+		const fenced_yard_required = form.get('fenced_yard_required') === 'on';
+		const cats_ok = form.get('cats_ok') === 'on';
+		const dogs_ok = form.get('dogs_ok') === 'on';
+		const kids_ok = form.get('kids_ok') === 'on';
+		const adoption_fee_range = String(form.get('adoption_fee_range') ?? '').trim() || null;
 
 		if (!name || !contact_email) {
 			return fail(400, { serverError: 'Name and contact email are required.' });
@@ -133,7 +140,14 @@ export const actions: Actions = {
 				response_time_enum,
 				response_time_text: response_time_enum ? responseTimeLabels[response_time_enum] : null,
 				adoption_steps: adoptionSteps.length ? adoptionSteps : null,
-				is_public
+				is_public,
+				application_required,
+				home_visit,
+				fenced_yard_required,
+				cats_ok,
+				dogs_ok,
+				kids_ok,
+				adoption_fee_range
 			})
 			.eq('id', rescue.id);
 

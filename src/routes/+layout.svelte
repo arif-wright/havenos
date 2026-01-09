@@ -22,6 +22,7 @@
 				<nav class="flex items-center gap-3 text-sm font-semibold">
 					<a class="rounded-full px-3 py-2 hover:bg-white/10" href="/">Home</a>
 					<a class="rounded-full px-3 py-2 hover:bg-white/10" href="/rescues">Browse rescues</a>
+					<a class="rounded-full px-3 py-2 hover:bg-white/10" href="/saved">Saved</a>
 					<a class="rounded-full px-3 py-2 hover:bg-white/10" href="/for-rescues">For rescues</a>
 					<a class="rounded-full px-3 py-2 hover:bg-white/10" href="/support">Support</a>
 					<a class="rounded-full px-3 py-2 hover:bg-white/10" href="/partners">Partners</a>

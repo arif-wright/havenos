@@ -61,7 +61,7 @@ export const actions: Actions = {
 				adopter_email: parsed.data.adopterEmail,
 				message: parsed.data.message
 			})
-			.select('id')
+			.select('id, public_token')
 			.single();
 
 		if (insertError || !inserted) {
@@ -84,7 +84,9 @@ export const actions: Actions = {
 		return {
 			success: true,
 			emailErrors: emailResult.errors,
-			values: { adopterName: '', adopterEmail: '', message: '' }
+			values: { adopterName: '', adopterEmail: '', message: '' },
+			publicToken: inserted.public_token,
+			statusPath: `/inquiry/${inserted.public_token}`
 		};
 	}
 };

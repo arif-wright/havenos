@@ -1,5 +1,7 @@
 <script lang="ts">
 import type { ActionData, PageData } from './$types';
+import { favorites, isFavorite, toggleFavorite } from '$lib/utils/favorites';
+import { buildPetStory } from '$lib/utils/story';
 
 export let data: PageData;
 export let form: ActionData;
@@ -11,6 +13,26 @@ export let form: ActionData;
 	};
 
 	const primaryPhoto = data.animal.animal_photos?.[0]?.image_url;
+	$: saved = isFavorite($favorites, 'animal', data.animal.id);
+	$: statusLink =
+		form?.statusPath ??
+		((form as Record<string, unknown>)?.publicToken
+			? `/inquiry/${(form as Record<string, unknown>).publicToken as string}`
+			: null);
+	$: displayDescription =
+		data.animal.description ||
+		buildPetStory({
+			name: data.animal.name,
+			species: data.animal.species,
+			breed: data.animal.breed,
+			age: data.animal.age,
+			energyLevel: data.animal.energy_level,
+			personalityTraits: data.animal.personality_traits ?? [],
+			goodWith: data.animal.good_with ?? [],
+			training: data.animal.training,
+			medicalNeeds: data.animal.medical_needs,
+			idealHome: data.animal.ideal_home
+		});
 </script>
 
 <section class="border-b border-slate-200 bg-white">
@@ -42,6 +64,18 @@ export let form: ActionData;
 				>
 					{data.animal.status}
 				</span>
+				<button
+					type="button"
+					class={`flex items-center gap-1 rounded-full border px-3 py-1 text-sm font-semibold transition ${
+						saved
+							? 'border-rose-200 bg-rose-50 text-rose-700'
+							: 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50'
+					}`}
+					on:click={() => toggleFavorite('animal', data.animal.id)}
+				>
+					<span aria-hidden="true">❤</span>
+					{saved ? 'Saved' : 'Save'}
+				</button>
 			</div>
 		</div>
 	</div>
@@ -78,7 +112,7 @@ export let form: ActionData;
 		<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 			<h2 class="text-xl font-semibold text-slate-900">About {data.animal.name}</h2>
 			<p class="mt-4 whitespace-pre-line text-slate-700">
-				{data.animal.description ?? 'Description coming soon.'}
+				{displayDescription ?? 'Description coming soon.'}
 			</p>
 			<dl class="mt-6 grid gap-4 sm:grid-cols-2">
 				<div>
@@ -105,6 +139,40 @@ export let form: ActionData;
 						{/if}
 					</dd>
 				</div>
+				<div>
+					<dt class="text-xs uppercase tracking-wide text-slate-500">Energy</dt>
+					<dd class="text-base font-medium text-slate-800">{data.animal.energy_level ?? 'Ask rescue'}</dd>
+				</div>
+				<div>
+					<dt class="text-xs uppercase tracking-wide text-slate-500">Good with</dt>
+					<dd class="mt-1 flex flex-wrap gap-2">
+						{#if data.animal.good_with?.length}
+							{#each data.animal.good_with as tag}
+								<span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">{tag}</span>
+							{/each}
+						{:else}
+							<span class="text-sm text-slate-500">Ask rescue</span>
+						{/if}
+					</dd>
+				</div>
+				{#if data.animal.training}
+					<div class="sm:col-span-2">
+						<dt class="text-xs uppercase tracking-wide text-slate-500">Training</dt>
+						<dd class="text-base font-medium text-slate-800">{data.animal.training}</dd>
+					</div>
+				{/if}
+				{#if data.animal.medical_needs}
+					<div class="sm:col-span-2">
+						<dt class="text-xs uppercase tracking-wide text-slate-500">Medical notes</dt>
+						<dd class="text-base font-medium text-slate-800 whitespace-pre-line">{data.animal.medical_needs}</dd>
+					</div>
+				{/if}
+				{#if data.animal.ideal_home}
+					<div class="sm:col-span-2">
+						<dt class="text-xs uppercase tracking-wide text-slate-500">Ideal home</dt>
+						<dd class="text-base font-medium text-slate-800 whitespace-pre-line">{data.animal.ideal_home}</dd>
+					</div>
+				{/if}
 			</dl>
 		</section>
 	</div>
@@ -117,11 +185,31 @@ export let form: ActionData;
 		{/if}
 
 		{#if form?.success}
-			<div class="mt-4 rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-				Thank you! Your inquiry has been delivered. We'll email you soon.
+			<div class="mt-4 space-y-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+				<div class="flex items-center gap-2 text-emerald-800">
+					<span class="text-lg" aria-hidden="true">✔</span>
+					<p class="font-semibold">Inquiry received</p>
+				</div>
+				<p>
+					We delivered your note to {data.animal.rescues?.name}. Check your email for confirmation and follow the status link below anytime.
+				</p>
+				{#if statusLink}
+					<a
+						class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:bg-emerald-500"
+						href={statusLink}
+					>
+						View status page
+						<span aria-hidden="true">→</span>
+					</a>
+					<p class="text-[11px] text-emerald-900">Bookmark this link to follow updates.</p>
+				{/if}
+				<p class="text-xs text-emerald-900">
+					{data.animal.rescues?.adoption_process ||
+						'The rescue will review and reply with next steps. Feel free to share extra details if needed.'}
+				</p>
 				{#if form?.emailErrors?.length}
-					<p class="mt-2 text-xs text-emerald-800">
-						{form.emailErrors.join(', ')}
+					<p class="rounded-lg bg-white/70 px-3 py-2 text-[11px] text-emerald-800 ring-1 ring-emerald-100">
+						Email notes: {form.emailErrors.join(', ')}
 					</p>
 				{/if}
 			</div>

@@ -47,6 +47,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		},
 		hasDuplicate: (dupes?.length ?? 0) > 0,
 		templates: templates ?? [],
+		rescue: {
+			name: rescue.name,
+			response_time_text: rescue.response_time_text
+		},
 		statusOptions: [
 			{ value: 'new', label: 'New' },
 			{ value: 'contacted', label: 'Contacted' },
@@ -166,6 +170,37 @@ export const actions: Actions = {
 		if (insertError) {
 			console.error(insertError);
 			return fail(500, { serverError: 'Unable to add note.' });
+		}
+
+		return { success: true };
+	},
+	sendQuickReply: async ({ request, locals, params }) => {
+		const user = await locals.getUser();
+		const rescue = locals.currentRescue;
+		if (!user || !rescue) {
+			return fail(403, { serverError: 'Not authorized' });
+		}
+
+		const form = await request.formData();
+		const to = String(form.get('to') ?? '');
+		const subject = String(form.get('subject') ?? '');
+		const body = String(form.get('body') ?? '');
+
+		if (!to || !subject || !body) {
+			return fail(400, { serverError: 'Missing quick reply fields.' });
+		}
+
+		const result = await sendTemplateEmail({
+			rescueId: rescue.id,
+			inquiryId: params.id,
+			to,
+			subject,
+			body,
+			sendType: 'other'
+		});
+
+		if (result.errors.length) {
+			return fail(500, { serverError: 'Unable to send email.', emailErrors: result.errors });
 		}
 
 		return { success: true };

@@ -23,6 +23,11 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		throw error(404, 'Rescue not found');
 	}
 
+	if (!rescue.id) {
+		throw error(500, 'Rescue is missing an id');
+	}
+	const rescueId = rescue.id as string;
+
 	if (rescue.disabled && locals.currentRescue?.id !== rescue.id) {
 		throw error(404, 'Rescue not available');
 	}
@@ -44,7 +49,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 	const { data: animals, error: animalError, count } = await listPublicAnimals(
 		locals.supabase,
-		rescue.id,
+		rescueId,
 		filters,
 		{ page, pageSize }
 	);
@@ -57,7 +62,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const { data: filterRecords, error: filterError } = await locals.supabase
 		.from('animals')
 		.select('species,status')
-		.eq('rescue_id', rescue.id)
+		.eq('rescue_id', rescueId)
 		.eq('is_active', true);
 
 	if (filterError) {
@@ -71,6 +76,12 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		a.localeCompare(b)
 	);
 
+	const latestAnimalUpdated = animals?.reduce((max, a) => {
+		const t = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+		return t > max ? t : max;
+	}, 0) ?? 0;
+	const lastUpdatedAt = new Date(Math.max(new Date(rescue.updated_at ?? rescue.created_at ?? Date.now()).getTime(), latestAnimalUpdated || 0)).toISOString();
+
 	return {
 		rescue,
 		animals: animals ?? [],
@@ -80,7 +91,8 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		filters,
 		searchParams: Object.fromEntries(url.searchParams.entries()),
 		speciesOptions,
-		statusOptions
+		statusOptions,
+		lastUpdatedAt
 	};
 };
 
