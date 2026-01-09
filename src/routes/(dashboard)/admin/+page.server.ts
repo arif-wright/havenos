@@ -27,7 +27,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.from('inquiries')
 		.select('id, adopter_name, status, created_at, first_responded_at, animals(name)')
 		.eq('rescue_id', rescue.id)
-		.or('archived.eq.false,archived.is.null')
+		.neq('archived', true)
+		.is('archived_at', null)
 		.order('created_at', { ascending: false })
 		.limit(10);
 
@@ -46,7 +47,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.from('inquiries')
 		.select('id, status, created_at, first_responded_at, animals(name)')
 		.eq('rescue_id', rescue.id)
-		.or('archived.eq.false,archived.is.null');
+		.neq('archived', true)
+		.is('archived_at', null);
 
 	const recentNew = allInquiries?.filter((inq) => new Date(inq.created_at).getTime() >= recentCutoff) ?? [];
 	const noResponse =
