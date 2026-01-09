@@ -53,6 +53,7 @@ create table if not exists public.moderation_actions (
 
 create index if not exists idx_moderation_actions_rescue on public.moderation_actions (rescue_id, created_at desc);
 create index if not exists idx_moderation_actions_active on public.moderation_actions (rescue_id, action_type, expires_at, resolved) where resolved = false;
+create index if not exists idx_moderation_actions_rescue_resolved on public.moderation_actions (rescue_id, resolved, created_at desc);
 
 -- Abuse report outcomes
 alter table public.abuse_reports
@@ -60,8 +61,10 @@ alter table public.abuse_reports
     add column if not exists resolved_at timestamptz,
     add column if not exists resolved_by uuid references auth.users(id),
     add column if not exists resolution_notes text;
+create index if not exists idx_abuse_reports_status on public.abuse_reports(status, created_at desc);
 
 -- Helper to block suspended/unlisted rescues from public surfacing
+-- SECURITY: security definer with fixed search_path, returns boolean only (no data leakage)
 create or replace function public.rescue_is_blocked(p_rescue_id uuid)
 returns boolean
 security definer
@@ -283,10 +286,6 @@ select
     profile_image_url,
     header_image_url,
     verification_status,
-    verification_submitted_at,
-    verified_at,
-    enforcement_state,
-    suspended_until,
     disabled,
     is_public,
     created_at,

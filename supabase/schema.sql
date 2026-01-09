@@ -320,6 +320,7 @@ create table if not exists abuse_reports (
 
 create index if not exists idx_abuse_reports_type on abuse_reports(type, created_at desc);
 create index if not exists idx_abuse_reports_rescue on abuse_reports(rescue_id, created_at desc);
+create index if not exists idx_abuse_reports_status on abuse_reports(status, created_at desc);
 
 create table if not exists moderation_actions (
     id uuid primary key default gen_random_uuid(),
@@ -340,8 +341,10 @@ create table if not exists moderation_actions (
 
 create index if not exists idx_moderation_actions_rescue on moderation_actions(rescue_id, created_at desc);
 create index if not exists idx_moderation_actions_active on moderation_actions(rescue_id, action_type, expires_at, resolved) where resolved = false;
+create index if not exists idx_moderation_actions_rescue_resolved on moderation_actions(rescue_id, resolved, created_at desc);
 
--- Helper to check whether a rescue is blocked/unlisted by moderation
+-- Helper to check whether a rescue is blocked/unlisted by moderation.
+-- SECURITY: security definer with search_path fixed; returns only a boolean and cannot leak row contents.
 create or replace function rescue_is_blocked(p_rescue_id uuid)
 returns boolean
 security definer
@@ -464,10 +467,6 @@ select
     profile_image_url,
     header_image_url,
     verification_status,
-    verification_submitted_at,
-    verified_at,
-    enforcement_state,
-    suspended_until,
     disabled,
     is_public,
     created_at,

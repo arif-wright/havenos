@@ -8,8 +8,8 @@
 	<div class="space-y-3 rounded-2xl bg-slate-900/30 p-5 ring-1 ring-white/10">
 		<h2 class="text-xl font-semibold">Verification badges</h2>
 		<ul class="space-y-2 text-sm text-slate-200/80">
-			<li><span class="font-semibold text-white">Unverified:</span> Rescue has not completed verification yet.</li>
-			<li><span class="font-semibold text-white">Verified:</span> Rescue identity and online presence confirmed by RescueOS.</li>
+			<li><span class="font-semibold text-white">Not yet verified:</span> Rescue is active on RescueOS; verification is pending or in progress.</li>
+			<li><span class="font-semibold text-white">Verified:</span> Rescue identity and public presence confirmed by RescueOS.</li>
 			<li><span class="font-semibold text-white">501(c)(3) verified:</span> Nonprofit status validated via EIN/IRS check.</li>
 		</ul>
 		<p class="text-xs text-emerald-200">Badges are granted by trust &amp; safety; rescues cannot self-assign.</p>

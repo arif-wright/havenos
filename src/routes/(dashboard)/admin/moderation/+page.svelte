@@ -5,6 +5,26 @@
 	export let form: ActionData;
 
 	let tab: 'reports' | 'verification' = 'reports';
+	let reportFilter: 'all' | 'open' | 'closed' = 'all';
+
+	const filteredReports = () =>
+		data.reports.filter((report) => {
+			const isClosed = report.status === 'closed' || report.outcome && report.outcome !== 'pending';
+			if (reportFilter === 'open') return !isClosed;
+			if (reportFilter === 'closed') return isClosed;
+			return true;
+		});
+
+	const confirmOutcome = (event: Event) => {
+		const formEl = event.currentTarget as HTMLFormElement;
+		const outcome = new FormData(formEl).get('outcome');
+		if (outcome === 'hidden' || outcome === 'suspended') {
+			const ok = confirm('Apply a hide/suspend action? This will remove the rescue/animal from public view.');
+			if (!ok) {
+				event.preventDefault();
+			}
+		}
+	};
 </script>
 
 <div class="space-y-6">
@@ -43,8 +63,22 @@
 			{#if data.reports.length === 0}
 				<p class="mt-2 text-sm text-slate-500">No reports yet.</p>
 			{:else}
+				<div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+					<span class="font-semibold text-slate-800">Filter:</span>
+					{#each ['all', 'open', 'closed'] as filter}
+						<button
+							type="button"
+							class={`rounded-full border px-3 py-1 ${
+								reportFilter === filter ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-700'
+							}`}
+							on:click={() => (reportFilter = filter)}
+						>
+							{filter}
+						</button>
+					{/each}
+				</div>
 				<div class="mt-4 divide-y divide-slate-100">
-					{#each data.reports as report}
+					{#each filteredReports() as report}
 						<div class="grid gap-2 py-3 md:grid-cols-[1.1fr,auto] md:items-center">
 							<div class="space-y-1">
 								<p class="text-sm font-semibold text-slate-900">
@@ -57,6 +91,24 @@
 									· {new Date(report.created_at).toLocaleString()}
 								</p>
 								<p class="text-sm text-slate-700 whitespace-pre-line">{report.message}</p>
+								<div class="flex flex-wrap items-center gap-2 text-xs">
+									<span
+										class={`rounded-full px-2 py-0.5 font-semibold ${
+											report.status === 'closed'
+												? 'bg-slate-100 text-slate-700 ring-1 ring-slate-200'
+												: report.status === 'triaged'
+													? 'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
+													: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
+										}`}
+									>
+										Status: {report.status}
+									</span>
+									{#if report.outcome}
+										<span class="rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-700 ring-1 ring-slate-200">
+											Outcome: {report.outcome}
+										</span>
+									{/if}
+								</div>
 								{#if report.outcome}
 									<p class="text-xs text-emerald-700">Outcome: {report.outcome}</p>
 								{/if}
@@ -64,7 +116,7 @@
 									<p class="text-xs text-slate-500">Notes: {report.resolution_notes}</p>
 								{/if}
 							</div>
-							<form method="POST" action="?/updateReport" class="flex flex-col gap-2 justify-end md:flex-row md:items-center">
+							<form method="POST" action="?/updateReport" class="flex flex-col gap-2 justify-end md:flex-row md:items-center" on:submit={confirmOutcome}>
 								<input type="hidden" name="reportId" value={report.id} />
 								<div class="flex flex-wrap gap-2">
 									<select

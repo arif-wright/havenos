@@ -148,11 +148,11 @@
 						<p class="mt-1 text-base font-semibold">{badge.label}</p>
 						<p class="mt-1 text-emerald-800">{badge.description}</p>
 						<p class="mt-2 text-xs text-emerald-800">
-							Verified by RescueOS. <a class="underline" href="/trust-safety">See what badges mean</a>.
+							Verified by RescueOS. <a class="underline" href="/trust-safety">See badge meaning</a>.
 						</p>
 					{:else}
-						<p class="mt-1 font-semibold text-emerald-900">Unverified rescue</p>
-						<p class="text-emerald-800">This rescue is operating on RescueOS but has not completed verification yet.</p>
+						<p class="mt-1 font-semibold text-emerald-900">Not yet verified</p>
+						<p class="text-emerald-800">This rescue is active on RescueOS; verification is pending or in progress.</p>
 						<p class="mt-2 text-xs text-emerald-800">
 							Reports go to the moderation queue. <a class="underline" href="/trust-safety">Learn more</a>.
 						</p>
