@@ -3,6 +3,9 @@ import { APP_BASE_URL, RESEND_API_KEY, RESEND_FROM_EMAIL } from '$env/static/pri
 import { buildAdopterInquiryTemplate, buildRescueNotificationTemplate } from './templates';
 import { replyToForRescue } from '$lib/utils/email';
 
+const DEFAULT_FROM_EMAIL = 'support@rescueos.net';
+const FROM_EMAIL = RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL;
+
 export const buildReplyToHeader = (contactEmail?: string | null) => {
 	const reply = replyToForRescue(contactEmail);
 	// Set both fields to satisfy different Resend SDK/transport expectations.
@@ -83,7 +86,7 @@ const buildUrls = (animalId: string, inquiryId: string) => {
 export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promise<DispatchResult> => {
 	const errors: string[] = [];
 
-	if (!resendClient || !RESEND_FROM_EMAIL) {
+	if (!resendClient || !FROM_EMAIL) {
 		console.warn('Resend credentials missing, skipping transactional emails');
 		return { errors: ['Resend is not configured'], skipped: true };
 	}
@@ -115,7 +118,7 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 
 	try {
 		const result = await resendClient.emails.send({
-			from: RESEND_FROM_EMAIL,
+			from: FROM_EMAIL,
 			to: payload.adopterEmail,
 			subject: adopterTemplate.subject,
 			html: adopterTemplate.html,
@@ -164,7 +167,7 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 	} else {
 		try {
 			const result = await resendClient.emails.send({
-				from: RESEND_FROM_EMAIL,
+				from: FROM_EMAIL,
 				to: payload.rescueEmail,
 				subject: rescueTemplate.subject,
 				html: rescueTemplate.html,
@@ -233,7 +236,7 @@ export const sendTemplateEmail = async ({
 	sendType = 'template',
 	rescueEmail = null
 }: TemplateSendPayload) => {
-	if (!resendClient || !RESEND_FROM_EMAIL) {
+	if (!resendClient || !FROM_EMAIL) {
 		console.warn('Resend credentials missing, skipping transactional emails');
 		return { errors: ['Resend is not configured'], skipped: true };
 	}
@@ -243,7 +246,7 @@ export const sendTemplateEmail = async ({
 
 	try {
 		const result = await resendClient.emails.send({
-			from: RESEND_FROM_EMAIL,
+			from: FROM_EMAIL,
 			to,
 			subject,
 			html: body,
