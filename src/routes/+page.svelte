@@ -1,8 +1,6 @@
 <script lang="ts">
 	import AmbientPage from '$lib/components/AmbientPage.svelte';
 
-	const signals = ['Inquiry history & notes', 'Public pages kept in sync', 'Team-ready roles', 'Email + password login'];
-
 	const adopterSteps = [
 		{ title: 'Browse rescues & pets', body: "Search trust-forward rescue pages with clear next steps." },
 		{ title: 'Send an inquiry', body: 'One form that reaches the rescue inbox—no lost DMs.' },
@@ -19,7 +17,7 @@
 <AmbientPage
 	title="A calm, reliable rescue workspace."
 	kicker="RescueOS"
-	subtitle="Model A: public trust, verified badges, reporting, and billing-ready flows for rescues and adopters."
+	subtitle="Public pages, inbox, and verification built for rescues and adopters—no buzzwords, just clear next steps."
 >
 	<div class="grid gap-8 lg:grid-cols-[1.2fr,1fr]">
 		<div class="space-y-6">
@@ -43,31 +41,31 @@
 					View sample rescue
 				</a>
 			</div>
-			<div class="flex flex-wrap gap-2">
-				{#each signals as item}
-					<span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100 shadow-sm">
-						✔ {item}
-					</span>
-				{/each}
-			</div>
-			<div class="rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
-				<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-					<div>
-						<p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">Model A</p>
-						<p class="text-lg font-semibold text-slate-900">
-							Self-serve signup, verification badges, reporting, and billing-ready tiers.
-						</p>
-						<p class="text-sm text-slate-600">Email + password auth (no magic links).</p>
-					</div>
-					<a
-						class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-emerald-500"
-						href="/auth/signup"
-					>
-						Create account
-						<span aria-hidden="true">→</span>
-					</a>
-				</div>
-			</div>
+			<ul class="grid gap-2 sm:grid-cols-2">
+				<li class="flex items-start gap-3 rounded-2xl bg-white p-4 text-sm text-slate-700 shadow ring-1 ring-slate-200">
+					<span class="mt-1 text-emerald-600">✔</span>
+					<span>Inbox with statuses, history, and templates so no inquiry gets lost.</span>
+				</li>
+				<li class="flex items-start gap-3 rounded-2xl bg-white p-4 text-sm text-slate-700 shadow ring-1 ring-slate-200">
+					<span class="mt-1 text-emerald-600">✔</span>
+					<span>Public profiles that stay in sync—no duplicate editing or stale links.</span>
+				</li>
+				<li class="flex items-start gap-3 rounded-2xl bg-white p-4 text-sm text-slate-700 shadow ring-1 ring-slate-200">
+					<span class="mt-1 text-emerald-600">✔</span>
+					<span>Verified badges and reporting guardrails to keep adopters confident.</span>
+				</li>
+				<li class="flex items-start gap-3 rounded-2xl bg-white p-4 text-sm text-slate-700 shadow ring-1 ring-slate-200">
+					<span class="mt-1 text-emerald-600">✔</span>
+					<span>Email + password login for teams—no mystery "model" needed.</span>
+				</li>
+			</ul>
+			<a
+				class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-4 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-emerald-500 sm:w-auto"
+				href="/auth/signup"
+			>
+				Create an account
+				<span aria-hidden="true">→</span>
+			</a>
 		</div>
 		<div class="relative">
 			<div class="absolute inset-0 rounded-3xl bg-white/40 blur-3xl"></div>
