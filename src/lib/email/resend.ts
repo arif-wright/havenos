@@ -4,7 +4,10 @@ import { buildAdopterInquiryTemplate, buildRescueNotificationTemplate } from './
 import { replyToForRescue } from '$lib/utils/email';
 
 const DEFAULT_FROM_EMAIL = 'support@rescueos.net';
+const DEFAULT_FROM_NAME = 'RescueOS';
+const FROM_NAME = DEFAULT_FROM_NAME;
 const FROM_EMAIL = RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL;
+const FROM_HEADER = `${FROM_NAME} <${FROM_EMAIL}>`;
 
 export const buildReplyToHeader = (contactEmail?: string | null) => {
 	const reply = replyToForRescue(contactEmail);
@@ -118,7 +121,7 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 
 	try {
 		const result = await resendClient.emails.send({
-			from: FROM_EMAIL,
+			from: FROM_HEADER,
 			to: payload.adopterEmail,
 			subject: adopterTemplate.subject,
 			html: adopterTemplate.html,
@@ -167,7 +170,7 @@ export const dispatchInquiryEmails = async (payload: InquiryEmailPayload): Promi
 	} else {
 		try {
 			const result = await resendClient.emails.send({
-				from: FROM_EMAIL,
+				from: FROM_HEADER,
 				to: payload.rescueEmail,
 				subject: rescueTemplate.subject,
 				html: rescueTemplate.html,
@@ -246,7 +249,7 @@ export const sendTemplateEmail = async ({
 
 	try {
 		const result = await resendClient.emails.send({
-			from: FROM_EMAIL,
+			from: FROM_HEADER,
 			to,
 			subject,
 			html: body,
